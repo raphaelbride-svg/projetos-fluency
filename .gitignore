@@ -1,0 +1,5 @@
+
+# AI scaffolding ignore
+data/
+logs/
+secrets.env
