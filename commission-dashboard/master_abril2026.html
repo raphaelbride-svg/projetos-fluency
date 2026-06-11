@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comissões · Master · Abril 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#3b82f6;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--purple:#7B5CF6;--magenta:#E91E8C;
+--g50:#f4f3f8;--g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g600:#4b5563;--g900:#1a1540;
+--r:12px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)}
+body{font-family:Inter,system-ui,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{font-weight:700}
+.user-info{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--g600)}
+.role-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--g900);color:#fff}
+.badge-preview{background:var(--magenta);color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.filter-bar{background:#efe9fb;border-bottom:1px solid #d6c8f5;padding:9px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.filter-bar label{font-size:.82rem;font-weight:600;color:var(--purple)}
+.f-select{padding:6px 12px;border:1px solid #c4b3ee;border-radius:8px;font-size:.82rem;background:#fff}
+main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
+.section{margin-bottom:40px}
+.section-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--g200)}
+.cards-5{display:grid;gap:16px;grid-template-columns:repeat(5,1fr)}
+@media(max-width:1200px){.cards-5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.cards-5{grid-template-columns:1fr 1fr}}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px 24px}
+.card .label{font-size:.68rem;font-weight:700;color:var(--g400);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.card .value{font-size:1.75rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.card .sub{font-size:.75rem;color:var(--g400);margin-top:8px;line-height:1.4}
+.card.purple{background:var(--purple);color:#fff}.card.purple .label,.card.purple .sub{color:rgba(255,255,255,.7)}
+.card.yellow{background:#b45309;color:#fff}.card.yellow .label,.card.yellow .sub{color:rgba(255,255,255,.7)}
+.card.green-d{background:#15803d;color:#fff}.card.green-d .label,.card.green-d .sub{color:rgba(255,255,255,.7)}
+.card.red-d{background:#991b1b;color:#fff}.card.red-d .label,.card.red-d .sub{color:rgba(255,255,255,.7)}
+.card.accent{background:var(--g900);color:#fff}.card.accent .label,.card.accent .sub{color:rgba(255,255,255,.6)}
+.info-box{background:#efe9fb;border:1px solid #d6c8f5;border-radius:10px;padding:14px 18px;font-size:.82rem;color:#4c2f9e;margin-bottom:28px;line-height:1.6}
+.payroll-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.pm-item{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:16px 18px;text-align:center}
+.pm-item .pm-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--g400);margin-bottom:8px}
+.pm-item .pm-val{font-size:1.4rem;font-weight:800}
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:24px 28px}
+.chart-title{font-size:.9rem;font-weight:700;margin-bottom:4px}.chart-sub{font-size:.75rem;color:var(--g400);margin-bottom:20px}
+.tbl-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-card table{width:100%;border-collapse:collapse;font-size:.83rem}
+.tbl-card thead th{background:var(--g50);padding:11px 18px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);border-bottom:1px solid var(--g200);white-space:nowrap}
+.tbl-card thead th.num{text-align:right}
+.tbl-card tbody tr{border-bottom:1px solid var(--g100)}
+.tbl-card tbody td{padding:13px 18px;vertical-align:middle}
+.tbl-card tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl-card tbody tr.total-row{background:var(--g900);color:#fff;font-weight:700}.tbl-card tbody tr.total-row td{color:#fff}
+.group-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
+.gt-fabio{background:#dbeafe;color:#1e40af}.gt-tacyana{background:#ede4fd;color:#5b21a8}.gt-vanessa{background:#dcfce7;color:#14532d}
+.gt-tl{background:#fce7f3;color:#9d174d}.gt-assist{background:#ffedd5;color:#9a3412}.gt-coord{background:#f1f5f9;color:#334155}
+.drill-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:var(--sh)}
+.drill-body{display:none;margin-top:16px}.drill-open .drill-body{display:block}
+.grp-hdr td{background:var(--g900);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px}
+.grp-hdr td.num{text-align:right}
+.badge-mult{display:inline-flex;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:700}
+.m-red{background:#fee2e2;color:#b91c1c}.m-yellow{background:#fef9c3;color:#92400e}.m-green{background:#dcfce7;color:#166534}
+.m-blue{background:#dbeafe;color:#1d4ed8}.m-purple{background:#ede9fe;color:#6d28d9}.m-gray{background:var(--g100);color:var(--g400)}
+</style></head><body>
+<header><span class="brand">Fluency · Comissões</span>
+<div class="user-info"><span class="role-badge">MASTER</span><span class="badge-preview">APURAÇÃO REVISADA</span><span>raphael.bride@fluencyacademy.io</span></div></header>
+<div class="filter-bar"><label>Visão:</label><select class="f-select" disabled><option>Todos — Master</option></select>
+<label>Competência:</label><select class="f-select" disabled><option>Abril 2026</option></select>
+<label>Pagamento:</label><select class="f-select" disabled><option>Maio 2026</option></select></div>
+<main>
+<div style="margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--g200)">
+<h1 style="font-size:1.4rem;font-weight:800;letter-spacing:-.02em">Comissionamento Abril 2026 — Visão Master</h1>
+<p style="font-size:.85rem;color:var(--g400);margin-top:6px">Regras "Comissionamento B2C" (validadas 03/06/26) · GBV pós-churn por forma de pagamento · hierarquia vendedor→líder→coordenador</p></div>
+<div class="info-box"><strong>Fonte:</strong> GBV pós-churn por vendedor e forma de pagamento (obt_conversions / snapshot comissao_historica). Comissão por modelo: Analistas (GBV×taxa 10/4/1,3 × mult), Assistentes (OTE R$4.000 × mult), TL Tacyana (3/1/0,5), TL Vanessa (4/1,5/0,5), Coordenador Fabio (OTE R$21.600 ponderado por canal).</div>
+<div class="section"><div class="section-title">KPIs · Abril 2026</div><div class="cards-5">
+<div class="card purple"><div class="label">Comissões (vlr final)</div><div class="value">R$ 251.200</div><div class="sub">Soma de todos os grupos</div></div>
+<div class="card yellow"><div class="label">DSR (Maio 2026)</div><div class="value">R$ 48.308</div><div class="sub">Fator 19.23% · 5 dom / 26 úteis</div></div>
+<div class="card green-d"><div class="label">FGTS (8%)</div><div class="value">R$ 23.961</div><div class="sub">(Comissão + DSR) × 8%</div></div>
+<div class="card red-d"><div class="label">Custo Total Folha</div><div class="value">R$ 323.468</div><div class="sub">Com + DSR + FGTS</div></div>
+<div class="card accent"><div class="label">Carga sobre comissão</div><div class="value">+28.8%</div><div class="sub">DSR + FGTS sobre vlr final</div></div></div></div>
+<div class="section"><div class="section-title">Parâmetros de folha · Maio 2026 (mês de pagamento)</div>
+<div class="payroll-meta">
+<div class="pm-item"><div class="pm-label">Competência</div><div class="pm-val">Abril 2026</div></div>
+<div class="pm-item"><div class="pm-label">Pagamento</div><div class="pm-val">Maio 2026</div></div>
+<div class="pm-item"><div class="pm-label">Domingos</div><div class="pm-val">5</div></div>
+<div class="pm-item"><div class="pm-label">Dias úteis</div><div class="pm-val">26</div></div></div>
+<div class="chart-card"><div class="chart-title">Custo de folha por grupo</div><div class="chart-sub">Comissão + DSR + FGTS</div>
+<div style="position:relative;height:340px"><canvas id="c-imp"></canvas></div></div></div>
+<div class="section"><div class="section-title">Breakdown por grupo</div><div class="tbl-card"><table>
+<thead><tr><th>Grupo</th><th class="num">Comissão Final</th><th class="num">% Total</th><th class="num">DSR</th><th class="num">FGTS</th><th class="num">Custo Total</th></tr></thead>
+<tbody id="bk"></tbody></table></div></div>
+<div class="section"><div class="two-col">
+<div class="chart-card"><div class="chart-title">Distribuição por grupo</div><div class="chart-sub">% sobre R$ 251.200</div><div style="position:relative;height:300px"><canvas id="c-donut"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Composição do custo</div><div class="chart-sub">Comissão + DSR + FGTS</div><div style="position:relative;height:300px"><canvas id="c-comp"></canvas></div></div></div></div>
+<div class="section"><div class="section-title">Coordenação · Fabio Dias · OTE R$ 21.600 ponderado por canal</div>
+<div class="tbl-card"><table><thead><tr><th>Canal</th><th class="num">GBV pós-churn</th><th class="num">Meta</th><th class="num">Atingimento</th><th style="text-align:center">Mult</th><th class="num">OTE canal</th><th class="num">Comissão</th></tr></thead><tbody id="cn"></tbody></table></div>
+<p style="font-size:.72rem;color:var(--g400);margin-top:8px">Metas de canal: padrão da planilha (Esteiras 7,96M · Renovação 1,6M · NINA 200k). Esteiras = time Tacyana + diretos Fabio; Renovação = time Vanessa; NINA = tracking .bot.</p></div>
+<div class="section" id="sd"><div class="section-title">Drilldown · Todos os colaboradores · Abril 2026</div>
+<button class="drill-toggle" onclick="document.getElementById('sd').classList.toggle('drill-open')">▼ Expandir / recolher colaboradores</button>
+<div class="drill-body"><div class="tbl-card" style="overflow-x:auto"><table style="min-width:980px">
+<thead><tr><th>#</th><th>Colaborador</th><th>Grupo</th><th>Cargo</th><th class="num">GBV pós-churn</th><th class="num">Meta</th><th class="num">Ating.</th><th style="text-align:center">Mult</th><th class="num">Comissão</th><th class="num">DSR</th><th class="num">FGTS</th><th class="num">Custo</th></tr></thead>
+<tbody id="dr"></tbody></table></div></div></div>
+</main>
+<script>
+const BRL=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
+const GROUPS=[{"grp": "COORDENAÇÃO", "label": "Coordenação", "tag": "gt-coord", "total": 13824}, {"grp": "FABIO DIRETOS", "label": "Fabio Diretos", "tag": "gt-fabio", "total": 76846}, {"grp": "TACYANA TL", "label": "TL Tacyana", "tag": "gt-tl", "total": 14127}, {"grp": "TACYANA ANALISTAS", "label": "Tacyana · Analistas", "tag": "gt-tacyana", "total": 85968}, {"grp": "TACYANA ASSISTENTES", "label": "Tacyana · Assistentes", "tag": "gt-assist", "total": 13200}, {"grp": "VANESSA TL", "label": "TL Vanessa", "tag": "gt-tl", "total": 13018}, {"grp": "VANESSA ANALISTAS", "label": "Vanessa · Analistas", "tag": "gt-vanessa", "total": 34217}], COLABS=[{"grp": "COORDENAÇÃO", "tag": "gt-coord", "glabel": "Coordenação", "nome": "Fabio Dias", "cargo": "Coordenador Comercial", "gbv": null, "meta": null, "ating": null, "mult": null, "vlr": 13824}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Fernanda Lins", "cargo": "Vendedor", "gbv": 160974, "meta": 150500, "ating": 1.0696, "mult": 1.0, "vlr": 5551}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Jeferson Avelar", "cargo": "Vendedor", "gbv": 558426, "meta": 430000, "ating": 1.2987, "mult": 1.2, "vlr": 20415}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Jullian Santos", "cargo": "Vendedor", "gbv": 431046, "meta": 430000, "ating": 1.0024, "mult": 1.0, "vlr": 14346}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Marcela Pilato", "cargo": "Vendedor", "gbv": 544488, "meta": 430000, "ating": 1.2663, "mult": 1.2, "vlr": 21999}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Matheus Fernandes", "cargo": "Vendedor", "gbv": 398226, "meta": 430000, "ating": 0.9261, "mult": 0.8, "vlr": 10158}, {"grp": "FABIO DIRETOS", "tag": "gt-fabio", "glabel": "Fabio Diretos", "nome": "Samanta Freitas", "cargo": "Vendedor", "gbv": 288684, "meta": 387000, "ating": 0.746, "mult": 0.5, "vlr": 4378}, {"grp": "TACYANA TL", "tag": "gt-tl", "glabel": "TL Tacyana", "nome": "Tacyana Bueno", "cargo": "Team Leader", "gbv": 2877414, "meta": 3210000, "ating": 0.8964, "mult": 0.6, "vlr": 14127}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Amanda Conceição", "cargo": "Vendedor", "gbv": 311916, "meta": 430000, "ating": 0.7254, "mult": 0.5, "vlr": 5003}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Bruna Santos", "cargo": "Vendedor", "gbv": 351564, "meta": 430000, "ating": 0.8176, "mult": 0.8, "vlr": 9245}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Everton Biridun", "cargo": "Vendedor", "gbv": 588960, "meta": 430000, "ating": 1.3697, "mult": 1.2, "vlr": 23609}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Jennifer Maia", "cargo": "Vendedor", "gbv": 1728, "meta": 430000, "ating": 0.004, "mult": 0.5, "vlr": 22}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Larissa Ceccon", "cargo": "Vendedor", "gbv": 520218, "meta": 430000, "ating": 1.2098, "mult": 1.2, "vlr": 20300}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Rafael Delarosa", "cargo": "Vendedor", "gbv": 559578, "meta": 430000, "ating": 1.3013, "mult": 1.2, "vlr": 23137}, {"grp": "TACYANA ANALISTAS", "tag": "gt-tacyana", "glabel": "Tacyana · Analistas", "nome": "Yan Santos", "cargo": "Vendedor", "gbv": 262524, "meta": 430000, "ating": 0.6105, "mult": 0.5, "vlr": 4653}, {"grp": "TACYANA ASSISTENTES", "tag": "gt-assist", "glabel": "Tacyana · Assistentes", "nome": "Eduardo Ferreira", "cargo": "Assistente Comercial", "gbv": 111396, "meta": 100000, "ating": 1.114, "mult": 1.2, "vlr": 4800}, {"grp": "TACYANA ASSISTENTES", "tag": "gt-assist", "glabel": "Tacyana · Assistentes", "nome": "Erick Andrade", "cargo": "Assistente Comercial", "gbv": 28704, "meta": null, "ating": null, "mult": 0.3, "vlr": 1200}, {"grp": "TACYANA ASSISTENTES", "tag": "gt-assist", "glabel": "Tacyana · Assistentes", "nome": "Isabelly Oliveira", "cargo": "Assistente Comercial", "gbv": 17478, "meta": null, "ating": null, "mult": 0.3, "vlr": 1200}, {"grp": "TACYANA ASSISTENTES", "tag": "gt-assist", "glabel": "Tacyana · Assistentes", "nome": "Jussimar Martins", "cargo": "Assistente Comercial", "gbv": 3888, "meta": null, "ating": null, "mult": 0.3, "vlr": 1200}, {"grp": "TACYANA ASSISTENTES", "tag": "gt-assist", "glabel": "Tacyana · Assistentes", "nome": "Laryssa Silva", "cargo": "Assistente Comercial", "gbv": 119460, "meta": 100000, "ating": 1.1946, "mult": 1.2, "vlr": 4800}, {"grp": "VANESSA TL", "tag": "gt-tl", "glabel": "TL Vanessa", "nome": "Vanessa Lopes", "cargo": "Team Leader", "gbv": 1387910, "meta": 1560000, "ating": 0.8897, "mult": 0.8, "vlr": 13018}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Ana Deluchi", "cargo": "Vendedor", "gbv": 214170, "meta": 200000, "ating": 1.0709, "mult": 1.0, "vlr": 3663}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Beatriz Guimarães", "cargo": "Vendedor", "gbv": 229740, "meta": 307500, "ating": 0.7471, "mult": 0.5, "vlr": 3743}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Elisangela Bernardo", "cargo": "Vendedor", "gbv": 82416, "meta": 130000, "ating": 0.634, "mult": 0.5, "vlr": 1342}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Gabriela Barboza", "cargo": "Vendedor", "gbv": 323906, "meta": 307500, "ating": 1.0534, "mult": 1.0, "vlr": 10995}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Solua Carneiro", "cargo": "Vendedor", "gbv": 290334, "meta": 307500, "ating": 0.9442, "mult": 0.8, "vlr": 7962}, {"grp": "VANESSA ANALISTAS", "tag": "gt-vanessa", "glabel": "Vanessa · Analistas", "nome": "Vinicius Eduardo", "cargo": "Vendedor", "gbv": 247344, "meta": 307500, "ating": 0.8044, "mult": 0.8, "vlr": 6511}], CANAIS=[{"canal": "Esteiras", "gbv": 5259258, "meta": 7960000, "ating": 66.1, "mult": 0.5, "ote": 15120, "vlr": 7560}, {"canal": "Renovacao", "gbv": 1387910, "meta": 1600000, "ating": 86.7, "mult": 0.8, "ote": 4320, "vlr": 3456}, {"canal": "Nina", "gbv": 1570230, "meta": 200000, "ating": 785.1, "mult": 1.3, "ote": 2160, "vlr": 2808}];
+const TOTAL=251200, DSRF=5/26;
+const dsr=v=>v*DSRF, fgts=v=>(v+v*DSRF)*0.08;
+const PAL=['#7B5CF6','#E91E8C','#3b82f6','#22c55e','#f59e0b','#ef4444','#14b8a6','#6366f1'];
+// breakdown
+const bk=document.getElementById('bk');
+GROUPS.forEach(g=>{const d=dsr(g.total),f=fgts(g.total),t=g.total+d+f;
+bk.innerHTML+=`<tr><td><span class="group-tag ${g.tag}">${g.label}</span></td><td class="num"><strong>${BRL(g.total)}</strong></td><td class="num">${(g.total/TOTAL*100).toFixed(1)}%</td><td class="num" style="color:#92400e">${BRL(d)}</td><td class="num" style="color:#166534">${BRL(f)}</td><td class="num"><strong>${BRL(t)}</strong></td></tr>`;});
+const tD=dsr(TOTAL),tF=fgts(TOTAL);
+bk.innerHTML+=`<tr class="total-row"><td>TOTAL GERAL</td><td class="num">${BRL(TOTAL)}</td><td class="num">100%</td><td class="num">${BRL(tD)}</td><td class="num">${BRL(tF)}</td><td class="num">${BRL(TOTAL+tD+tF)}</td></tr>`;
+// canais
+const cn=document.getElementById('cn');
+CANAIS.forEach(c=>{cn.innerHTML+=`<tr><td><strong>${c.canal}</strong></td><td class="num">${BRL(c.gbv)}</td><td class="num" style="color:var(--g600)">${BRL(c.meta)}</td><td class="num">${c.ating.toFixed(0)}%</td><td style="text-align:center"><span class="badge-mult m-blue">${c.mult.toFixed(1)}×</span></td><td class="num">${BRL(c.ote)}</td><td class="num"><strong>${BRL(c.vlr)}</strong></td></tr>`;});
+cn.innerHTML+=`<tr class="total-row"><td colspan="6">TOTAL FABIO</td><td class="num">${BRL(CANAIS.reduce((s,c)=>s+c.vlr,0))}</td></tr>`;
+// charts
+new Chart(document.getElementById('c-imp'),{type:'bar',data:{labels:GROUPS.map(g=>g.label),datasets:[
+{label:'Comissão',data:GROUPS.map(g=>g.total),backgroundColor:'#7B5CF6',borderRadius:4},
+{label:'DSR',data:GROUPS.map(g=>dsr(g.total)),backgroundColor:'#f59e0b',borderRadius:4},
+{label:'FGTS',data:GROUPS.map(g=>fgts(g.total)),backgroundColor:'#22c55e',borderRadius:4}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+new Chart(document.getElementById('c-donut'),{type:'doughnut',data:{labels:GROUPS.map(g=>g.label),datasets:[{data:GROUPS.map(g=>g.total),backgroundColor:PAL,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}},cutout:'62%'}});
+new Chart(document.getElementById('c-comp'),{type:'doughnut',data:{labels:['Comissão','DSR','FGTS'],datasets:[{data:[TOTAL,tD,tF],backgroundColor:['#7B5CF6','#f59e0b','#22c55e'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'62%'}});
+// drilldown
+const ORD=["COORDENAÇÃO", "FABIO DIRETOS", "TACYANA TL", "TACYANA ANALISTAS", "TACYANA ASSISTENTES", "VANESSA TL", "VANESSA ANALISTAS"];
+function multBadge(m){if(m==null)return '<span class="badge-mult m-gray">—</span>';const l=m.toFixed(1).replace('.',',')+'×';
+if(m>=1.3)return `<span class="badge-mult m-purple">${l}</span>`;if(m>=1.2)return `<span class="badge-mult m-blue">${l}</span>`;
+if(m>=1.0)return `<span class="badge-mult m-green">${l}</span>`;if(m>=0.6)return `<span class="badge-mult m-yellow">${l}</span>`;
+return `<span class="badge-mult m-red">${l}</span>`;}
+function atTxt(a){if(a==null)return '<span style="color:var(--g400)">—</span>';const c=a>=0.95?'#22c55e':a>=0.80?'#f59e0b':'#ef4444';return `<span style="color:${c};font-weight:600">${(a*100).toFixed(0)}%</span>`;}
+const dr=document.getElementById('dr');let cur=null,i=0;
+COLABS.sort((a,b)=>ORD.indexOf(a.grp)-ORD.indexOf(b.grp)||b.vlr-a.vlr).forEach(c=>{
+if(c.grp!==cur){cur=c.grp;const gt=GROUPS.find(g=>g.grp===c.grp)||{total:c.vlr};
+dr.innerHTML+=`<tr class="grp-hdr"><td colspan="8">${c.glabel}</td><td class="num">${BRL(gt.total)}</td><td class="num">${BRL(dsr(gt.total))}</td><td class="num">${BRL(fgts(gt.total))}</td><td class="num">${BRL(gt.total+dsr(gt.total)+fgts(gt.total))}</td></tr>`;}
+i++;const d=dsr(c.vlr),f=fgts(c.vlr);
+dr.innerHTML+=`<tr><td style="color:var(--g400);font-size:.75rem">${i}</td><td><strong>${c.nome}</strong></td><td><span class="group-tag ${c.tag}">${c.glabel}</span></td><td style="font-size:.78rem;color:var(--g600)">${c.cargo}</td><td class="num">${c.gbv==null?'—':BRL(c.gbv)}</td><td class="num" style="color:var(--g600)">${c.meta==null?'—':BRL(c.meta)}</td><td class="num">${atTxt(c.ating)}</td><td style="text-align:center">${multBadge(c.mult)}</td><td class="num"><strong>${BRL(c.vlr)}</strong></td><td class="num" style="color:#92400e">${BRL(d)}</td><td class="num" style="color:#166534">${BRL(f)}</td><td class="num"><strong>${BRL(c.vlr+d+f)}</strong></td></tr>`;});
+</script></body></html>

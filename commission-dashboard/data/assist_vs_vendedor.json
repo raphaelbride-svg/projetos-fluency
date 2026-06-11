@@ -1,0 +1,2316 @@
+{
+ "mes": "2026-05",
+ "mes_label": "Maio 2026",
+ "dsr_fact": 0.2,
+ "fonte": "Comissão = comissao_historica (Maio, reapurado). Folha = Supabase payroll_details. Impacto = DSR 20% + INSS + FGTS (taxa efetiva por pessoa).",
+ "grupos": {
+  "vendedor": {
+   "grupo": "Vendedor",
+   "n": 19,
+   "n_com_venda": 19,
+   "gbv": 6552888.0,
+   "folha": 117408.0,
+   "comissao": 188280.93,
+   "custo": 425642.52,
+   "custo_ocioso": 0.0,
+   "ativacao": 1.0,
+   "roi_com": 34.8,
+   "roi_com_ativos": 34.8,
+   "com_gbv": 0.0287
+  },
+  "assistente": {
+   "grupo": "Assistente",
+   "n": 15,
+   "n_com_venda": 15,
+   "gbv": 1737133.0,
+   "folha": 35361.0,
+   "comissao": 38437.54,
+   "custo": 99424.84,
+   "custo_ocioso": 0.0,
+   "ativacao": 1.0,
+   "roi_com": 45.2,
+   "roi_com_ativos": 45.2,
+   "com_gbv": 0.0221
+  }
+ },
+ "people": [
+  {
+   "nome": "Marcela Pilato",
+   "email": "marcela.pilato@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL SENIOR I",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 465558.0,
+   "meta": 450000,
+   "ating": 1.0346,
+   "mult": 1.0,
+   "sal_cheio": 3879,
+   "sal_prorata": 3879,
+   "folha_total": 7137,
+   "comissao": 14616.4,
+   "impactos": 9744.54,
+   "impacto_dsr": 2923.28,
+   "impacto_inss": 5253.2,
+   "impacto_fgts": 1568.06,
+   "custo_total": 31497.94,
+   "cac": 31498.0,
+   "roi": 14.8,
+   "roi_com": 31.9,
+   "com_gbv": 3.14,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 3879
+    },
+    {
+     "label": "INSS patronal",
+     "val": 1162
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 347
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 431
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 14616
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2923
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5253
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1568
+    }
+   ]
+  },
+  {
+   "nome": "Jullian Santos",
+   "email": "jullian.santos@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 445002.0,
+   "meta": 450000,
+   "ating": 0.9889,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5771,
+   "comissao": 15648.49,
+   "impactos": 10432.28,
+   "impacto_dsr": 3129.7,
+   "impacto_inss": 5623.8,
+   "impacto_fgts": 1678.78,
+   "custo_total": 31851.77,
+   "cac": 31852.0,
+   "roi": 14.0,
+   "roi_com": 28.4,
+   "com_gbv": 3.52,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 15716
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 3143
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5648
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1686
+    }
+   ]
+  },
+  {
+   "nome": "Samanta Freitas",
+   "email": "samanta.freitas@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 369744.0,
+   "meta": 450000,
+   "ating": 0.8217,
+   "mult": 0.8,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 6170,
+   "comissao": 10032.31,
+   "impactos": 6687.76,
+   "impacto_dsr": 2006.46,
+   "impacto_inss": 3605.23,
+   "impacto_fgts": 1076.07,
+   "custo_total": 22890.07,
+   "cac": 22890.0,
+   "roi": 16.2,
+   "roi_com": 36.9,
+   "com_gbv": 2.71,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 879
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 10032
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2006
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 3605
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1076
+    }
+   ]
+  },
+  {
+   "nome": "Erick",
+   "email": "erick@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 358134.0,
+   "meta": 247500,
+   "ating": 1.447,
+   "mult": 1.3,
+   "sal_cheio": 1950,
+   "sal_prorata": 1950,
+   "folha_total": 2925,
+   "comissao": 7524.43,
+   "impactos": 5016.77,
+   "impacto_dsr": 1504.89,
+   "impacto_inss": 2704.45,
+   "impacto_fgts": 807.43,
+   "custo_total": 15466.2,
+   "cac": 15466.0,
+   "roi": 23.2,
+   "roi_com": 47.6,
+   "com_gbv": 2.1,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1950
+    },
+    {
+     "label": "INSS patronal",
+     "val": 584
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 174
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 217
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 5200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 1040
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1869
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 558
+    }
+   ]
+  },
+  {
+   "nome": "Isabelly Oliveira",
+   "email": "isabelly.oliveira@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 233304.0,
+   "meta": 247500,
+   "ating": 0.9426,
+   "mult": 1.0,
+   "sal_cheio": 1950,
+   "sal_prorata": 1950,
+   "folha_total": 2946,
+   "comissao": 3770.57,
+   "impactos": 2514.02,
+   "impacto_dsr": 754.11,
+   "impacto_inss": 1355.52,
+   "impacto_fgts": 404.39,
+   "custo_total": 9230.59,
+   "cac": 9231.0,
+   "roi": 25.3,
+   "roi_com": 61.9,
+   "com_gbv": 1.62,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1950
+    },
+    {
+     "label": "INSS patronal",
+     "val": 584
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 174
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 217
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 21
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 4000
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 800
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1438
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 429
+    }
+   ]
+  },
+  {
+   "nome": "Flavia Santos",
+   "email": "flavia.santos@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 35604.0,
+   "meta": 247500,
+   "ating": 0.4451,
+   "mult": 0.3,
+   "sal_cheio": 2200,
+   "sal_prorata": 923,
+   "folha_total": 1384,
+   "comissao": 534.06,
+   "impactos": 356.04,
+   "impacto_dsr": 106.81,
+   "impacto_inss": 191.82,
+   "impacto_fgts": 57.41,
+   "custo_total": 2274.1,
+   "cac": 2274.0,
+   "roi": 15.7,
+   "roi_com": 66.7,
+   "com_gbv": 1.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 923
+    },
+    {
+     "label": "INSS patronal",
+     "val": 276
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 82
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 103
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Daiana Felix",
+   "email": "daiana.felix@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 18924.0,
+   "meta": 247500,
+   "ating": 0.2366,
+   "mult": 0.3,
+   "sal_cheio": 2200,
+   "sal_prorata": 923,
+   "folha_total": 1384,
+   "comissao": 283.86,
+   "impactos": 189.23,
+   "impacto_dsr": 56.77,
+   "impacto_inss": 101.95,
+   "impacto_fgts": 30.51,
+   "custo_total": 1857.09,
+   "cac": 1857.0,
+   "roi": 10.2,
+   "roi_com": 66.7,
+   "com_gbv": 1.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 923
+    },
+    {
+     "label": "INSS patronal",
+     "val": 276
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 82
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 103
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Lorraine Santos",
+   "email": "lorraine.santos@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Giants",
+   "gbv": 5292.0,
+   "meta": 247500,
+   "ating": 0.0662,
+   "mult": 0.3,
+   "sal_cheio": 2200,
+   "sal_prorata": 923,
+   "folha_total": 1384,
+   "comissao": 79.38,
+   "impactos": 52.92,
+   "impacto_dsr": 15.88,
+   "impacto_inss": 28.51,
+   "impacto_fgts": 8.53,
+   "custo_total": 1516.3,
+   "cac": 1516.0,
+   "roi": 3.5,
+   "roi_com": 66.7,
+   "com_gbv": 1.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 923
+    },
+    {
+     "label": "INSS patronal",
+     "val": 276
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 82
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 103
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Everton Biridun",
+   "email": "everton.biridun@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO I",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 479808.0,
+   "meta": 450000,
+   "ating": 1.0662,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5823,
+   "comissao": 15652.37,
+   "impactos": 10434.8,
+   "impacto_dsr": 3130.47,
+   "impacto_inss": 5625.25,
+   "impacto_fgts": 1679.08,
+   "custo_total": 31910.17,
+   "cac": 31910.0,
+   "roi": 15.0,
+   "roi_com": 30.7,
+   "com_gbv": 3.26,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 532
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 15652
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 3130
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5625
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1679
+    }
+   ]
+  },
+  {
+   "nome": "Larissa Ceccon",
+   "email": "larissa.ceccon@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 460153.0,
+   "meta": 450000,
+   "ating": 1.0226,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5823,
+   "comissao": 15382.52,
+   "impactos": 10254.12,
+   "impacto_dsr": 3076.5,
+   "impacto_inss": 5527.71,
+   "impacto_fgts": 1649.91,
+   "custo_total": 31459.64,
+   "cac": 31460.0,
+   "roi": 14.6,
+   "roi_com": 29.9,
+   "com_gbv": 3.34,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 532
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 15383
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 3077
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5528
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1650
+    }
+   ]
+  },
+  {
+   "nome": "Rafael Delarosa",
+   "email": "rafael.delarosa@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 449946.0,
+   "meta": 450000,
+   "ating": 0.9999,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5823,
+   "comissao": 14978.7,
+   "impactos": 9985.52,
+   "impacto_dsr": 2995.74,
+   "impacto_inss": 5382.83,
+   "impacto_fgts": 1606.95,
+   "custo_total": 30787.22,
+   "cac": 30787.0,
+   "roi": 14.6,
+   "roi_com": 30.0,
+   "com_gbv": 3.33,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 532
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 14979
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2996
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5383
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1607
+    }
+   ]
+  },
+  {
+   "nome": "Jennifer Maia",
+   "email": "jennifer.maia@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 277201.0,
+   "meta": 450000,
+   "ating": 0.616,
+   "mult": 0.5,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5771,
+   "comissao": 4746.36,
+   "impactos": 3164.52,
+   "impacto_dsr": 949.27,
+   "impacto_inss": 1706.19,
+   "impacto_fgts": 509.06,
+   "custo_total": 13681.88,
+   "cac": 13682.0,
+   "roi": 20.3,
+   "roi_com": 58.4,
+   "com_gbv": 1.71,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 4746
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 949
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1706
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 509
+    }
+   ]
+  },
+  {
+   "nome": "Bruna Santos",
+   "email": "bruna.santos@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 249073.0,
+   "meta": 450000,
+   "ating": 0.5535,
+   "mult": 0.5,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 6880,
+   "comissao": 4332.7,
+   "impactos": 2888.24,
+   "impacto_dsr": 866.54,
+   "impacto_inss": 1556.77,
+   "impacto_fgts": 464.93,
+   "custo_total": 14100.94,
+   "cac": 14101.0,
+   "roi": 17.7,
+   "roi_com": 57.5,
+   "com_gbv": 1.74,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 1589
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 4333
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 867
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1557
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 465
+    }
+   ]
+  },
+  {
+   "nome": "Yan Santos",
+   "email": "yan.santos@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL JUNIOR",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 235195.0,
+   "meta": 450000,
+   "ating": 0.5227,
+   "mult": 0.5,
+   "sal_cheio": 2292,
+   "sal_prorata": 2292,
+   "folha_total": 5341,
+   "comissao": 4058.16,
+   "impactos": 2704.55,
+   "impacto_dsr": 811.63,
+   "impacto_inss": 1457.94,
+   "impacto_fgts": 434.98,
+   "custo_total": 12103.71,
+   "cac": 12104.0,
+   "roi": 19.4,
+   "roi_com": 58.0,
+   "com_gbv": 1.73,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2292
+    },
+    {
+     "label": "INSS patronal",
+     "val": 686
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 205
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 255
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 1065
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 4058
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 812
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1458
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 435
+    }
+   ]
+  },
+  {
+   "nome": "Matheus Fernandes",
+   "email": "matheus.fernandes@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL JUNIOR",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 316200.0,
+   "meta": 450000,
+   "ating": 0.7027,
+   "mult": 0.5,
+   "sal_cheio": 2292,
+   "sal_prorata": 2292,
+   "folha_total": 4756,
+   "comissao": 5194.82,
+   "impactos": 3462.87,
+   "impacto_dsr": 1038.96,
+   "impacto_inss": 1866.93,
+   "impacto_fgts": 556.98,
+   "custo_total": 13413.69,
+   "cac": 13414.0,
+   "roi": 23.6,
+   "roi_com": 60.9,
+   "com_gbv": 1.64,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2292
+    },
+    {
+     "label": "INSS patronal",
+     "val": 686
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 205
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 255
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 5195
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 1039
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1867
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 557
+    }
+   ]
+  },
+  {
+   "nome": "Eduardo",
+   "email": "eduardo@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 299353.0,
+   "meta": 247500,
+   "ating": 1.2095,
+   "mult": 1.3,
+   "sal_cheio": 1950,
+   "sal_prorata": 1950,
+   "folha_total": 3405,
+   "comissao": 6289.44,
+   "impactos": 4192.96,
+   "impacto_dsr": 1257.89,
+   "impacto_inss": 2260.27,
+   "impacto_fgts": 674.8,
+   "custo_total": 13887.4,
+   "cac": 13887.0,
+   "roi": 21.6,
+   "roi_com": 47.6,
+   "com_gbv": 2.1,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1950
+    },
+    {
+     "label": "INSS patronal",
+     "val": 584
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 174
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 217
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 4800
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 960
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1725
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 515
+    }
+   ]
+  },
+  {
+   "nome": "Laryssa Silva",
+   "email": "laryssa.silva@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 178920.0,
+   "meta": 247500,
+   "ating": 0.7229,
+   "mult": 0.5,
+   "sal_cheio": 1950,
+   "sal_prorata": 1950,
+   "folha_total": 3312,
+   "comissao": 1445.82,
+   "impactos": 964.36,
+   "impacto_dsr": 289.16,
+   "impacto_inss": 519.77,
+   "impacto_fgts": 155.43,
+   "custo_total": 5722.18,
+   "cac": 5722.0,
+   "roi": 31.3,
+   "roi_com": 123.7,
+   "com_gbv": 0.81,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1950
+    },
+    {
+     "label": "INSS patronal",
+     "val": 584
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 174
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 217
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 387
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 2000
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 400
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 719
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 215
+    }
+   ]
+  },
+  {
+   "nome": "Jussimar",
+   "email": "jussimar@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Outliers",
+   "gbv": 140340.0,
+   "meta": 247500,
+   "ating": 0.567,
+   "mult": 0.3,
+   "sal_cheio": 1950,
+   "sal_prorata": 1950,
+   "folha_total": 2925,
+   "comissao": 680.44,
+   "impactos": 453.63,
+   "impacto_dsr": 136.09,
+   "impacto_inss": 244.39,
+   "impacto_fgts": 73.15,
+   "custo_total": 4059.07,
+   "cac": 4059.0,
+   "roi": 34.6,
+   "roi_com": 206.2,
+   "com_gbv": 0.48,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1950
+    },
+    {
+     "label": "INSS patronal",
+     "val": 584
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 174
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 217
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Fernanda Lins",
+   "email": "fernanda.lins@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 489037.0,
+   "meta": 450000,
+   "ating": 1.0867,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 6303,
+   "comissao": 15290.07,
+   "impactos": 10193.98,
+   "impacto_dsr": 3058.01,
+   "impacto_inss": 5495.65,
+   "impacto_fgts": 1640.32,
+   "custo_total": 31787.05,
+   "cac": 31787.0,
+   "roi": 15.4,
+   "roi_com": 32.0,
+   "com_gbv": 3.13,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 1012
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 15511
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 3102
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5575
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1664
+    }
+   ]
+  },
+  {
+   "nome": "Jeferson Avelar",
+   "email": "jeferson.avelar@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO I",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 459642.0,
+   "meta": 450000,
+   "ating": 1.0214,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 6170,
+   "comissao": 14177.3,
+   "impactos": 9451.76,
+   "impacto_dsr": 2835.46,
+   "impacto_inss": 5095.23,
+   "impacto_fgts": 1521.07,
+   "custo_total": 29799.06,
+   "cac": 29799.0,
+   "roi": 15.4,
+   "roi_com": 32.4,
+   "com_gbv": 3.08,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 879
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 14177
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2835
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 5095
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1521
+    }
+   ]
+  },
+  {
+   "nome": "Amanda Conceicao",
+   "email": "amanda.conceicao@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL JUNIOR",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 314245.0,
+   "meta": 450000,
+   "ating": 0.6983,
+   "mult": 0.5,
+   "sal_cheio": 2292,
+   "sal_prorata": 2292,
+   "folha_total": 5156,
+   "comissao": 4840.47,
+   "impactos": 3226.64,
+   "impacto_dsr": 968.09,
+   "impacto_inss": 1739.57,
+   "impacto_fgts": 518.98,
+   "custo_total": 13223.11,
+   "cac": 13223.0,
+   "roi": 23.8,
+   "roi_com": 64.9,
+   "com_gbv": 1.54,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2292
+    },
+    {
+     "label": "INSS patronal",
+     "val": 686
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 205
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 255
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 879
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 4850
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 970
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1743
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 520
+    }
+   ]
+  },
+  {
+   "nome": "Andre Carvalho",
+   "email": "andre.carvalho@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 85776.0,
+   "meta": 247500,
+   "ating": 1.0722,
+   "mult": 1.0,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 4288.8,
+   "impactos": 2859.2,
+   "impacto_dsr": 857.76,
+   "impacto_inss": 1540.39,
+   "impacto_fgts": 461.05,
+   "custo_total": 9277.0,
+   "cac": 9277.0,
+   "roi": 9.2,
+   "roi_com": 20.0,
+   "com_gbv": 5.0,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Davi Oliveira",
+   "email": "davi.oliveira@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 86256.0,
+   "meta": 247500,
+   "ating": 1.0782,
+   "mult": 1.0,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2922,
+   "comissao": 4312.8,
+   "impactos": 2875.2,
+   "impacto_dsr": 862.56,
+   "impacto_inss": 1549.01,
+   "impacto_fgts": 463.63,
+   "custo_total": 10110.0,
+   "cac": 10110.0,
+   "roi": 8.5,
+   "roi_com": 20.0,
+   "com_gbv": 5.0,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 570
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 224
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Patricia Ferreira",
+   "email": "patricia.ferreira@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 64704.0,
+   "meta": 247500,
+   "ating": 0.8088,
+   "mult": 0.7,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 2264.64,
+   "impactos": 1509.76,
+   "impacto_dsr": 452.93,
+   "impacto_inss": 813.38,
+   "impacto_fgts": 243.45,
+   "custo_total": 5903.4,
+   "cac": 5903.0,
+   "roi": 11.0,
+   "roi_com": 28.6,
+   "com_gbv": 3.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Dayane Oliveira",
+   "email": "dayane.oliveira@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 82518.0,
+   "meta": 247500,
+   "ating": 1.0315,
+   "mult": 1.0,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 4125.9,
+   "impactos": 2750.6,
+   "impacto_dsr": 825.18,
+   "impacto_inss": 1481.89,
+   "impacto_fgts": 443.53,
+   "custo_total": 9005.5,
+   "cac": 9006.0,
+   "roi": 9.2,
+   "roi_com": 20.0,
+   "com_gbv": 5.0,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Samara Freitas",
+   "email": "samara.freitas@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 61728.0,
+   "meta": 247500,
+   "ating": 0.7716,
+   "mult": 0.5,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 1543.2,
+   "impactos": 1028.8,
+   "impacto_dsr": 308.64,
+   "impacto_inss": 554.27,
+   "impacto_fgts": 165.89,
+   "custo_total": 4701.0,
+   "cac": 4701.0,
+   "roi": 13.1,
+   "roi_com": 40.0,
+   "com_gbv": 2.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Belkis Castelan",
+   "email": "belkis.castelan@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 44664.0,
+   "meta": 247500,
+   "ating": 0.5583,
+   "mult": 0.3,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 669.96,
+   "impactos": 446.64,
+   "impacto_dsr": 133.99,
+   "impacto_inss": 240.63,
+   "impacto_fgts": 72.02,
+   "custo_total": 3245.6,
+   "cac": 3246.0,
+   "roi": 13.8,
+   "roi_com": 66.7,
+   "com_gbv": 1.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Heloisa Cazal",
+   "email": "heloisa.cazal@fluencyacademy.io",
+   "grupo": "Assistente",
+   "job": "ASSISTENTE COMERCIAL",
+   "rel": "CLT",
+   "time": "Breakers",
+   "gbv": 41616.0,
+   "meta": 247500,
+   "ating": 0.5202,
+   "mult": 0.3,
+   "sal_cheio": 2200,
+   "sal_prorata": 1419,
+   "folha_total": 2129,
+   "comissao": 624.24,
+   "impactos": 416.17,
+   "impacto_dsr": 124.85,
+   "impacto_inss": 224.21,
+   "impacto_fgts": 67.11,
+   "custo_total": 3169.41,
+   "cac": 3169.0,
+   "roi": 13.1,
+   "roi_com": 66.7,
+   "com_gbv": 1.5,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 1419
+    },
+    {
+     "label": "INSS patronal",
+     "val": 425
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 127
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 158
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 0
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 0
+    },
+    {
+     "label": "Comissão",
+     "val": 1200
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 240
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 431
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 129
+    }
+   ]
+  },
+  {
+   "nome": "Solua Carneiro",
+   "email": "solua.carneiro@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO II",
+   "rel": "PJ",
+   "time": "RNV",
+   "gbv": 346008.0,
+   "meta": 320000,
+   "ating": 1.0813,
+   "mult": 1.0,
+   "sal_cheio": 2994,
+   "sal_prorata": 2994,
+   "folha_total": 4464,
+   "comissao": 11924.51,
+   "impactos": 2384.9,
+   "impacto_dsr": 2384.9,
+   "impacto_inss": 0.0,
+   "impacto_fgts": 0.0,
+   "custo_total": 18773.41,
+   "cac": 18773.0,
+   "roi": 18.4,
+   "roi_com": 29.0,
+   "com_gbv": 3.45,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2994
+    },
+    {
+     "label": "INSS patronal",
+     "val": 0
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 0
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 0
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 661
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 810
+    },
+    {
+     "label": "Comissão",
+     "val": 11925
+    },
+    {
+     "label": "DSR s/ comissão (20%) (PJ: n/a)",
+     "val": 0
+    },
+    {
+     "label": "INSS s/ comissão (0.0%) (PJ: n/a)",
+     "val": 0
+    },
+    {
+     "label": "FGTS s/ comissão (0.0%) (PJ: n/a)",
+     "val": 0
+    }
+   ]
+  },
+  {
+   "nome": "Beatriz Guimaraes",
+   "email": "beatriz.guimaraes@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "RNV",
+   "gbv": 100860.0,
+   "meta": 80000,
+   "ating": 1.2608,
+   "mult": 1.2,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5823,
+   "comissao": 4407.23,
+   "impactos": 2938.71,
+   "impacto_dsr": 881.45,
+   "impacto_inss": 1584.2,
+   "impacto_fgts": 473.06,
+   "custo_total": 13168.94,
+   "cac": 13169.0,
+   "roi": 7.7,
+   "roi_com": 22.9,
+   "com_gbv": 4.37,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 532
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 4407
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 881
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1584
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 473
+    }
+   ]
+  },
+  {
+   "nome": "Elisangela Bernardo",
+   "email": "elisangela.bernardo@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL SENIOR I",
+   "rel": "CLT",
+   "time": "RNV",
+   "gbv": 353400.0,
+   "meta": 320000,
+   "ating": 1.1044,
+   "mult": 1.0,
+   "sal_cheio": 3666,
+   "sal_prorata": 3666,
+   "folha_total": 7128,
+   "comissao": 11519.77,
+   "impactos": 7679.84,
+   "impacto_dsr": 2303.95,
+   "impacto_inss": 4139.92,
+   "impacto_fgts": 1235.97,
+   "custo_total": 26327.61,
+   "cac": 26328.0,
+   "roi": 13.4,
+   "roi_com": 30.7,
+   "com_gbv": 3.26,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 3666
+    },
+    {
+     "label": "INSS patronal",
+     "val": 1098
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 328
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 407
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 790
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 11520
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2304
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 4140
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1236
+    }
+   ]
+  },
+  {
+   "nome": "Gabriela Barboza",
+   "email": "gabriela.barboza@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO",
+   "rel": "CLT",
+   "time": "RNV",
+   "gbv": 335904.0,
+   "meta": 320000,
+   "ating": 1.0497,
+   "mult": 1.0,
+   "sal_cheio": 2968,
+   "sal_prorata": 2968,
+   "folha_total": 5823,
+   "comissao": 11522.13,
+   "impactos": 7681.65,
+   "impacto_dsr": 2304.43,
+   "impacto_inss": 4141.17,
+   "impacto_fgts": 1236.05,
+   "custo_total": 25026.78,
+   "cac": 25027.0,
+   "roi": 13.4,
+   "roi_com": 29.2,
+   "com_gbv": 3.43,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2968
+    },
+    {
+     "label": "INSS patronal",
+     "val": 889
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 265
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 330
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 532
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 11522
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 2304
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 4141
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 1236
+    }
+   ]
+  },
+  {
+   "nome": "Ana Deluchi",
+   "email": "ana.deluchi@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL JUNIOR",
+   "rel": "CLT",
+   "time": "RNV",
+   "gbv": 286992.0,
+   "meta": 200000,
+   "ating": 1.435,
+   "mult": 1.2,
+   "sal_cheio": 2292,
+   "sal_prorata": 2292,
+   "folha_total": 5682,
+   "comissao": 6602.56,
+   "impactos": 4401.15,
+   "impacto_dsr": 1320.51,
+   "impacto_inss": 2372.72,
+   "impacto_fgts": 707.92,
+   "custo_total": 16685.71,
+   "cac": 16686.0,
+   "roi": 17.2,
+   "roi_com": 43.5,
+   "com_gbv": 2.3,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2292
+    },
+    {
+     "label": "INSS patronal",
+     "val": 686
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 205
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 255
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 1405
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 839
+    },
+    {
+     "label": "Comissão",
+     "val": 6603
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 1321
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 2373
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 708
+    }
+   ]
+  },
+  {
+   "nome": "Vinicius Eduardo",
+   "email": "vinicius.eduardo@fluencyacademy.io",
+   "grupo": "Vendedor",
+   "job": "ANALISTA COMERCIAL PLENO I",
+   "rel": "CLT",
+   "time": "RNV",
+   "gbv": 118920.0,
+   "meta": 144000,
+   "ating": 0.8258,
+   "mult": 0.8,
+   "sal_cheio": 2908,
+   "sal_prorata": 2908,
+   "folha_total": 11564,
+   "comissao": 3354.06,
+   "impactos": 2235.76,
+   "impacto_dsr": 670.81,
+   "impacto_inss": 1204.96,
+   "impacto_fgts": 359.99,
+   "custo_total": 17153.82,
+   "cac": 17154.0,
+   "roi": 6.9,
+   "roi_com": 35.5,
+   "com_gbv": 2.82,
+   "breakdown": [
+    {
+     "label": "Salário (pró-rata do mês)",
+     "val": 2908
+    },
+    {
+     "label": "INSS patronal",
+     "val": 871
+    },
+    {
+     "label": "FGTS s/ salário",
+     "val": 260
+    },
+    {
+     "label": "Provisões (férias/13º)",
+     "val": 323
+    },
+    {
+     "label": "Plano de saúde",
+     "val": 480
+    },
+    {
+     "label": "Outros benefícios",
+     "val": 6723
+    },
+    {
+     "label": "Comissão",
+     "val": 3354
+    },
+    {
+     "label": "DSR s/ comissão (20%)",
+     "val": 671
+    },
+    {
+     "label": "INSS s/ comissão (29.9%)",
+     "val": 1205
+    },
+    {
+     "label": "FGTS s/ comissão (8.9%)",
+     "val": 360
+    }
+   ]
+  }
+ ]
+}

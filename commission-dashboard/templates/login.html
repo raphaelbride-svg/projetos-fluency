@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comissões · Fluency</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:48px 40px;width:360px;text-align:center}
+.logo{font-size:1.5rem;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.logo span{color:#3b82f6}
+p{font-size:.9rem;color:#6b7280;margin-bottom:32px;line-height:1.5}
+.g-signin-wrap{display:flex;justify-content:center}
+.error{margin-top:16px;font-size:.8rem;color:#ef4444;display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Fluency<span>.</span></div>
+  <p>Dashboard de Comissões<br>Acesse com sua conta <strong>@fluencyacademy.io</strong></p>
+  <div class="g-signin-wrap">
+    <div id="g_id_onload"
+         data-client_id="{{ client_id }}"
+         data-callback="handleCredential"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with"
+         data-shape="rectangular"
+         data-locale="pt-BR">
+    </div>
+  </div>
+  <div class="error" id="error-msg"></div>
+</div>
+
+<script>
+function handleCredential(response) {
+  fetch('/auth/google', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({credential: response.credential})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      const next = new URLSearchParams(location.search).get('next');
+      window.location.href = next && next.startsWith('/') ? next : '/dashboard';
+    } else {
+      const el = document.getElementById('error-msg');
+      el.textContent = data.error || 'Acesso negado. Use sua conta @fluencyacademy.io.';
+      el.style.display = 'block';
+    }
+  })
+  .catch(() => {
+    const el = document.getElementById('error-msg');
+    el.textContent = 'Erro ao autenticar. Tente novamente.';
+    el.style.display = 'block';
+  });
+}
+</script>
+</body>
+</html>

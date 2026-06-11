@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Visão TL — {{ name }}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f9fafb;min-height:100vh;padding:32px 40px;color:#111827}
+.page-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid #e5e7eb}
+.logo{font-size:1.1rem;font-weight:800;letter-spacing:-.5px;color:#111827}
+.logo span{color:#3b82f6}
+.header-info{flex:1}
+.header-info h1{font-size:1.25rem;font-weight:700;color:#111827}
+.header-info p{font-size:.8rem;color:#6b7280;margin-top:2px}
+.badge{font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.06em;background:#6366f1;color:#fff}
+.badge-preview{background:#f59e0b;color:#fff;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.06em;margin-left:8px}
+.section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f3f4f6}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px}
+.kpi-card{background:#fff;border-radius:12px;padding:20px 20px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.kpi-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin-bottom:8px}
+.kpi-value{font-size:1.5rem;font-weight:800;color:#111827;line-height:1}
+.kpi-sub{font-size:.72rem;color:#6b7280;margin-top:6px}
+.progress-wrap{margin-top:8px}
+.progress-bar-bg{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:999px;background:#3b82f6;transition:width .4s}
+.tier-badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.t-03{background:#fee2e2;color:#b91c1c}
+.t-05{background:#fef3c7;color:#92400e}
+.t-10{background:#dbeafe;color:#1d4ed8}
+.t-12{background:#d1fae5;color:#065f46}
+.t-13{background:#ede9fe;color:#5b21b6}
+.t-15{background:#ecfdf5;color:#047857}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+thead th{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;padding:12px 16px;text-align:left;background:#f9fafb;border-bottom:1px solid #f3f4f6}
+thead th:not(:first-child){text-align:right}
+tbody tr{border-bottom:1px solid #f9fafb;transition:background .15s}
+tbody tr:hover{background:#f9fafb}
+tbody tr.is-tl{background:#eff6ff}
+tbody td{padding:12px 16px;font-size:.82rem;color:#374151}
+tbody td:not(:first-child){text-align:right}
+.rank-num{font-weight:700;color:#9ca3af;font-size:.8rem}
+.name-cell{font-weight:600;color:#111827}
+.tl-tag{font-size:.6rem;font-weight:700;background:#6366f1;color:#fff;padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.bar-cell{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.mini-bar-bg{width:64px;height:5px;background:#e5e7eb;border-radius:999px;overflow:hidden;flex-shrink:0}
+.mini-bar-fill{height:100%;border-radius:999px}
+.section-wrap{margin-bottom:32px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo">Fluency<span>.</span></div>
+  <div class="header-info">
+    <h1>{{ name }} <span class="badge">TL</span><span class="badge-preview">PREVIEW</span></h1>
+    <p>{{ email }} &nbsp;·&nbsp; {{ mes_label }}</p>
+  </div>
+</div>
+
+<div class="section-wrap">
+  <div class="section-title">Resumo Individual</div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+</div>
+
+<div class="section-wrap">
+  <div class="section-title">Ranking da Equipe</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th style="text-align:left">Colaborador</th>
+        <th>GBV Líquido</th>
+        <th>Atingimento</th>
+        <th>Tier</th>
+        <th>Comissão Final</th>
+      </tr>
+    </thead>
+    <tbody id="ranking-tbody"></tbody>
+  </table>
+</div>
+
+<script>
+const SUMMARY    = {{ summary | tojson }};
+const VALOR_META = {{ valor_meta | tojson }};
+const RANKING    = {{ ranking | tojson }};
+
+function fmtMoney(v){
+  const n=Math.abs(Number(v)),s=Number(v)<0?'-':'';
+  if(n>=1e9)return s+(n/1e9).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' BI';
+  if(n>=1e6)return s+(n/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' M';
+  if(n>=1e3)return s+(n/1e3).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' K';
+  return s+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+const R=v=>'R$ '+fmtMoney(v);
+const P=v=>(Number(v)*100).toFixed(1)+'%';
+
+function tierClass(m){
+  if(m>=1.5)return 't-15';
+  if(m>=1.3)return 't-13';
+  if(m>=1.2)return 't-12';
+  if(m>=1.0)return 't-10';
+  if(m>=0.5)return 't-05';
+  return 't-03';
+}
+function tierLabel(m){
+  if(m>=1.5)return '1,5×';
+  if(m>=1.3)return '1,3×';
+  if(m>=1.2)return '1,2×';
+  if(m>=1.0)return '1,0×';
+  if(m>=0.5)return '0,5×';
+  return '0,3×';
+}
+
+// KPI cards
+const gbv      = SUMMARY.gbv_liquido    || 0;
+const meta     = VALOR_META             || 0;
+const ating    = SUMMARY.atingimento_meta || 0;
+const mult     = SUMMARY.multiplicador  || 0;
+const comissao = SUMMARY.vlr_final_comissao || 0;
+
+const cards = [
+  { label:'GBV Líquido', value: R(gbv), sub: meta ? 'Meta: '+R(meta) : '' },
+  { label:'Meta', value: R(meta), sub: '' },
+  {
+    label:'Atingimento',
+    value: P(ating),
+    sub: '',
+    progress: Math.min(ating, 1.5),
+    progressColor: ating >= 0.98 ? '#22c55e' : ating >= 0.75 ? '#3b82f6' : '#f59e0b'
+  },
+  { label:'Multiplicador (Tier)', value: tierLabel(mult), sub: P(ating)+' da meta', tierClass: tierClass(mult) },
+  { label:'Comissão Final', value: R(comissao), sub: 'Base: '+R(SUMMARY.total_comissao||0) },
+];
+
+const grid = document.getElementById('kpi-grid');
+cards.forEach(c=>{
+  const el=document.createElement('div');
+  el.className='kpi-card';
+  let inner=`<div class="kpi-label">${c.label}</div>`;
+  if(c.tierClass){
+    inner+=`<div class="kpi-value"><span class="tier-badge ${c.tierClass}">${c.value}</span></div>`;
+  } else {
+    inner+=`<div class="kpi-value">${c.value}</div>`;
+  }
+  if(c.progress!=null){
+    const pct=Math.min(c.progress/1.5*100,100).toFixed(1);
+    inner+=`<div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%;background:${c.progressColor}"></div></div></div>`;
+  }
+  if(c.sub) inner+=`<div class="kpi-sub">${c.sub}</div>`;
+  el.innerHTML=inner;
+  grid.appendChild(el);
+});
+
+// Ranking table
+const tbody = document.getElementById('ranking-tbody');
+RANKING.forEach(r=>{
+  const isTL=r.is_tl;
+  const pct=Math.min(r.atingimento_meta/1.5*100,100).toFixed(1);
+  const barColor=r.atingimento_meta>=0.98?'#22c55e':r.atingimento_meta>=0.75?'#3b82f6':'#f59e0b';
+  const tr=document.createElement('tr');
+  if(isTL)tr.className='is-tl';
+  tr.innerHTML=`
+    <td class="rank-num">${r.posicao}</td>
+    <td class="name-cell">${r.name}${isTL?'<span class="tl-tag">TL</span>':''}</td>
+    <td>${R(r.gbv_liquido)}</td>
+    <td>
+      <div class="bar-cell">
+        <span>${P(r.atingimento_meta)}</span>
+        <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+    </td>
+    <td><span class="tier-badge ${tierClass(r.multiplicador)}">${tierLabel(r.multiplicador)}</span></td>
+    <td style="font-weight:700">${R(r.vlr_final_comissao)}</td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

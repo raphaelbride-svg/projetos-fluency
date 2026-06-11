@@ -1,0 +1,9 @@
+# Ambiente virtual (159M) — não versionar; recriar com pip install -r requirements.txt
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+secrets.env
+*.credentials.json

@@ -1,0 +1,137 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comissões · Master · Maio 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#3b82f6;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--purple:#7B5CF6;--magenta:#E91E8C;
+--g50:#f4f3f8;--g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g600:#4b5563;--g900:#1a1540;
+--r:12px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06)}
+body{font-family:Inter,system-ui,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{font-weight:700}
+.user-info{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--g600)}
+.role-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--g900);color:#fff}
+.badge-preview{background:var(--magenta);color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.filter-bar{background:#efe9fb;border-bottom:1px solid #d6c8f5;padding:9px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.filter-bar label{font-size:.82rem;font-weight:600;color:var(--purple)}
+.f-select{padding:6px 12px;border:1px solid #c4b3ee;border-radius:8px;font-size:.82rem;background:#fff}
+main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
+.section{margin-bottom:40px}
+.section-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--g200)}
+.cards-5{display:grid;gap:16px;grid-template-columns:repeat(5,1fr)}
+@media(max-width:1200px){.cards-5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){.cards-5{grid-template-columns:1fr 1fr}}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px 24px}
+.card .label{font-size:.68rem;font-weight:700;color:var(--g400);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.card .value{font-size:1.75rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.card .sub{font-size:.75rem;color:var(--g400);margin-top:8px;line-height:1.4}
+.card.purple{background:var(--purple);color:#fff}.card.purple .label,.card.purple .sub{color:rgba(255,255,255,.7)}
+.card.yellow{background:#b45309;color:#fff}.card.yellow .label,.card.yellow .sub{color:rgba(255,255,255,.7)}
+.card.green-d{background:#15803d;color:#fff}.card.green-d .label,.card.green-d .sub{color:rgba(255,255,255,.7)}
+.card.red-d{background:#991b1b;color:#fff}.card.red-d .label,.card.red-d .sub{color:rgba(255,255,255,.7)}
+.card.accent{background:var(--g900);color:#fff}.card.accent .label,.card.accent .sub{color:rgba(255,255,255,.6)}
+.info-box{background:#efe9fb;border:1px solid #d6c8f5;border-radius:10px;padding:14px 18px;font-size:.82rem;color:#4c2f9e;margin-bottom:28px;line-height:1.6}
+.payroll-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.pm-item{background:#fff;border-radius:10px;box-shadow:var(--sh);padding:16px 18px;text-align:center}
+.pm-item .pm-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--g400);margin-bottom:8px}
+.pm-item .pm-val{font-size:1.4rem;font-weight:800}
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:24px 28px}
+.chart-title{font-size:.9rem;font-weight:700;margin-bottom:4px}.chart-sub{font-size:.75rem;color:var(--g400);margin-bottom:20px}
+.tbl-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-card table{width:100%;border-collapse:collapse;font-size:.83rem}
+.tbl-card thead th{background:var(--g50);padding:11px 18px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);border-bottom:1px solid var(--g200);white-space:nowrap}
+.tbl-card thead th.num{text-align:right}
+.tbl-card tbody tr{border-bottom:1px solid var(--g100)}
+.tbl-card tbody td{padding:13px 18px;vertical-align:middle}
+.tbl-card tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl-card tbody tr.total-row{background:var(--g900);color:#fff;font-weight:700}.tbl-card tbody tr.total-row td{color:#fff}
+.group-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
+.gt-fabio{background:#dbeafe;color:#1e40af}.gt-tacyana{background:#ede4fd;color:#5b21a8}.gt-vanessa{background:#dcfce7;color:#14532d}
+.gt-tl{background:#fce7f3;color:#9d174d}.gt-assist{background:#ffedd5;color:#9a3412}.gt-coord{background:#f1f5f9;color:#334155}
+.drill-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.82rem;font-weight:600;cursor:pointer;box-shadow:var(--sh)}
+.drill-body{display:none;margin-top:16px}.drill-open .drill-body{display:block}
+.grp-hdr td{background:var(--g900);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px}
+.grp-hdr td.num{text-align:right}
+.badge-mult{display:inline-flex;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:700}
+.m-red{background:#fee2e2;color:#b91c1c}.m-yellow{background:#fef9c3;color:#92400e}.m-green{background:#dcfce7;color:#166534}
+.m-blue{background:#dbeafe;color:#1d4ed8}.m-purple{background:#ede9fe;color:#6d28d9}.m-gray{background:var(--g100);color:var(--g400)}
+</style></head><body>
+<header><span class="brand">Fluency · Comissões</span>
+<div class="user-info"><span class="role-badge">MASTER</span><span class="badge-preview">APURAÇÃO REVISADA</span><span>raphael.bride@fluencyacademy.io</span></div></header>
+<div class="filter-bar"><label>Visão:</label><select class="f-select" disabled><option>Todos — Master</option></select>
+<label>Competência:</label><select class="f-select" disabled><option>Maio 2026</option></select>
+<label>Pagamento:</label><select class="f-select" disabled><option>Junho 2026</option></select></div>
+<main>
+<div style="margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--g200)">
+<h1 style="font-size:1.4rem;font-weight:800;letter-spacing:-.02em">Comissionamento Maio 2026 — Visão Master</h1>
+<p style="font-size:.85rem;color:var(--g400);margin-top:6px">Regras "Comissionamento B2C" (validadas 03/06/26) · GBV pós-churn por forma de pagamento · hierarquia vendedor→líder→coordenador</p></div>
+<div class="info-box"><strong>Fonte:</strong> GBV pós-churn por vendedor e forma de pagamento (obt_conversions / snapshot comissao_historica). Comissão por modelo: Analistas (GBV×taxa 10/4/1,3 × mult), Assistentes (OTE R$4.000 × mult), TL Tacyana (3/1/0,5), TL Vanessa (4/1,5/0,5), Coordenador Fabio (OTE R$21.600 ponderado por canal).</div>
+<div class="section"><div class="section-title">KPIs · Maio 2026</div><div class="cards-5">
+<div class="card purple"><div class="label">Comissões (vlr final)</div><div class="value">R$ 263.910</div><div class="sub">Soma de todos os grupos</div></div>
+<div class="card yellow"><div class="label">DSR (Junho 2026)</div><div class="value">R$ 40.602</div><div class="sub">Fator 15.38% · 4 dom / 26 úteis</div></div>
+<div class="card green-d"><div class="label">FGTS (8%)</div><div class="value">R$ 24.361</div><div class="sub">(Comissão + DSR) × 8%</div></div>
+<div class="card red-d"><div class="label">Custo Total Folha</div><div class="value">R$ 328.873</div><div class="sub">Com + DSR + FGTS</div></div>
+<div class="card accent"><div class="label">Carga sobre comissão</div><div class="value">+24.6%</div><div class="sub">DSR + FGTS sobre vlr final</div></div></div></div>
+<div class="section"><div class="section-title">Parâmetros de folha · Junho 2026 (mês de pagamento)</div>
+<div class="payroll-meta">
+<div class="pm-item"><div class="pm-label">Competência</div><div class="pm-val">Maio 2026</div></div>
+<div class="pm-item"><div class="pm-label">Pagamento</div><div class="pm-val">Junho 2026</div></div>
+<div class="pm-item"><div class="pm-label">Domingos</div><div class="pm-val">4</div></div>
+<div class="pm-item"><div class="pm-label">Dias úteis</div><div class="pm-val">26</div></div></div>
+<div class="chart-card"><div class="chart-title">Custo de folha por grupo</div><div class="chart-sub">Comissão + DSR + FGTS</div>
+<div style="position:relative;height:340px"><canvas id="c-imp"></canvas></div></div></div>
+<div class="section"><div class="section-title">Breakdown por grupo</div><div class="tbl-card"><table>
+<thead><tr><th>Grupo</th><th class="num">Comissão Final</th><th class="num">% Total</th><th class="num">DSR</th><th class="num">FGTS</th><th class="num">Custo Total</th></tr></thead>
+<tbody id="bk"></tbody></table></div></div>
+<div class="section"><div class="two-col">
+<div class="chart-card"><div class="chart-title">Distribuição por grupo</div><div class="chart-sub">% sobre R$ 263.910</div><div style="position:relative;height:300px"><canvas id="c-donut"></canvas></div></div>
+<div class="chart-card"><div class="chart-title">Composição do custo</div><div class="chart-sub">Comissão + DSR + FGTS</div><div style="position:relative;height:300px"><canvas id="c-comp"></canvas></div></div></div></div>
+<div class="section"><div class="section-title">Coordenação · Fabio Dias · OTE R$ 21.600 ponderado por canal</div>
+<div class="tbl-card"><table><thead><tr><th>Canal</th><th class="num">GBV pós-churn</th><th class="num">Meta</th><th class="num">Atingimento</th><th style="text-align:center">Mult</th><th class="num">OTE canal</th><th class="num">Comissão</th></tr></thead><tbody id="cn"></tbody></table></div>
+<p style="font-size:.72rem;color:var(--g400);margin-top:8px">Metas de canal: padrão da planilha (Esteiras 7,96M · Renovação 1,6M · NINA 200k). Esteiras = time Tacyana + diretos Fabio; Renovação = time Vanessa; NINA = tracking .bot.</p></div>
+<div class="section" id="sd"><div class="section-title">Drilldown · Todos os colaboradores · Maio 2026</div>
+<button class="drill-toggle" onclick="document.getElementById('sd').classList.toggle('drill-open')">▼ Expandir / recolher colaboradores</button>
+<div class="drill-body"><div class="tbl-card" style="overflow-x:auto"><table style="min-width:980px">
+<thead><tr><th>#</th><th>Colaborador</th><th>Grupo</th><th>Cargo</th><th class="num">GBV pós-churn</th><th class="num">Meta</th><th class="num">Ating.</th><th style="text-align:center">Mult</th><th class="num">Comissão</th><th class="num">DSR</th><th class="num">FGTS</th><th class="num">Custo</th></tr></thead>
+<tbody id="dr"></tbody></table></div></div></div>
+</main>
+<script>
+const BRL=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
+const GROUPS=[{"grp": "COORDENAÇÃO", "label": "Coordenação", "tag": "gt-coord", "total": 14688}, {"grp": "GIANTS", "label": "Giants · direto Fabio", "tag": "gt-fabio", "total": 53164}, {"grp": "OUTLIERS TL", "label": "TL Tacyana", "tag": "gt-tl", "total": 11042}, {"grp": "OUTLIERS", "label": "Outliers · Tacyana", "tag": "gt-tacyana", "total": 72346}, {"grp": "BREAKERS TL", "label": "TL Ana (novo)", "tag": "gt-tl", "total": 2100}, {"grp": "BREAKERS", "label": "Breakers · Ana", "tag": "gt-assist", "total": 42939}, {"grp": "RNV TL", "label": "TL Vanessa", "tag": "gt-tl", "total": 18301}, {"grp": "RNV", "label": "RNV+Cobrança · Vanessa", "tag": "gt-vanessa", "total": 49330}], COLABS=[{"grp": "COORDENAÇÃO", "tag": "gt-coord", "glabel": "Coordenação", "nome": "Fabio Dias", "cargo": "Coordenador Comercial", "gbv": null, "meta": null, "ating": null, "mult": null, "vlr": 14688}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Marcela Pilato", "cargo": "Vendedor", "gbv": 465558, "meta": 450000, "ating": 1.0346, "mult": 1.0, "vlr": 14616}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Jullian Santos", "cargo": "Vendedor", "gbv": 446682, "meta": 450000, "ating": 0.9926, "mult": 1.0, "vlr": 15716}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Samanta Freitas", "cargo": "Vendedor", "gbv": 369744, "meta": 450000, "ating": 0.8217, "mult": 0.8, "vlr": 10032}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Erick Andrade", "cargo": "Assistente", "gbv": 358854, "meta": 247500, "ating": 1.4499, "mult": 1.3, "vlr": 5200}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Isabelly Oliveira", "cargo": "Assistente", "gbv": 233304, "meta": 247500, "ating": 0.9426, "mult": 1.0, "vlr": 4000}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Flavia Santos", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Daiana Felix", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "GIANTS", "tag": "gt-fabio", "glabel": "Giants · direto Fabio", "nome": "Lorraine Santos", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "OUTLIERS TL", "tag": "gt-tl", "glabel": "TL Tacyana", "nome": "Tacyana Bueno", "cargo": "TL % (3/1/0,5)", "gbv": 3086189, "meta": 3892500, "ating": 0.7929, "mult": 0.4, "vlr": 11042}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Everton Biridun", "cargo": "Vendedor", "gbv": 479808, "meta": 450000, "ating": 1.0662, "mult": 1.0, "vlr": 15652}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Larissa Ceccon", "cargo": "Vendedor", "gbv": 460153, "meta": 450000, "ating": 1.0226, "mult": 1.0, "vlr": 15383}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Rafael Delarosa", "cargo": "Vendedor", "gbv": 449946, "meta": 450000, "ating": 0.9999, "mult": 1.0, "vlr": 14979}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Jennifer Maia", "cargo": "Vendedor", "gbv": 277201, "meta": 450000, "ating": 0.616, "mult": 0.5, "vlr": 4746}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Bruna Santos", "cargo": "Vendedor", "gbv": 249073, "meta": 450000, "ating": 0.5535, "mult": 0.5, "vlr": 4333}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Yan Santos", "cargo": "Vendedor", "gbv": 235195, "meta": 450000, "ating": 0.5227, "mult": 0.5, "vlr": 4058}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Matheus Fernandes", "cargo": "Vendedor", "gbv": 316200, "meta": 450000, "ating": 0.7027, "mult": 0.5, "vlr": 5195}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Eduardo Ferreira", "cargo": "Assistente", "gbv": 299353, "meta": 247500, "ating": 1.2095, "mult": 1.2, "vlr": 4800}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Laryssa Silva", "cargo": "Assistente", "gbv": 178920, "meta": 247500, "ating": 0.7229, "mult": 0.5, "vlr": 2000}, {"grp": "OUTLIERS", "tag": "gt-tacyana", "glabel": "Outliers · Tacyana", "nome": "Jussimar Martins", "cargo": "Assistente", "gbv": 140340, "meta": 247500, "ating": 0.567, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS TL", "tag": "gt-tl", "glabel": "TL Ana (novo)", "nome": "Ana Pamplona", "cargo": "TL Novo I (OTE 7.000)", "gbv": 1269980, "meta": 3082500, "ating": 0.412, "mult": 0.3, "vlr": 2100}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Fernanda Lins", "cargo": "Vendedor", "gbv": 494569, "meta": 450000, "ating": 1.099, "mult": 1.0, "vlr": 15511}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Jeferson Avelar", "cargo": "Vendedor", "gbv": 459642, "meta": 450000, "ating": 1.0214, "mult": 1.0, "vlr": 14177}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Amanda Conceição", "cargo": "Vendedor", "gbv": 315769, "meta": 450000, "ating": 0.7017, "mult": 0.5, "vlr": 4850}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Andre Carvalho", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Davi Oliveira", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Patricia Cenci", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Dayane Oliveira", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Samara Freitas", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Belkis Castelan", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "BREAKERS", "tag": "gt-assist", "glabel": "Breakers · Ana", "nome": "Heloisa Cazal", "cargo": "Assistente", "gbv": 0, "meta": 247500, "ating": 0.0, "mult": 0.3, "vlr": 1200}, {"grp": "RNV TL", "tag": "gt-tl", "glabel": "TL Vanessa", "nome": "Vanessa Lopes", "cargo": "TL % (4/1,5/0,5)", "gbv": 1542084, "meta": 1384000, "ating": 1.1142, "mult": 1.0, "vlr": 18301}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Solua Carneiro", "cargo": "Vendedor", "gbv": 346008, "meta": 320000, "ating": 1.0813, "mult": 1.0, "vlr": 11925}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Beatriz Guimarães", "cargo": "Vendedor", "gbv": 100860, "meta": 80000, "ating": 1.2608, "mult": 1.2, "vlr": 4407}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Elisangela Bernardo", "cargo": "Vendedor", "gbv": 353400, "meta": 320000, "ating": 1.1044, "mult": 1.0, "vlr": 11520}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Gabriela Barboza", "cargo": "Vendedor", "gbv": 335904, "meta": 320000, "ating": 1.0497, "mult": 1.0, "vlr": 11522}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Ana Deluchi", "cargo": "Vendedor", "gbv": 286992, "meta": 200000, "ating": 1.435, "mult": 1.2, "vlr": 6603}, {"grp": "RNV", "tag": "gt-vanessa", "glabel": "RNV+Cobrança · Vanessa", "nome": "Vinicius Eduardo", "cargo": "Vendedor", "gbv": 118920, "meta": 144000, "ating": 0.8258, "mult": 0.8, "vlr": 3354}], CANAIS=[{"canal": "Esteiras", "gbv": 6230311, "meta": 7960000, "ating": 78.3, "mult": 0.5, "ote": 15120, "vlr": 7560}, {"canal": "Renovacao", "gbv": 1542084, "meta": 1600000, "ating": 96.4, "mult": 1.0, "ote": 4320, "vlr": 4320}, {"canal": "Nina", "gbv": 1713660, "meta": 200000, "ating": 856.8, "mult": 1.3, "ote": 2160, "vlr": 2808}];
+const TOTAL=263910, DSRF=4/26;
+const dsr=v=>v*DSRF, fgts=v=>(v+v*DSRF)*0.08;
+const PAL=['#7B5CF6','#E91E8C','#3b82f6','#22c55e','#f59e0b','#ef4444','#14b8a6','#6366f1'];
+// breakdown
+const bk=document.getElementById('bk');
+GROUPS.forEach(g=>{const d=dsr(g.total),f=fgts(g.total),t=g.total+d+f;
+bk.innerHTML+=`<tr><td><span class="group-tag ${g.tag}">${g.label}</span></td><td class="num"><strong>${BRL(g.total)}</strong></td><td class="num">${(g.total/TOTAL*100).toFixed(1)}%</td><td class="num" style="color:#92400e">${BRL(d)}</td><td class="num" style="color:#166534">${BRL(f)}</td><td class="num"><strong>${BRL(t)}</strong></td></tr>`;});
+const tD=dsr(TOTAL),tF=fgts(TOTAL);
+bk.innerHTML+=`<tr class="total-row"><td>TOTAL GERAL</td><td class="num">${BRL(TOTAL)}</td><td class="num">100%</td><td class="num">${BRL(tD)}</td><td class="num">${BRL(tF)}</td><td class="num">${BRL(TOTAL+tD+tF)}</td></tr>`;
+// canais
+const cn=document.getElementById('cn');
+CANAIS.forEach(c=>{cn.innerHTML+=`<tr><td><strong>${c.canal}</strong></td><td class="num">${BRL(c.gbv)}</td><td class="num" style="color:var(--g600)">${BRL(c.meta)}</td><td class="num">${c.ating.toFixed(0)}%</td><td style="text-align:center"><span class="badge-mult m-blue">${c.mult.toFixed(1)}×</span></td><td class="num">${BRL(c.ote)}</td><td class="num"><strong>${BRL(c.vlr)}</strong></td></tr>`;});
+cn.innerHTML+=`<tr class="total-row"><td colspan="6">TOTAL FABIO</td><td class="num">${BRL(CANAIS.reduce((s,c)=>s+c.vlr,0))}</td></tr>`;
+// charts
+new Chart(document.getElementById('c-imp'),{type:'bar',data:{labels:GROUPS.map(g=>g.label),datasets:[
+{label:'Comissão',data:GROUPS.map(g=>g.total),backgroundColor:'#7B5CF6',borderRadius:4},
+{label:'DSR',data:GROUPS.map(g=>dsr(g.total)),backgroundColor:'#f59e0b',borderRadius:4},
+{label:'FGTS',data:GROUPS.map(g=>fgts(g.total)),backgroundColor:'#22c55e',borderRadius:4}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+new Chart(document.getElementById('c-donut'),{type:'doughnut',data:{labels:GROUPS.map(g=>g.label),datasets:[{data:GROUPS.map(g=>g.total),backgroundColor:PAL,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}},cutout:'62%'}});
+new Chart(document.getElementById('c-comp'),{type:'doughnut',data:{labels:['Comissão','DSR','FGTS'],datasets:[{data:[TOTAL,tD,tF],backgroundColor:['#7B5CF6','#f59e0b','#22c55e'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},cutout:'62%'}});
+// drilldown
+const ORD=["COORDENAÇÃO", "GIANTS", "OUTLIERS TL", "OUTLIERS", "BREAKERS TL", "BREAKERS", "RNV TL", "RNV"];
+function multBadge(m){if(m==null)return '<span class="badge-mult m-gray">—</span>';const l=m.toFixed(1).replace('.',',')+'×';
+if(m>=1.3)return `<span class="badge-mult m-purple">${l}</span>`;if(m>=1.2)return `<span class="badge-mult m-blue">${l}</span>`;
+if(m>=1.0)return `<span class="badge-mult m-green">${l}</span>`;if(m>=0.6)return `<span class="badge-mult m-yellow">${l}</span>`;
+return `<span class="badge-mult m-red">${l}</span>`;}
+function atTxt(a){if(a==null)return '<span style="color:var(--g400)">—</span>';const c=a>=0.95?'#22c55e':a>=0.80?'#f59e0b':'#ef4444';return `<span style="color:${c};font-weight:600">${(a*100).toFixed(0)}%</span>`;}
+const dr=document.getElementById('dr');let cur=null,i=0;
+COLABS.sort((a,b)=>ORD.indexOf(a.grp)-ORD.indexOf(b.grp)||b.vlr-a.vlr).forEach(c=>{
+if(c.grp!==cur){cur=c.grp;const gt=GROUPS.find(g=>g.grp===c.grp)||{total:c.vlr};
+dr.innerHTML+=`<tr class="grp-hdr"><td colspan="8">${c.glabel}</td><td class="num">${BRL(gt.total)}</td><td class="num">${BRL(dsr(gt.total))}</td><td class="num">${BRL(fgts(gt.total))}</td><td class="num">${BRL(gt.total+dsr(gt.total)+fgts(gt.total))}</td></tr>`;}
+i++;const d=dsr(c.vlr),f=fgts(c.vlr);
+dr.innerHTML+=`<tr><td style="color:var(--g400);font-size:.75rem">${i}</td><td><strong>${c.nome}</strong></td><td><span class="group-tag ${c.tag}">${c.glabel}</span></td><td style="font-size:.78rem;color:var(--g600)">${c.cargo}</td><td class="num">${c.gbv==null?'—':BRL(c.gbv)}</td><td class="num" style="color:var(--g600)">${c.meta==null?'—':BRL(c.meta)}</td><td class="num">${atTxt(c.ating)}</td><td style="text-align:center">${multBadge(c.mult)}</td><td class="num"><strong>${BRL(c.vlr)}</strong></td><td class="num" style="color:#92400e">${BRL(d)}</td><td class="num" style="color:#166534">${BRL(f)}</td><td class="num"><strong>${BRL(c.vlr+d+f)}</strong></td></tr>`;});
+</script></body></html>

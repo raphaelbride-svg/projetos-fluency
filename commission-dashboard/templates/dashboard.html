@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comissões · Fluency</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#3b82f6;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --indigo:#6366f1;--teal:#14b8a6;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g600:#4b5563;--g900:#111827;
+  --r:12px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+
+/* header */
+header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:1rem}
+.user-info{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--g600)}
+.logout{color:var(--g400);text-decoration:none;font-size:.78rem}.logout:hover{color:var(--red)}
+
+/* filter bar */
+.filter-bar{background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:9px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:56px;z-index:19;flex-wrap:wrap}
+.filter-bar label{font-size:.82rem;font-weight:600;color:#1d4ed8;white-space:nowrap}
+.filter-sep{width:1px;height:20px;background:#bfdbfe;margin:0 2px}
+.f-select{padding:6px 32px 6px 12px;border:1px solid #93c5fd;border-radius:8px;font-size:.82rem;background:#fff;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;color:var(--g900)}
+.f-select:focus{outline:none;border-color:var(--blue)}
+.vendor-select{min-width:220px}.month-select{min-width:160px}
+.role-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;letter-spacing:.04em}
+.badge-master{background:#dbeafe;color:#1d4ed8}
+.badge-gestor{background:#ede9fe;color:#6d28d9}
+.badge-tl{background:#dcfce7;color:#166534}
+.badge-peopleops{background:#fef3c7;color:#b45309}
+.badge-vendedor{background:#e0e7ff;color:#3730a3}
+.presence-bar{display:flex;align-items:center;margin-right:16px}
+.presence-av,.mini-av{width:30px;height:30px;border-radius:50%;border:2px solid #fff;background:#7B5CF6;color:#fff;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;object-fit:cover;box-shadow:0 0 0 1px #e5e7eb}
+.presence-av{margin-left:-8px}
+.presence-av:first-child{margin-left:0}
+.presence-more{background:#9ca3af}
+.mini-av{width:26px;height:26px;border:1px solid #e5e7eb;box-shadow:none;flex:0 0 auto}
+
+/* tabs */
+.tabs{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;display:flex;position:sticky;top:102px;z-index:18}
+.tab{padding:14px 18px;font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--g600);transition:all .15s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--g900)}.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
+.section{margin-bottom:40px}
+.section-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--g200);display:flex;align-items:center;gap:8px}
+
+/* cards */
+.cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px 24px}
+.card .label{font-size:.68rem;font-weight:700;color:var(--g400);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.card .value{font-size:1.75rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.card .sub{font-size:.75rem;color:var(--g400);margin-top:8px;line-height:1.4}
+.card.accent{background:var(--g900);color:#fff}
+.card.accent .label{color:rgba(255,255,255,.5)}.card.accent .sub{color:rgba(255,255,255,.4)}
+.card.accent-blue{background:var(--blue);color:#fff}
+.card.accent-blue .label{color:rgba(255,255,255,.7)}.card.accent-blue .sub{color:rgba(255,255,255,.6)}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:600;margin-top:8px;padding:3px 8px;border-radius:6px}
+.delta.up{background:#dcfce7;color:#166534}.delta.dn{background:#fee2e2;color:#991b1b}.delta.flat{background:#f3f4f6;color:#6b7280}
+.card.accent .delta.up{background:rgba(34,197,94,.2);color:#86efac}
+.card.accent .delta.dn{background:rgba(239,68,68,.2);color:#fca5a5}
+
+/* tier badge */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600;margin-top:8px}
+.t-red{background:#fee2e2;color:#b91c1c}.t-yellow{background:#fef9c3;color:#92400e}
+.t-green{background:#dcfce7;color:#166534}.t-blue{background:#dbeafe;color:#1d4ed8}
+.t-purple{background:#ede9fe;color:#6d28d9}
+
+/* progress */
+.progress-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:28px 32px}
+.prog-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+.prog-pct{font-size:2.5rem;font-weight:800;letter-spacing:-.03em}
+.bar-track{background:var(--g100);border-radius:999px;height:16px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+.bar-fill{height:100%;border-radius:999px;transition:width .8s ease;box-shadow:0 1px 3px rgba(123,92,246,.35)}
+.bar-markers{display:flex;justify-content:space-between;margin-top:8px;font-size:.65rem;color:var(--g400)}
+.next-hint{margin-top:12px;font-size:.8rem;color:var(--g600);padding:10px 14px;background:var(--g50);border-radius:8px;border-left:3px solid var(--blue)}
+
+/* charts */
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.three-col{display:grid;gap:16px;grid-template-columns:3fr 2fr}
+@media(max-width:768px){.two-col,.three-col{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:24px 28px}
+.chart-title{font-size:.9rem;font-weight:700;margin-bottom:4px;color:var(--g900)}
+.chart-sub{font-size:.75rem;color:var(--g400);margin-bottom:20px}
+.chart-wrap{position:relative}
+
+/* tables */
+.tbl-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-card table{width:100%;border-collapse:collapse;font-size:.83rem}
+.tbl-card thead th{background:var(--g50);padding:11px 18px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);border-bottom:1px solid var(--g200);white-space:nowrap}
+.tbl-card thead th.num{text-align:right}
+.tbl-card tbody tr{border-bottom:1px solid var(--g100)}
+.tbl-card tbody tr:last-child{border-bottom:none}
+.tbl-card tbody tr:hover{background:var(--g50)}
+.tbl-card tbody tr.me{background:#eff6ff}.tbl-card tbody tr.me td{font-weight:600}
+.tbl-card tbody tr.clickable{cursor:pointer}
+.tbl-card tbody tr.clickable:hover td:first-child{color:var(--blue)}
+.tbl-card tbody tr.total-row{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
+.tbl-card tbody td{padding:13px 18px;vertical-align:middle}
+.tbl-card tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* cabeçalho travado (sticky) — tabela com rolagem vertical própria */
+.tbl-card.sticky-head{overflow:auto;max-height:72vh}
+.tbl-card.sticky-head thead th{position:sticky;top:0;z-index:6;background:var(--g50)}
+.rank-pos{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;font-weight:700;font-size:.78rem}
+.rk1{background:#fef3c7;color:#92400e}.rk2{background:#f3f4f6;color:#374151}
+.rk3{background:#fde8d8;color:#9a3412}.rkn{background:var(--g100);color:var(--g600)}
+.tl-name{font-weight:600}.tl-sub{font-size:.73rem;color:var(--g400);margin-top:2px}
+
+/* payroll info bar */
+.info-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;margin-bottom:16px;font-size:.81rem;color:#0369a1;flex-wrap:wrap}
+.info-bar strong{font-weight:700}
+.info-pill{background:#e0f2fe;color:#0369a1;border-radius:999px;padding:2px 10px;font-size:.74rem;font-weight:600;white-space:nowrap}
+
+/* trend section */
+.trend-meta{font-size:.75rem;color:var(--g400);margin-bottom:2px}
+
+/* mom-compare table */
+.mom-tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.mom-tbl th{text-align:right;font-weight:600;color:var(--g400);padding:6px 10px;border-bottom:1px solid var(--g200);white-space:nowrap}
+.mom-tbl th:first-child{text-align:left}
+.mom-tbl td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--g100);white-space:nowrap}
+.mom-tbl td:first-child{text-align:left;font-weight:600;color:var(--g600)}
+.mom-tbl tr.mom-sep td{border-top:2px solid var(--g200);padding-top:10px;font-size:.75rem;color:var(--g400);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.mom-tbl tr.mom-tl td:first-child{padding-left:20px;font-weight:400;color:var(--g500)}
+.mom-delta-pos{color:#166534;font-weight:700}
+.mom-delta-neg{color:#991b1b;font-weight:700}
+.mom-delta-neu{color:var(--g400);font-weight:600}
+.mom-last-col{background:#f8fafc}
+
+/* approvals */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:999px;border:1px solid var(--g200);background:#fff;font-size:.78rem;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue)}
+.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#2563eb}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.pills{display:flex;gap:8px;align-items:center;margin-left:auto}
+.pill{background:var(--g100);border-radius:999px;padding:4px 12px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.pill.done{background:#dcfce7;color:#166534}
+
+.tx-tbl{width:100%;border-collapse:collapse;font-size:.82rem}
+.tx-tbl thead th{background:var(--g50);padding:10px 14px;text-align:left;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--g400);border-bottom:1px solid var(--g200);white-space:nowrap}
+.tx-tbl tbody tr{border-bottom:1px solid var(--g100)}
+.tx-tbl tbody tr:last-child{border-bottom:none}
+.tx-tbl tbody tr:hover{background:var(--g50)}
+.tx-tbl tbody td{padding:10px 14px;vertical-align:middle}
+.tx-id{font-family:monospace;font-size:.78rem;color:var(--g600)}
+.status-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.7rem;font-weight:600}
+.s-paid{background:#dcfce7;color:#166534}.s-refunded{background:#fee2e2;color:#991b1b}
+.s-chargeback{background:#fef2f2;color:#b91c1c}.s-dispute{background:#fef9c3;color:#92400e}
+.s-pending{background:#f3f4f6;color:#374151}
+.churn-flag{display:inline-flex;padding:2px 7px;border-radius:999px;font-size:.68rem;font-weight:600;background:#fee2e2;color:#991b1b;margin-left:4px}
+.apv-actions{display:flex;gap:6px;white-space:nowrap}
+.apv-btn{padding:5px 12px;border-radius:7px;border:none;font-size:.76rem;font-weight:600;cursor:pointer;transition:all .15s}
+.apv-btn.approve{background:#dcfce7;color:#166534}.apv-btn.approve:hover{background:#bbf7d0}
+.apv-btn.dispute{background:#fee2e2;color:#991b1b}.apv-btn.dispute:hover{background:#fecaca}
+.apv-btn.undo{background:#f3f4f6;color:#374151}.apv-btn.undo:hover{background:#e5e7eb}
+.apv-done{display:flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot.ap{background:var(--green)}.dot.di{background:var(--red)}
+
+/* misc */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g900);color:#fff;padding:10px 18px;border-radius:9px;font-size:.82rem;font-weight:500;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.tab-badge{display:none;margin-left:6px;background:#ef4444;color:#fff;padding:1px 7px;border-radius:999px;font-size:.68rem;font-weight:700;vertical-align:middle}
+.loading-row td{text-align:center;padding:32px;color:var(--g400)}
+.spinner{width:24px;height:24px;border:3px solid var(--g200);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:48px 24px;color:var(--g400)}
+.empty-state p{font-size:.9rem;margin-top:8px}
+.pct-bar-wrap{width:100%;background:var(--g100);border-radius:999px;height:8px;overflow:hidden}
+.pct-bar-fill{height:100%;border-radius:999px}
+.av-row:hover td{background:var(--g50,#f5f7fb)}
+.av-th:hover{color:var(--blue)}
+.av-caret{display:inline-block;width:10px;font-size:.7rem;transition:transform .1s}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">Fluency · Comissões</span>
+  <div class="user-info">
+    <div class="presence-bar" id="presence-bar" title="Quem está online agora"></div>
+    <span>{{ email }}</span>
+    <a href="/logout" class="logout">Sair</a>
+  </div>
+</header>
+
+<div id="viewas-banner" style="display:none;align-items:center;gap:10px;padding:8px 16px;background:#fef9c3;border-bottom:1px solid #fde68a;color:#854d0e;font-size:.82rem">
+  <span>👁️ Visualizando como <strong id="viewas-label"></strong> — esta é uma simulação (recarregar volta para Master).</span>
+  <button id="viewas-reset" style="margin-left:auto;background:#fff;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;cursor:pointer;color:#854d0e;font-weight:600">↩ Voltar para Master</button>
+</div>
+
+<div class="filter-bar">
+  <div id="viewas-wrap" style="display:none;align-items:center;gap:8px">
+    <span class="role-badge badge-master">MASTER</span>
+    <label for="view-select">Ver como:</label>
+    <select class="f-select" id="view-select">
+      <option value="master">Master (tudo)</option>
+      <option value="people_ops">People Ops</option>
+      <option value="gestor">Gestor</option>
+      <option value="tl">TL…</option>
+    </select>
+    <div class="filter-sep"></div>
+  </div>
+  <div id="vendor-wrap" style="display:none;align-items:center;gap:10px">
+    <span class="role-badge" id="role-badge">MASTER</span>
+    <label for="vendor-select" id="vendor-label">Colaborador:</label>
+    <select class="f-select vendor-select" id="vendor-select">
+      <option value="todos">Todos</option>
+    </select>
+    <div class="filter-sep"></div>
+  </div>
+  <div id="gestor-vendor-wrap" style="display:none;align-items:center;gap:10px">
+    <label for="gestor-vendor-select">Vendedor:</label>
+    <select class="f-select vendor-select" id="gestor-vendor-select">
+      <option value="todos">Todos os vendedores</option>
+    </select>
+    <div class="filter-sep"></div>
+  </div>
+  <label for="month-select">Mês:</label>
+  <select class="f-select month-select" id="month-select">
+    <option value="">Carregando…</option>
+  </select>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="resumo">Resumo</div>
+  <div class="tab" data-tab="transacoes">
+    Transações &amp; Aprovação
+    <span class="tab-badge" id="pending-badge"></span>
+  </div>
+  <div class="tab" data-tab="assistvend" id="tab-assistvend" style="display:none">Rentabilidade por Modelo</div>
+  <div class="tab" data-tab="racional" id="tab-racional" style="display:none">Racional de Cálculo</div>
+  <div class="tab" data-tab="acessos" id="tab-acessos" style="display:none">Acessos</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<main>
+
+  <!-- ══ RESUMO ══════════════════════════════════════════════════════ -->
+  <div id="panel-resumo" class="tab-panel active">
+
+    <div style="margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--g200)">
+      <h1 style="font-size:1.4rem;font-weight:800;letter-spacing:-.02em" id="dash-title">Carregando…</h1>
+      <p style="font-size:.85rem;color:var(--g400);margin-top:6px" id="dash-subtitle">{{ email }}</p>
+    </div>
+
+    <!-- ── Seção: Tendência 6 meses (gestor/master overview) ── -->
+    <div class="section" id="section-trend" style="display:none">
+      <div class="section-title">Tendência — últimos 6 meses</div>
+      <div class="three-col">
+        <div class="chart-card">
+          <div class="chart-title">GBV Líquido · Time Comercial</div>
+          <div class="chart-sub" id="trend-gbv-sub">Comparativo mensal</div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-trend-gbv"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">GBV por Team Leader</div>
+          <div class="chart-sub">Equipes — acumulado mensal</div>
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-trend-tl"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Seção: Resumo equipe (gestor/master todos) ── -->
+    <div class="section" id="section-team" style="display:none">
+      <div class="section-title">Resumo do mês selecionado</div>
+      <div class="cards">
+        <div class="card">
+          <div class="label">Meta Total</div>
+          <div class="value" id="team-meta">—</div>
+        </div>
+        <div class="card">
+          <div class="label">GBV Líquido Total</div>
+          <div class="value" id="team-gbv">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Atingimento Médio</div>
+          <div class="value" id="team-ating">—</div>
+        </div>
+        <div class="card accent">
+          <div class="label">Comissão Total do Time</div>
+          <div class="value" id="team-com">—</div>
+        </div>
+        <div class="card" id="card-coord-com" style="display:none;border:2px solid #7B5CF6">
+          <div class="label" style="color:#7B5CF6">Comissão do Coordenador (Fabio)</div>
+          <div class="value" id="team-coord-com">—</div>
+          <div class="sub" style="color:var(--g400)">Sua comissão — incluída no total acima</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Seção: Team Leaders (gestor overview) ── -->
+    <div class="section" id="section-tl-summary" style="display:none">
+      <div class="section-title">Team Leaders — clique para detalhar</div>
+      <div class="tbl-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Team Leader</th>
+              <th class="num">Meta do Time</th>
+              <th class="num">GBV Líquido</th>
+              <th>Atingimento</th>
+              <th class="num">Comissão</th>
+              <th class="num">Liderados</th>
+            </tr>
+          </thead>
+          <tbody id="tl-summary-body">
+            <tr class="loading-row"><td colspan="6"><div class="spinner"></div>Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Seção: Impacto em Folha (gestor/master overview) ── -->
+    <div class="section" id="section-payroll" style="display:none">
+      <div class="section-title">Impacto em Folha</div>
+      <div class="info-bar" id="payroll-info-bar">
+        <span>Calculando…</span>
+      </div>
+      <div class="cards" style="margin-bottom:20px">
+        <div class="card">
+          <div class="label">Comissão Total</div>
+          <div class="value" id="pay-comissao">—</div>
+          <div class="sub">Competência selecionada</div>
+        </div>
+        <div class="card">
+          <div class="label">DSR</div>
+          <div class="value" id="pay-dsr">—</div>
+          <div class="sub" id="pay-dsr-sub">% da comissão</div>
+        </div>
+        <div class="card">
+          <div class="label" id="pay-reflexo-label">Reflexo (50%)</div>
+          <div class="value" id="pay-reflexo">—</div>
+          <div class="sub">Encargos sobre comissão + DSR</div>
+        </div>
+        <div class="card accent">
+          <div class="label">Custo Total Folha</div>
+          <div class="value" id="pay-total">—</div>
+          <div class="sub" id="pay-pct-sub">vs. comissão base</div>
+        </div>
+      </div>
+      <div class="tbl-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Vendedor</th>
+              <th class="num">Comissão Final</th>
+              <th class="num">DSR</th>
+              <th class="num">Reflexo</th>
+              <th class="num">Custo Total</th>
+            </tr>
+          </thead>
+          <tbody id="payroll-body">
+            <tr class="loading-row"><td colspan="5"><div class="spinner"></div>Calculando encargos…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Individual KPIs ── -->
+    <div class="section" id="section-summary">
+      <div class="section-title">Resumo do mês</div>
+      <div class="cards">
+        <div class="card">
+          <div class="label">GBV Bruto</div>
+          <div class="value" id="k-gbv">—</div>
+          <div id="d-gbv"></div>
+        </div>
+        <div class="card">
+          <div class="label">GBV Líquido</div>
+          <div class="value" id="k-liq">—</div>
+          <div class="sub" id="k-churn-sub"></div>
+          <div id="d-liq"></div>
+        </div>
+        <div class="card">
+          <div class="label">Meta</div>
+          <div class="value" id="k-meta">—</div>
+          <div class="sub" id="k-ating-sub"></div>
+        </div>
+        <div class="card" id="card-com-bruta">
+          <div class="label">Comissão (bruta)</div>
+          <div class="value" id="k-com">—</div>
+          <div class="sub" id="k-com-sub">Antes do multiplicador</div>
+          <div id="d-com"></div>
+        </div>
+        <div class="card accent">
+          <div class="label">Comissão Final</div>
+          <div class="value" id="k-final">—</div>
+          <div class="sub" id="k-mult-sub"></div>
+          <div id="d-final"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Atingimento ── -->
+    <div class="section" id="section-progress">
+      <div class="section-title">Atingimento da meta</div>
+      <div class="progress-wrap">
+        <div class="prog-header">
+          <div>
+            <div class="prog-pct" id="prog-pct">—</div>
+            <div id="tier-wrap"></div>
+          </div>
+          <div style="font-size:.8rem;color:var(--g600)" id="prog-meta"></div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+        <div class="bar-markers" id="bar-markers"><span>0%</span><span>75%</span><span>98%</span><span>120%</span><span>130%</span><span>150%+</span></div>
+        <div class="next-hint" id="next-hint"></div>
+      </div>
+    </div>
+
+    <!-- ── Charts individuais ── -->
+    <div class="section" id="section-charts">
+      <div class="section-title">Breakdown de comissão</div>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-title">Por tipo de cobrança</div>
+          <div class="chart-wrap" style="height:240px"><canvas id="chart-tipo"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">GBV bruto / líquido / churn</div>
+          <div class="chart-wrap" style="height:240px"><canvas id="chart-gbv"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Comparativo Mensal ── -->
+    <div class="section" id="section-mom-compare" style="display:none">
+      <div class="section-title">Comparativo Mensal</div>
+      <div id="mom-compare-wrap"></div>
+    </div>
+
+    <!-- ── Ranking ── -->
+    <div class="section" id="section-ranking">
+      <div class="section-title" id="ranking-title">Ranking do time</div>
+      <div class="tbl-card">
+        <table>
+          <thead id="ranking-thead"><tr><th>#</th><th>Vendedor</th><th class="num">GBV Líquido</th><th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th></tr></thead>
+          <tbody id="ranking-body">
+            <tr class="loading-row"><td colspan="6"><div class="spinner"></div>Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /resumo -->
+
+  <!-- ══ TRANSAÇÕES ══════════════════════════════════════════════════ -->
+  <div id="panel-transacoes" class="tab-panel">
+    <div style="margin-bottom:24px">
+      <h1 style="font-size:1.25rem;font-weight:700">Transações &amp; Aprovação</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px">Valide cada transação do mês.</p>
+    </div>
+    <div id="tx-empty-master" style="display:none" class="empty-state">
+      <div style="font-size:2rem">👆</div>
+      <p>Selecione um colaborador no filtro acima para ver as transações.</p>
+    </div>
+    <div id="tx-content">
+      <!-- Sign-off do fechamento (só na visão do próprio vendedor) — no TOPO -->
+      <div id="signoff-card" class="tbl-card" style="display:none;margin-bottom:16px;padding:18px;text-align:center">
+        <h2 style="font-size:1rem;font-weight:700;margin-bottom:4px">Confirmação do fechamento</h2>
+        <p style="font-size:.82rem;color:var(--g600);margin-bottom:14px">
+          Ao confirmar, você declara que revisou todas as transações do mês e está de acordo com os números.
+          Um e-mail é enviado a você, seu TL, o coordenador e o FP&amp;A.
+        </p>
+        <div id="signoff-status" style="font-size:.85rem;margin-bottom:12px"></div>
+        <button class="btn btn-primary" id="btn-signoff">✓ Estou de acordo com o fechamento</button>
+      </div>
+
+      <!-- Adicionar HP que o sistema não trouxe (só na visão do próprio vendedor) — no TOPO -->
+      <div id="hp-add-card" class="tbl-card" style="display:none;margin-bottom:20px;padding:18px">
+        <h2 style="font-size:1rem;font-weight:700;margin-bottom:4px">Faltou alguma venda?</h2>
+        <p style="font-size:.82rem;color:var(--g600);margin-bottom:12px">
+          Adicione o código <b>HP</b> de uma venda que não apareceu na lista. O valor é buscado
+          automaticamente no sistema e enviado ao seu TL e ao coordenador para aprovação. Só entra
+          no seu GBV depois que <b>ambos aprovarem</b>.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+          <input id="hp-code" placeholder="Código HP (ex: HP123…)" style="flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--g300);border-radius:8px;font-size:.85rem">
+          <input id="hp-nota" placeholder="Observação (opcional)" style="flex:2;min-width:200px;padding:8px 10px;border:1px solid var(--g300);border-radius:8px;font-size:.85rem">
+          <button class="btn btn-primary" id="btn-add-hp">Enviar para aprovação</button>
+        </div>
+        <div id="hp-list" style="margin-top:14px"></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">Todas</button>
+          <button class="filter-btn" data-filter="paid">Pagas</button>
+          <button class="filter-btn" data-filter="refunded">Reembolsadas</button>
+          <button class="filter-btn" data-filter="chargeback">Chargeback</button>
+        </div>
+        <div class="pills">
+          <span class="pill" id="pill-total">—</span>
+        </div>
+      </div>
+      <div class="tbl-card">
+        <table class="tx-tbl">
+          <thead>
+            <tr>
+              <th>Transaction ID</th><th>Data</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
+              <th>GBV Líquido</th><th>Comissão</th><th>Status Hotmart</th><th>Origem</th><th>Aprovação</th><th>Aprov. HP (TL/Coord)</th>
+            </tr>
+          </thead>
+          <tbody id="tx-body">
+            <tr class="loading-row"><td colspan="12"><div class="spinner"></div>Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /transacoes -->
+
+  <!-- ══ RECEBÍVEIS ═════════════════════════════════════════════════ -->
+  <div id="panel-recebiveis" class="tab-panel">
+    <div style="margin-bottom:24px">
+      <h1 style="font-size:1.25rem;font-weight:700">Recebíveis</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px">Parcelas dos contratos do mês selecionado.</p>
+    </div>
+    <div id="recv-empty" style="display:none" class="empty-state">
+      <div style="font-size:2rem">👆</div>
+      <p>Selecione um colaborador para ver os recebíveis.</p>
+    </div>
+    <div id="recv-content">
+      <div class="cards" style="margin-bottom:28px">
+        <div class="card"><div class="label">Total Previsto</div><div class="value" id="rv-total">—</div><div class="sub">Recebido + A receber</div></div>
+        <div class="card"><div class="label">Já Recebido</div><div class="value" style="color:var(--green)" id="rv-recebido">—</div><div class="sub" id="rv-recebido-pct"></div></div>
+        <div class="card"><div class="label">A Receber</div><div class="value" style="color:var(--blue)" id="rv-pendente">—</div><div class="sub" id="rv-pendente-pct"></div></div>
+        <div class="card"><div class="label">Cancelado</div><div class="value" style="color:var(--red)" id="rv-cancelado">—</div><div class="sub">Chargeback + Reembolso</div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Fluxo temporal</div>
+        <div class="chart-card">
+          <div class="chart-wrap" style="height:300px"><canvas id="chart-recv"></canvas></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Detalhe por mês</div>
+        <div class="tbl-card">
+          <table class="tx-tbl">
+            <thead>
+              <tr><th>Mês de Recebimento</th><th>Parc. Pagas</th><th>Valor Pago</th><th>Parc. Previstas</th><th>Valor Previsto</th><th>Cancelado</th></tr>
+            </thead>
+            <tbody id="rv-body">
+              <tr class="loading-row"><td colspan="6"><div class="spinner"></div>Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /recebiveis -->
+
+  <!-- ══ ASSISTENTE × VENDEDOR ════════════════════════════════════════ -->
+  <div id="panel-acessos" class="tab-panel">
+    <div style="margin-bottom:24px">
+      <h1 style="font-size:1.25rem;font-weight:700">Acessos ao dashboard</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px">Quem abriu o painel, quando e com qual papel.</p>
+    </div>
+    <div class="section">
+      <div class="section-title">Por colaborador</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Colaborador</th><th>Papel</th><th class="num">Acessos</th><th>Último acesso</th></tr></thead>
+        <tbody id="acessos-user-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+      </table></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Acessos recentes (últimos 100)</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Quando</th><th>Colaborador</th><th>Papel</th><th>IP</th></tr></thead>
+        <tbody id="acessos-recent-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div id="panel-assistvend" class="tab-panel">
+    <div style="margin-bottom:24px">
+      <h1 style="font-size:1.25rem;font-weight:700">Rentabilidade por Modelo — Vendedor (Analista %) × Assistente (OTE)</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px" id="av-sub">—</p>
+    </div>
+
+    <div class="cards" style="margin-bottom:28px">
+      <div class="card"><div class="label">ROI Vendedor · GBV por R$ de comissão</div><div class="value" id="av-cac-v">—</div><div class="sub" id="av-cac-v-sub"></div></div>
+      <div class="card"><div class="label">ROI Assistente · GBV por R$ de comissão</div><div class="value" id="av-cac-a">—</div><div class="sub" id="av-cac-a-sub"></div></div>
+      <div class="card"><div class="label">ROI Assistente · só ativos</div><div class="value" style="color:var(--green)" id="av-cac-aa">—</div><div class="sub">quem teve venda · s/ comissão</div></div>
+      <div class="card"><div class="label">Ativação Assistentes</div><div class="value" id="av-ativ">—</div><div class="sub" id="av-ativ-sub"></div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Comparativos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="tbl-card" style="padding:16px 18px">
+          <div style="font-size:.9rem;font-weight:700;margin-bottom:2px">ROI por modelo · mês a mês</div>
+          <div style="font-size:.75rem;color:var(--g400);margin-bottom:10px">GBV ÷ comissão (maior = mais rentável) · meses com apuração</div>
+          <div style="height:240px"><canvas id="av-chart-mes"></canvas></div>
+        </div>
+        <div class="tbl-card" style="padding:16px 18px">
+          <div style="font-size:.9rem;font-weight:700;margin-bottom:2px">Top 5 e Bottom 5 por rentabilidade</div>
+          <div style="font-size:.75rem;color:var(--g400);margin-bottom:10px" id="av-chart-tb-sub">ROI s/ custo total · mês selecionado</div>
+          <div style="height:240px"><canvas id="av-chart-tb"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Comparativo dos grupos</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Grupo</th><th class="num">Pessoas</th><th class="num">C/ venda</th><th class="num">GBV pós-churn</th><th class="num">Folha</th><th class="num">Comissão</th><th class="num">Custo total</th><th class="num">ROI s/ comissão</th><th class="num">ROI ativos</th><th class="num">Com/GBV</th></tr></thead>
+        <tbody id="av-grp-body"></tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Detalhe por pessoa <span style="font-weight:400;color:var(--g400);font-size:.8rem">· clique no cabeçalho p/ ordenar (↑/↓) · clique na linha p/ abrir os custos · <strong>ROI aqui = s/ custo total</strong> (cards e comparativo usam ROI s/ comissão)</span></div>
+      <h3 style="font-size:.9rem;font-weight:700;color:var(--purple,#6B3FE8);margin:6px 0 8px">Vendedores</h3>
+      <div class="tbl-card sticky-head" style="margin-bottom:22px"><table style="min-width:1060px" id="av-table-vend">
+        <thead id="av-head-vend"></thead>
+        <tbody id="av-body-vend"></tbody>
+      </table></div>
+      <h3 style="font-size:.9rem;font-weight:700;color:var(--blue);margin:6px 0 8px">Assistentes</h3>
+      <div class="tbl-card sticky-head"><table style="min-width:1060px" id="av-table-assist">
+        <thead id="av-head-assist"></thead>
+        <tbody id="av-body-assist"></tbody>
+      </table></div>
+      <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="av-fonte"></p>
+    </div>
+  </div><!-- /assistvend -->
+
+  <!-- ══ APROVAÇÕES (TL / Coordenador) ═══════════════════════════════════ -->
+  <div id="panel-aprovacoes" class="tab-panel">
+    <div style="margin-bottom:24px">
+      <h1 style="font-size:1.25rem;font-weight:700">Aprovações de HP</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px">
+        HPs que vendedores adicionaram (vendas que o sistema não trouxe) e aguardam sua aprovação.
+        Um HP só entra no GBV do vendedor quando <b>TL e coordenador</b> aprovam.
+      </p>
+    </div>
+    <div class="tbl-card">
+      <table class="tx-tbl">
+        <thead>
+          <tr>
+            <th>Vendedor</th><th>HP</th><th>Mês</th><th>GBV</th><th>Modalidade</th>
+            <th>Obs.</th><th>Status TL</th><th>Status Coord.</th><th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="aprov-body">
+          <tr class="loading-row"><td colspan="9"><div class="spinner"></div>Carregando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- /aprovacoes -->
+
+  <!-- ══ RACIONAL DE CÁLCULO (master + coordenador) ══════════════════ -->
+  <div id="panel-racional" class="tab-panel">
+    <div class="section">
+      <h1 style="font-size:1.25rem;font-weight:700">Racional de Cálculo da Comissão</h1>
+      <p style="color:var(--g600);font-size:.86rem;margin-top:2px">Regras vigentes por modelo (validadas — fonte: pipeline de apuração). Atingimento = GBV pós-churn ÷ meta.</p>
+
+      <style>
+        .rac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;margin-top:16px}
+        .rac-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+        .rac-card h3{font-size:1rem;font-weight:700;color:var(--purple,#7B5CF6);margin:0}
+        .rac-who{font-size:.74rem;color:var(--g400);margin:2px 0 12px}
+        .rac-row{font-size:.84rem;margin:6px 0;color:#334155}
+        .rac-row b{color:#0f172a}
+        .rac-formula{background:#f6f4ff;border-radius:8px;padding:8px 10px;font-size:.82rem;color:#4c1d95;font-weight:600;margin:8px 0}
+        .rac-tiers{width:100%;border-collapse:collapse;margin-top:6px;font-size:.8rem}
+        .rac-tiers td{padding:3px 8px;border-top:1px solid #f1f5f9}
+        .rac-tiers td:last-child{text-align:right;font-weight:700;color:var(--purple,#7B5CF6)}
+        .rac-chip{display:inline-block;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:999px;background:#ede9fe;color:#6d28d9}
+      </style>
+
+      <div class="rac-grid">
+
+        <div class="rac-card">
+          <h3>Vendedor (Analista)</h3>
+          <div class="rac-who">Vendedores pré-2026 · comissão por % de cada modalidade</div>
+          <div class="rac-formula">Comissão = Σ (GBV pós-churn da modalidade × taxa) × multiplicador</div>
+          <div class="rac-row"><b>Taxas:</b> À Vista <b>10%</b> · Parcelado <b>4%</b> · Inteligente <b>1,3%</b></div>
+          <div class="rac-row"><b>Meta:</b> individual</div>
+          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,5×</td></tr><tr><td>80–95%</td><td>0,8×</td></tr><tr><td>95–120%</td><td>1,0×</td></tr><tr><td>≥ 120% (teto)</td><td>1,2×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>Recuperação (Ana Deluchi)</h3>
+          <div class="rac-who">Canal Recuperação (sob Vanessa) · taxas e multiplicador próprios</div>
+          <div class="rac-formula">Comissão = Σ (GBV pós-churn da modalidade × taxa) × multiplicador</div>
+          <div class="rac-row"><b>Taxas:</b> À Vista <b>8%</b> · Tradicional/Parcelado <b>4%</b> · Inteligente <b>2,25%</b></div>
+          <div class="rac-row"><b>Meta:</b> individual</div>
+          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,5×</td></tr><tr><td>80–95%</td><td>0,8×</td></tr><tr><td>95–120%</td><td>1,0×</td></tr><tr><td>120–130%</td><td>1,2×</td></tr><tr><td>≥ 130%</td><td>1,3×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>Assistente</h3>
+          <div class="rac-who">Vendedores 2026+ · modelo OTE</div>
+          <div class="rac-formula">Comissão = % Atingimento da Meta × OTE R$ 4.000 × multiplicador</div>
+          <div class="rac-row"><b>Meta:</b> GBV individual (~R$ 247,5k típico)</div>
+          <table class="rac-tiers"><tr><td>&lt; 70%</td><td>0,3×</td></tr><tr><td>70–80%</td><td>0,5×</td></tr><tr><td>80–90%</td><td>0,7×</td></tr><tr><td>90–110%</td><td>1,0×</td></tr><tr><td>≥ 110% (teto)</td><td>1,3×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>TL Vanessa <span class="rac-chip">% do time</span></h3>
+          <div class="rac-who">Team Leader com comissão por % sobre o GBV do time</div>
+          <div class="rac-formula">Comissão = Σ (GBV do time por modalidade × taxa) × multiplicador</div>
+          <div class="rac-row"><b>Taxas:</b> À Vista <b>4%</b> · Parcelado <b>1,5%</b> · Inteligente <b>0,5%</b></div>
+          <div class="rac-row"><b>Meta:</b> Σ metas dos liderados</div>
+          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,6×</td></tr><tr><td>80–95%</td><td>0,8×</td></tr><tr><td>95–120%</td><td>1,0×</td></tr><tr><td>≥ 120%</td><td>1,2×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>TL Tacyana <span class="rac-chip">% do time</span></h3>
+          <div class="rac-who">Team Leader com comissão por % sobre o GBV do time</div>
+          <div class="rac-formula">Comissão = Σ (GBV do time por modalidade × taxa) × multiplicador</div>
+          <div class="rac-row"><b>Taxas:</b> À Vista <b>3%</b> · Parcelado <b>1%</b> · Inteligente <b>0,5%</b></div>
+          <div class="rac-row"><b>Meta:</b> Σ metas dos liderados</div>
+          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,4×</td></tr><tr><td>80–100%</td><td>0,6×</td></tr><tr><td>100–120%</td><td>0,7×</td></tr><tr><td>≥ 120% (teto)</td><td>1,0×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>TL Novo I <span class="rac-chip">OTE</span></h3>
+          <div class="rac-who">Ana Pamplona, Matheus · TLs admitidos após 01/04/26</div>
+          <div class="rac-formula">Comissão = % Atingimento da Meta × OTE R$ 7.000 × multiplicador</div>
+          <div class="rac-row"><b>Meta:</b> Σ GBV dos liderados</div>
+          <table class="rac-tiers"><tr><td>&lt; 70%</td><td>0,3×</td></tr><tr><td>70–80%</td><td>0,5×</td></tr><tr><td>80–90%</td><td>0,7×</td></tr><tr><td>90–110%</td><td>1,0×</td></tr><tr><td>≥ 110% (teto)</td><td>1,3×</td></tr></table>
+        </div>
+
+        <div class="rac-card">
+          <h3>Coordenador (Fabio)</h3>
+          <div class="rac-who">OTE ponderado por canal de vendas</div>
+          <div class="rac-formula">Comissão = Σ (% atingimento do canal × OTE do canal × multiplicador do canal)</div>
+          <div class="rac-row"><b>OTE total:</b> R$ 21.600 (12k × 1,8), por canal:</div>
+          <div class="rac-row">• Esteiras <b>70%</b> = R$ 15.120 <span style="color:var(--g400)">(times LTESP)</span></div>
+          <div class="rac-row">• Renovação <b>20%</b> = R$ 4.320 <span style="color:var(--g400)">(time Vanessa)</span></div>
+          <div class="rac-row">• NINA <b>10%</b> = R$ 2.160 <span style="color:var(--g400)">(tracking .bot — meta considerada 100% atingida)</span></div>
+          <div class="rac-row" style="margin-top:8px"><b>Multiplicador por canal</b> (GBV canal ÷ meta canal):</div>
+          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,5×</td></tr><tr><td>80–95%</td><td>0,8×</td></tr><tr><td>95–120%</td><td>1,0×</td></tr><tr><td>120–130%</td><td>1,2×</td></tr><tr><td>≥ 130%</td><td>1,3×</td></tr></table>
+        </div>
+
+      </div>
+      <p style="color:var(--g400);font-size:.74rem;margin-top:16px">HP adicionados manualmente só entram no GBV após dupla aprovação (TL + coordenador). Métrica de todos = GBV pós-churn.</p>
+    </div>
+  </div><!-- /racional -->
+
+</main>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+let   MASTER        = {{ is_master|tojson }};   // master EFETIVO (muda no "Ver como")
+let   ROLE          = {{ role|tojson }};        // papel EFETIVO
+const REAL_MASTER   = {{ real_master|tojson }}; // master de verdade (mostra o seletor)
+const REAL_ROLE     = ROLE;
+const SESSION_EMAIL = {{ email|tojson }};
+
+// "Ver como": estado só em memória (some ao recarregar). Anexa ?as= a toda chamada /api.
+let viewAs   = null;   // 'people_ops' | 'gestor' | 'tl' | null
+let viewAsTL = null;   // e-mail do TL alvo quando viewAs==='tl'
+let gestorTLset = new Set();   // e-mails dos TLs do gestor (p/ distinguir drill em TL vs vendedor)
+const _origFetch = window.fetch.bind(window);
+window.fetch = function(url, opts){
+  try{
+    if(viewAs && typeof url==='string' && url.indexOf('/api/')===0){
+      url += (url.indexOf('?')>=0?'&':'?') + 'as=' + encodeURIComponent(viewAs);
+      // nos modos por pessoa, garante o e-mail alvo em toda chamada (resolve a identidade no backend)
+      if((viewAs==='tl'||viewAs==='vendedor') && viewAsTL && url.indexOf('vendedor=')<0){
+        url += '&vendedor=' + encodeURIComponent(viewAsTL);
+      }
+    }
+  }catch(e){}
+  return _origFetch(url, opts);
+};
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+function fmtMoney(v){
+  const n=Math.abs(Number(v)),s=Number(v)<0?'-':'';
+  if(n>=1e9)return s+(n/1e9).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' BI';
+  if(n>=1e6)return s+(n/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' M';
+  if(n>=1e3)return s+(n/1e3).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' K';
+  return s+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+const R=(v)=>'R$ '+fmtMoney(v);
+// valor cheio com centavos (sem abreviar K/M) — usado na comissão do vendedor
+const Rc=(v)=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+// atingimento com todas as casas decimais relevantes (2 a 4)
+const P=v=>(Number(v)*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})+'%';
+const N=(v,d=0)=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+function monthShort(s){
+  const d=new Date(s+'T12:00:00');
+  return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','');
+}
+function monthLong(s){
+  const d=new Date(s+'T12:00:00');
+  const v=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  return v.charAt(0).toUpperCase()+v.slice(1);
+}
+function mesParam(s){return s.slice(0,7);}
+function vendorName(e){return e.split('@')[0].split('.').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' ');}
+
+// Escadas de multiplicador POR MODELO (cada cargo tem teto/faixas próprios).
+// [lo, hi, rótulo×, classe-cor]. hi=Infinity = teto.
+const LADDERS={
+  analista:  {scale:1.20, t:[[0,0.80,'0,5×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,Infinity,'1,2×','t-blue']]},
+  deluchi:   {scale:1.30, t:[[0,0.80,'0,5×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,1.30,'1,2×','t-blue'],[1.30,Infinity,'1,3×','t-purple']]},
+  assistente:{scale:1.10, t:[[0,0.70,'0,3×','t-red'],[0.70,0.80,'0,5×','t-yellow'],[0.80,0.90,'0,7×','t-yellow'],[0.90,1.10,'1,0×','t-green'],[1.10,Infinity,'1,3×','t-purple']]},
+  tl_novo:   {scale:1.10, t:[[0,0.70,'0,3×','t-red'],[0.70,0.80,'0,5×','t-yellow'],[0.80,0.90,'0,7×','t-yellow'],[0.90,1.10,'1,0×','t-green'],[1.10,Infinity,'1,3×','t-purple']]},
+  tl_vanessa:{scale:1.20, t:[[0,0.80,'0,6×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,Infinity,'1,2×','t-blue']]},
+  tl_tacyana:{scale:1.20, t:[[0,0.80,'0,4×','t-red'],[0.80,1.00,'0,6×','t-yellow'],[1.00,1.20,'0,7×','t-green'],[1.20,Infinity,'1,0×','t-blue']]},
+  coord:     {scale:1.30, t:[[0,0.80,'0,5×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,1.30,'1,2×','t-blue'],[1.30,Infinity,'1,3×','t-purple']]},
+};
+function ladderFor(modelo){ return LADDERS[modelo]||LADDERS.analista; }
+// Cor do badge a partir do multiplicador (usado no ranking, onde só importa a cor)
+function tierColor(m){ if(!(m>0))return't-yellow'; if(m<0.6)return't-red'; if(m<1.0)return't-yellow'; if(m<1.2)return't-green'; if(m<1.3)return't-blue'; return't-purple'; }
+// Faixa de atingimento (model-aware) p/ o badge do resumo
+function tierInfo(ating, modelo){
+  if(!(ating>0)) return {l:'Sem meta', c:'t-yellow'};
+  for(const [lo,hi,m,c] of ladderFor(modelo).t){
+    if(ating>=lo && ating<hi)
+      return {l: hi===Infinity ? `≥ ${Math.round(lo*100)}% · ${m} (teto)` : `${Math.round(lo*100)}%–${Math.round(hi*100)}% · ${m}`, c};
+  }
+  return {l:'—', c:'t-yellow'};
+}
+function barCol(p){
+  if(p<.75) return'linear-gradient(90deg,#f87171,#ef4444)';
+  if(p<.98) return'linear-gradient(90deg,#fbbf24,#f59e0b)';
+  if(p<1.2) return'linear-gradient(90deg,#34d399,#22c55e)';
+  if(p<1.3) return'linear-gradient(90deg,#60a5fa,#3b82f6)';
+  return'linear-gradient(90deg,#a78bfa,#7B5CF6)';
+}
+function statusLabel(s){
+  return{paid:'s-paid Pago',refunded:'s-refunded Reembolsado',
+         chargeback:'s-chargeback Chargeback',dispute:'s-dispute Disputa',
+         pending:'s-pending Pendente'}[s]||('s-pending '+s);
+}
+function delta(curr,prev,elId){
+  const el=document.getElementById(elId);
+  if(!el||prev==null||prev===0)return;
+  const pct=((curr-prev)/Math.abs(prev))*100;
+  const abs=Math.abs(pct);
+  if(abs<0.5){el.innerHTML='<span class="delta flat">→ estável</span>';return;}
+  const up=pct>0;
+  el.innerHTML=`<span class="delta ${up?'up':'dn'}">${up?'▲':'▼'} ${abs.toFixed(1)}% vs mês ant.</span>`;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='assistvend') loadAssistVend();
+    if(tab.dataset.tab==='acessos') loadAcessos();
+    if(tab.dataset.tab==='aprovacoes') loadAprovacoes();
+  });
+});
+
+// ── Abas condicionais ao papel EFETIVO — re-avaliadas a cada "Ver como" ─────────
+// (antes eram setadas só no load → master simulando TL continuava vendo Acessos/
+//  AssistVend. Agora escondem na simulação e voltam ao retornar p/ Master.)
+function updateRoleTabs(){
+  const set=(id,show)=>{const t=document.getElementById(id); if(t) t.style.display=show?'':'none';};
+  set('tab-assistvend', MASTER);              // master only (folha/PII)
+  set('tab-racional',   MASTER||ROLE==='gestor');  // racional de cálculo — master + coordenador
+  set('tab-acessos',    MASTER);              // master only (log de acessos)
+  set('tab-aprovacoes', false);   // aba removida — aprovação de HP virou coluna em Transações
+  // se a aba ativa virou oculta (ex.: master→Ver como TL na aba Acessos), volta p/ Resumo
+  const active=document.querySelector('.tab.active');
+  if(active && active.style.display==='none'){
+    const r=document.querySelector('.tab[data-tab="resumo"]'); if(r) r.click();
+  }
+}
+updateRoleTabs();
+
+// ── Visão do vendedor: sem Recebíveis (só Resumo + Transações) ──────────────────
+if(ROLE==='vendedor'){ const t=document.getElementById('tab-recebiveis'); if(t) t.style.display='none'; }
+const ROLE_LABELS={master:'Master',people_ops:'People Ops',gestor:'Coordenador',tl:'TL',vendedor:'Vendedor'};
+function fmtAcc(ts){
+  if(!ts) return '—';
+  try{
+    const d=new Date(String(ts).replace(' ','T'));
+    return d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }catch(e){ return String(ts); }
+}
+function initialOf(name,email){ const s=String(name||email||'?').trim(); return (s[0]||'?').toUpperCase(); }
+function escAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function avatarTag(p,cls){
+  const t=escAttr(p.name||p.email||'');
+  return p.picture
+    ? `<img class="${cls}" src="${escAttr(p.picture)}" alt="" title="${t}" referrerpolicy="no-referrer">`
+    : `<span class="${cls}" title="${t}">${initialOf(p.name,p.email)}</span>`;
+}
+function nameCell(p){
+  return `<div style="display:flex;align-items:center;gap:8px">${avatarTag(p,'mini-av')}<span>${p.name||vendorName(p.email)}</span></div>`;
+}
+function loadAcessos(){
+  fetch('/api/access-log').then(r=>r.json()).then(d=>{
+    const us=(d.by_user||[]);
+    document.getElementById('acessos-user-body').innerHTML = us.length ? us.map(u=>`<tr>
+      <td>${nameCell(u)}</td>
+      <td>${ROLE_LABELS[u.role]||u.role||'—'}</td>
+      <td class="num">${u.acessos||0}</td>
+      <td>${fmtAcc(u.ultimo_acesso)}</td></tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem registros ainda</td></tr>';
+    const rs=(d.recent||[]);
+    document.getElementById('acessos-recent-body').innerHTML = rs.length ? rs.map(r=>`<tr>
+      <td>${fmtAcc(r.accessed_at)}</td>
+      <td>${nameCell(r)}</td>
+      <td>${ROLE_LABELS[r.role]||r.role||'—'}</td>
+      <td style="color:var(--g400)">${r.ip||'—'}</td></tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem registros</td></tr>';
+  }).catch(e=>console.error(e));
+}
+
+// ── Presença (avatares de quem está online) + heartbeat ────────────────────────
+function renderPresence(list){
+  const bar=document.getElementById('presence-bar');
+  if(!bar) return;
+  if(!Array.isArray(list)||!list.length){ bar.innerHTML=''; return; }
+  const max=8, shown=list.slice(0,max);
+  let html=shown.map(p=>avatarTag(p,'presence-av')).join('');
+  if(list.length>max) html+=`<span class="presence-av presence-more" title="+${list.length-max} online">+${list.length-max}</span>`;
+  bar.innerHTML=html;
+}
+function startPresence(){
+  const beat=()=>fetch('/api/heartbeat',{method:'POST'}).catch(()=>{});
+  beat(); setInterval(beat, 90000);   // mantém o próprio status "online"
+  const isGestao = REAL_MASTER || REAL_ROLE==='people_ops' || REAL_ROLE==='gestor';
+  if(isGestao){
+    const refresh=()=>fetch('/api/presence').then(r=>r.json()).then(renderPresence).catch(()=>{});
+    refresh(); setInterval(refresh, 60000);
+  }
+}
+startPresence();
+function avBold(s){ return String(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>'); }
+function avCac(v){ return v==null ? '—' : 'R$ '+Number(v).toFixed(3); }
+function avRoi(v){ return v==null ? '—' : Number(v).toFixed(1)+'×'; }            // GBV por R$ de custo
+function avPct(v){ return v==null ? '—' : (Number(v)*100).toFixed(1)+'%'; }      // comissão / GBV
+let avLoaded=false, avData=null, avSort={key:'roi',dir:-1};  // dir 1=asc, -1=desc (ROI: maior melhor)
+const AV_COLS=[
+  {key:'idx',        label:'#',             num:false, sortable:false},
+  {key:'nome',       label:'Colaborador',   num:false},
+  {key:'grupo',      label:'Grupo',         num:false},
+  {key:'rel',        label:'Vínculo',       num:false},
+  {key:'gbv',        label:'GBV',           num:true},
+  {key:'ating',      label:'Ating.',        num:true},
+  {key:'sal_cheio',  label:'Salário cheio', num:true},
+  {key:'sal_prorata',label:'Pró-rata mês',  num:true},
+  {key:'folha_total',label:'Folha c/ enc.', num:true},
+  {key:'comissao',   label:'Comissão',      num:true},
+  {key:'impactos',   label:'Impactos',      num:true},
+  {key:'custo_total',label:'Custo total',   num:true},
+  {key:'roi',        label:'ROI s/ custo',  num:true},
+  {key:'com_gbv',    label:'Com/GBV',       num:true},
+];
+function avSortRows(rows){
+  const k=avSort.key, dir=avSort.dir;
+  return [...rows].sort((a,b)=>{
+    let va=a[k], vb=b[k];
+    const na=(va==null), nb=(vb==null);
+    if(na&&nb) return 0; if(na) return 1; if(nb) return -1;   // s/ valor sempre por último
+    if(typeof va==='string') return va.localeCompare(vb)*dir;
+    return (va-vb)*dir;
+  });
+}
+function renderAvHead(theadId){
+  const thead=document.getElementById(theadId);
+  if(!thead) return;
+  thead.innerHTML='<tr>'+AV_COLS.map(c=>{
+    const sortable=c.sortable!==false;
+    const arrow=(sortable&&avSort.key===c.key)?(avSort.dir===1?' ↑':' ↓'):'';
+    const cls=(c.num?'num ':'')+(sortable?'av-th':'');
+    const sty=sortable?'cursor:pointer;user-select:none':'';
+    return `<th class="${cls}" data-key="${c.key}" style="${sty}">${c.label}<span style="color:var(--blue)">${arrow}</span></th>`;
+  }).join('')+'</tr>';
+  thead.querySelectorAll('.av-th').forEach(th=>th.addEventListener('click',()=>{
+    const k=th.dataset.key;
+    if(avSort.key===k) avSort.dir*=-1; else { avSort.key=k; avSort.dir=1; }
+    renderAvPeople();
+  }));
+}
+// Linha de subtotal/total de um conjunto de pessoas da aba
+function avTotalsRow(label, rows){
+  const T=rows.reduce((a,p)=>{
+    a.gbv+=p.gbv||0; a.sal_cheio+=p.sal_cheio||0; a.sal_prorata+=p.sal_prorata||0;
+    a.folha+=p.folha_total||0; a.com+=p.comissao||0; a.imp+=p.impactos||0; a.custo+=p.custo_total||0;
+    return a;
+  },{gbv:0,sal_cheio:0,sal_prorata:0,folha:0,com:0,imp:0,custo:0});
+  const roi=T.custo>0?(T.gbv/T.custo):null;
+  const comgbv=T.gbv>0?(T.com/T.gbv):null;
+  const tr=document.createElement('tr'); tr.className='total-row'; tr.style.fontWeight='700';
+  tr.innerHTML=`<td></td><td>${label}</td><td></td><td></td>`+
+    `<td class="num">${R(T.gbv)}</td><td class="num">—</td>`+
+    `<td class="num">${R(T.sal_cheio)}</td><td class="num">${R(T.sal_prorata)}</td>`+
+    `<td class="num">${R(T.folha)}</td><td class="num">${R(T.com)}</td><td class="num">${R(T.imp)}</td>`+
+    `<td class="num">${R(T.custo)}</td><td class="num">${avRoi(roi)}</td><td class="num">${avPct(comgbv)}</td>`;
+  return tr;
+}
+// Preenche o corpo de UMA tabela (um grupo) com as linhas + drill + total do grupo
+function fillAvBody(tbodyId, rows, col, label){
+  const pb=document.getElementById(tbodyId); if(!pb) return; pb.innerHTML='';
+  if(!rows.length){ pb.innerHTML=`<tr><td colspan="${AV_COLS.length}" style="text-align:center;padding:24px;color:var(--g400)">Sem dados</td></tr>`; return; }
+  avSortRows(rows).forEach((p,i)=>{
+    const roiTxt=p.roi==null?'<span style="color:var(--g400)">s/ venda</span>':avRoi(p.roi);
+    const tr=document.createElement('tr');
+    tr.className='av-row'; tr.style.cursor='pointer';
+    tr.innerHTML=`<td><span class="av-caret" style="color:var(--g400)">▸</span> ${i+1}</td>`+
+      `<td>${p.nome}</td>`+
+      `<td><span style="font-size:.72rem;font-weight:700;color:${col}">${p.grupo}</span></td>`+
+      `<td style="font-size:.78rem">${p.rel}</td>`+
+      `<td class="num">${R(p.gbv)}</td><td class="num">${p.ating!=null?P(p.ating):'—'}</td>`+
+      `<td class="num">${R(p.sal_cheio)}</td><td class="num">${R(p.sal_prorata)}</td>`+
+      `<td class="num">${R(p.folha_total)}</td><td class="num">${R(p.comissao)}</td><td class="num">${R(p.impactos)}</td>`+
+      `<td class="num" style="font-weight:600">${R(p.custo_total)}</td><td class="num">${roiTxt}</td><td class="num">${avPct(p.com_gbv)}</td>`;
+    const drill=document.createElement('tr');
+    drill.className='av-drill'; drill.style.display='none';
+    const cacLine=p.roi==null?'':`<div style="margin-top:10px;font-weight:700">ROI s/ comissão = GBV ${R(p.gbv)} ÷ comissão ${R(p.comissao)} = ${avRoi(p.roi_com)} · ROI s/ custo total = GBV ÷ ${R(p.custo_total)} = ${avRoi(p.roi)} · Comissão/GBV = ${avPct(p.com_gbv)}</div>`;
+    drill.innerHTML=`<td colspan="${AV_COLS.length}" style="background:var(--g50,#f7f8fb);padding:14px 18px">`+
+      `<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--g400);margin-bottom:8px">Composição do custo — ${p.nome} · ${p.grupo} (${p.rel})</div>`+
+      `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px 28px;max-width:760px">`+
+      p.breakdown.map(b=>`<div style="display:flex;justify-content:space-between;border-bottom:1px dashed var(--g200);padding:4px 0"><span style="color:var(--g600)">${b.label}</span><span style="font-variant-numeric:tabular-nums;font-weight:600">${R(b.val)}</span></div>`).join('')+
+      `</div>`+
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;margin-top:6px;border-top:2px solid var(--g300,#cbd5e1);max-width:300px"><span style="font-weight:700">Custo total</span><span style="font-weight:700;font-variant-numeric:tabular-nums">${R(p.custo_total)}</span></div>`+
+      cacLine+`</td>`;
+    tr.addEventListener('click',()=>{
+      const open=drill.style.display!=='none';
+      drill.style.display=open?'none':'';
+      const c=tr.querySelector('.av-caret'); if(c){c.textContent=open?'▸':'▾';c.style.color=open?'var(--g400)':'var(--blue)';}
+    });
+    pb.appendChild(tr); pb.appendChild(drill);
+  });
+  pb.appendChild(avTotalsRow(`TOTAL ${label} · ${rows.length}`, rows));
+}
+function renderAvPeople(){
+  if(!avData) return;
+  renderAvHead('av-head-vend'); renderAvHead('av-head-assist');
+  fillAvBody('av-body-vend',   avData.people.filter(p=>p.grupo==='Vendedor'),   'var(--purple,#6B3FE8)', 'Vendedores');
+  fillAvBody('av-body-assist', avData.people.filter(p=>p.grupo==='Assistente'), 'var(--blue)',           'Assistentes');
+}
+async function loadAssistVend(){
+  if(avLoaded===selectedMes) return;   // já carregado p/ o mês atual
+  try{
+    const r=await fetch(apiUrl('/api/assist-vs-vendedor')); if(!r.ok) return;
+    const d=await r.json(); if(d.error) return;
+    const gv=d.grupos.vendedor, ga=d.grupos.assistente;
+    document.getElementById('av-sub').textContent=`${d.mes_label} · custo por R$ de GBV (menor = mais rentável)`;
+    document.getElementById('av-cac-v').textContent=avRoi(gv.roi_com);
+    document.getElementById('av-cac-v-sub').textContent=`${gv.n} vend · com/GBV ${avPct(gv.com_gbv)} · ${(gv.ativacao*100).toFixed(0)}% ativos`;
+    document.getElementById('av-cac-a').textContent=avRoi(ga.roi_com);
+    document.getElementById('av-cac-a-sub').textContent=`${ga.n} assist · com/GBV ${avPct(ga.com_gbv)} · inclui ociosos`;
+    document.getElementById('av-cac-aa').textContent=avRoi(ga.roi_com_ativos);
+    document.getElementById('av-ativ').textContent=(ga.ativacao*100).toFixed(0)+'%';
+    document.getElementById('av-ativ-sub').textContent=`${ga.n_com_venda}/${ga.n} venderam · ocioso ${R(ga.custo_ocioso)}`;
+    const gb=document.getElementById('av-grp-body'); gb.innerHTML='';
+    [gv,ga].forEach(g=>{const tr=document.createElement('tr');
+      tr.innerHTML=`<td style="font-weight:600">${g.grupo}</td><td class="num">${g.n}</td><td class="num">${g.n_com_venda}</td>`+
+      `<td class="num">${R(g.gbv)}</td><td class="num">${R(g.folha)}</td><td class="num">${R(g.comissao)}</td>`+
+      `<td class="num">${R(g.custo)}</td><td class="num" style="font-weight:600">${avRoi(g.roi_com)}</td><td class="num">${avRoi(g.roi_com_ativos)}</td><td class="num">${avPct(g.com_gbv)}</td>`;
+      gb.appendChild(tr);});
+    // total geral dos dois grupos
+    const tg={n:gv.n+ga.n, ncv:gv.n_com_venda+ga.n_com_venda, gbv:gv.gbv+ga.gbv,
+              folha:gv.folha+ga.folha, com:gv.comissao+ga.comissao, custo:gv.custo+ga.custo};
+    const roiComTot=tg.com>0?tg.gbv/tg.com:null;
+    const comgbvTot=tg.gbv>0?tg.com/tg.gbv:null;
+    const trT=document.createElement('tr'); trT.className='total-row'; trT.style.fontWeight='700';
+    trT.innerHTML=`<td>TOTAL</td><td class="num">${tg.n}</td><td class="num">${tg.ncv}</td>`+
+      `<td class="num">${R(tg.gbv)}</td><td class="num">${R(tg.folha)}</td><td class="num">${R(tg.com)}</td>`+
+      `<td class="num">${R(tg.custo)}</td><td class="num">${avRoi(roiComTot)}</td><td class="num">—</td><td class="num">${avPct(comgbvTot)}</td>`;
+    gb.appendChild(trT);
+    avData=d; renderAvPeople(); renderAvCharts(d);
+    document.getElementById('av-fonte').textContent='Fonte — '+d.fonte;
+    avLoaded=selectedMes;
+  }catch(e){ console.error('assist-vs-vendedor',e); }
+}
+function renderAvCharts(d){
+  // A — ROI por modelo, mês a mês (GBV ÷ comissão por grupo)
+  const H=d.historico||[];
+  const labels=H.map(h=>h.mes_label);
+  const gv=H.map(h=>h.grupos&&h.grupos.vendedor?h.grupos.vendedor.roi_com:0);
+  const ga=H.map(h=>h.grupos&&h.grupos.assistente?h.grupos.assistente.roi_com:0);
+  if(chartAvMes)chartAvMes.destroy();
+  chartAvMes=new Chart(document.getElementById('av-chart-mes'),{type:'bar',
+    data:{labels,datasets:[
+      {label:'Vendedor',data:gv,backgroundColor:'#7B5CF6',borderRadius:6,maxBarThickness:30},
+      {label:'Assistente',data:ga,backgroundColor:'#0ea5e9',borderRadius:6,maxBarThickness:30}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'×'}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'×',font:{size:11}},grid:{color:'#f1f5f9'},border:{display:false}},
+              x:{grid:{display:false},border:{display:false},ticks:{font:{size:11,weight:'600'}}}}}});
+  // B — Top 5 / Bottom 5 por ROI médio no histórico
+  const rk=(d.ranking_hist||[]).filter(p=>p.roi>0);
+  const top=rk.slice(0,5), bot=rk.slice(-5).reverse();
+  const seen=new Set(); const sel=[];
+  top.forEach(p=>{sel.push({...p,_t:'top'});seen.add(p.nome);});
+  bot.forEach(p=>{if(!seen.has(p.nome))sel.push({...p,_t:'bot'});});
+  sel.sort((a,b)=>b.roi-a.roi);
+  document.getElementById('av-chart-tb-sub').textContent='ROI médio s/ custo total · histórico ('+(H.length?H[0].mes_label+'–'+H[H.length-1].mes_label:'—')+')';
+  if(chartAvTb)chartAvTb.destroy();
+  chartAvTb=new Chart(document.getElementById('av-chart-tb'),{type:'bar',
+    data:{labels:sel.map(p=>p.nome),datasets:[{data:sel.map(p=>p.roi),
+      backgroundColor:sel.map(p=>p._t==='top'?'#16a34a':'#ef4444'),borderRadius:5,maxBarThickness:18}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(1)+'× · '+sel[c.dataIndex].grupo+' · '+sel[c.dataIndex].meses+' mês(es)'}}},
+      scales:{x:{beginAtZero:true,ticks:{callback:v=>v+'×',font:{size:10}},grid:{color:'#f1f5f9'},border:{display:false}},
+              y:{grid:{display:false},border:{display:false},ticks:{font:{size:10}}}}}});
+}
+
+document.querySelectorAll('.filter-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentFilter=b.dataset.filter;
+    renderTx();
+  });
+});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let txAll=[], apvState={}, currentFilter='all';
+let chartTipo=null, chartGbv=null, chartTrendGbv=null, chartTrendTL=null, chartAvMes=null, chartAvTb=null;
+let selectedVendor='todos', selectedMes='', viewingSelf=true;
+
+// ── Render individual summary ─────────────────────────────────────────────────
+function renderSummary(d){
+  const comp=d.competencia ? monthLong(d.competencia) : '';
+  // e-mail "próprio" efetivo: ao simular (ver como TL/Vendedor) é o alvo, não o master logado
+  const selfEmail=((viewAs==='tl'||viewAs==='vendedor')&&viewAsTL)?viewAsTL:SESSION_EMAIL;
+  const isOther=(MASTER||ROLE==='gestor'||ROLE==='people_ops')&&selectedVendor!=='todos'&&selectedVendor!==SESSION_EMAIL;
+  document.getElementById('dash-title').textContent = isOther
+    ? vendorName(selectedVendor)+' · '+comp
+    : 'Meu Dashboard · '+comp;
+  document.getElementById('dash-subtitle').textContent = isOther ? selectedVendor : selfEmail;
+
+  document.getElementById('k-gbv').textContent   = R(d.gbv);
+  document.getElementById('k-liq').textContent   = R(d.gbv_liquido);
+  document.getElementById('k-churn-sub').textContent = `Churn: ${R(d.gbv_churn)} (${d.churns} transações)`;
+  document.getElementById('k-meta').textContent  = d.valor_meta!=null ? R(d.valor_meta) : '—';
+  document.getElementById('k-ating-sub').textContent = d.valor_meta!=null&&d.atingimento_meta>0
+    ? P(d.atingimento_meta)+' atingido' : '';
+  document.getElementById('k-com').textContent   = Rc(d.total_comissao);
+  document.getElementById('k-final').textContent = Rc(d.vlr_final_comissao);
+  // Comissão (bruta) some na visão de TL/Coord (pedido) — lá só faz sentido a Final
+  const cb=document.getElementById('card-com-bruta');
+  if(cb) cb.style.display=['tl_vanessa','tl_tacyana','tl_novo','coord'].includes(d.modelo)?'none':'';
+  document.getElementById('k-mult-sub').textContent = `Multiplicador: ${d.multiplicador>0?d.multiplicador.toFixed(1)+'×':'—'}`;
+
+  // flags "vs mês ant." removidas da visão TL/Vendedor (pedido) — limpa os badges de delta
+  ['d-gbv','d-liq','d-com','d-final'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
+  // visão TL/Vendedor: retira os subtextos de variação dos cards (churn, atingido, antes do
+  // multiplicador, multiplicador) p/ deixar a visão limpa
+  if(ROLE==='tl'||ROLE==='vendedor'){
+    ['k-churn-sub','k-ating-sub','k-com-sub','k-mult-sub'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='';});
+  }
+
+  const pct=Number(d.atingimento_meta);
+  const modelo=d.modelo||'analista';
+  const L=ladderFor(modelo);
+  document.getElementById('prog-pct').textContent=pct>0?P(pct):'—';
+  document.getElementById('prog-meta').textContent=(pct>0&&d.valor_meta!=null)
+    ?(d.is_projecao
+        ?`🔮 PROJEÇÃO · dia ${d.dias_decorridos}/30 · Meta proporcional: ${R(d.valor_meta)} · GBV: ${R(d.gbv_liquido)}`
+        :`Meta: ${R(d.valor_meta)} · GBV: ${R(d.gbv_liquido)}`)
+    :'Meta não configurada';
+  // banner de projeção no subtítulo do mês corrente
+  if(d.is_projecao){
+    const st=document.getElementById('dash-subtitle');
+    if(st) st.innerHTML=(st.textContent||'')+` &nbsp;·&nbsp; <span style="color:#7B5CF6;font-weight:700">🔮 Projeção parcial (${d.dias_decorridos}/30 dias) — fecha no dia 8</span>`;
+  }
+  // marcadores da barra = limiares do modelo (último com "+")
+  const mk=document.getElementById('bar-markers');
+  if(mk){
+    const pts=L.t.map(x=>x[0]).filter(x=>x>0);
+    mk.innerHTML='<span>0%</span>'+pts.map((p,i)=>`<span>${Math.round(p*100)}%${i===pts.length-1?'+':''}</span>`).join('');
+  }
+  setTimeout(()=>{
+    const f=document.getElementById('bar-fill');
+    f.style.width=(Math.min(pct/L.scale,1)*100)+'%';
+    f.style.background=barCol(pct);
+  },100);
+  document.getElementById('tier-wrap').innerHTML=`<span class="badge ${tierInfo(pct,modelo).c}">${tierInfo(pct,modelo).l}</span>`;
+  if(pct>0){
+    const quota=Number(d.gbv_liquido)/pct;
+    const next=L.t.map(x=>x[0]).find(lo=>lo>pct);          // próximo limiar do modelo
+    const nm=(next!=null)?(L.t.find(x=>x[0]===next)||[])[2]:null;
+    document.getElementById('next-hint').innerHTML=(next!=null)
+      ?`Faltam <strong>${R((next*quota)-Number(d.gbv_liquido))}</strong> em GBV para ${Math.round(next*100)}% (${nm})`
+      :'🏆 No tier máximo (teto do modelo)!';
+  }
+
+  if(chartTipo){chartTipo.destroy();chartTipo=null;}
+  if(chartGbv){chartGbv.destroy();chartGbv=null;}
+  chartTipo=new Chart(document.getElementById('chart-tipo'),{
+    type:'doughnut',
+    data:{labels:['Inteligente (1,3%)','Parcelado (4%)','À Vista (8%+)'],
+          datasets:[{data:[d.comissao_inteligente,d.comissao_parcelado,d.comissao_a_vista],
+                     backgroundColor:['#7B5CF6','#22c55e','#f59e0b'],
+                     borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'66%',
+      plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:14,font:{size:11}}},
+               tooltip:{padding:10,boxPadding:4,callbacks:{label:c=>{
+                 const tot=c.dataset.data.reduce((a,b)=>a+(+b||0),0),v=+c.parsed||0;
+                 return ` ${R(v)} · ${tot?((v/tot)*100).toFixed(1):0}%`;}}}}}});
+  chartGbv=new Chart(document.getElementById('chart-gbv'),{
+    type:'bar',
+    data:{labels:['GBV Bruto','GBV Líquido','Churn'],
+          datasets:[{data:[d.gbv,d.gbv_liquido,d.gbv_churn],
+                     backgroundColor:['#7B5CF6','#22c55e','#ef4444'],
+                     borderRadius:8,borderSkipped:false,maxBarThickness:72}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{padding:10,callbacks:{label:c=>' '+R(c.parsed.y)}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtMoney(v),font:{size:11},maxTicksLimit:5},
+                 grid:{color:'#f1f5f9'},border:{display:false}},
+              x:{grid:{display:false},border:{display:false},ticks:{font:{size:11,weight:'600'}}}}}});
+}
+
+// ── Render team totals ────────────────────────────────────────────────────────
+function renderTeam(team){
+  if(!team) return;
+  document.getElementById('team-meta').textContent = team.meta_total!=null ? R(team.meta_total) : '—';
+  document.getElementById('team-gbv').textContent  = R(team.gbv_total||0);
+  document.getElementById('team-com').textContent  = R(team.comissao_total||0);
+  // Comissão própria do coordenador (Fabio) — card separado, deixa claro o que é dele × do time
+  const cc=document.getElementById('card-coord-com'), ccv=document.getElementById('team-coord-com');
+  if(cc&&ccv){
+    if(team.coord_comissao!=null&&team.coord_comissao>0){ ccv.textContent=Rc(team.coord_comissao); cc.style.display=''; }
+    else cc.style.display='none';
+  }
+  // Atingimento = gbv / meta se tiver meta
+  const ating = (team.meta_total&&team.meta_total>0) ? team.gbv_total/team.meta_total : null;
+  const el=document.getElementById('team-ating');
+  if(el) el.textContent = ating!=null ? P(ating) : '—';
+}
+
+// ── Render ranking ────────────────────────────────────────────────────────────
+function renderRanking(data){
+  const rows = Array.isArray(data) ? data : (data.rows||[]);
+  const team = Array.isArray(data) ? null  : (data.team||null);
+  renderTeam(team);
+
+  const isMasterTodos = (MASTER||ROLE==='people_ops') && selectedVendor==='todos';
+  const thead = document.getElementById('ranking-thead');
+  if(isMasterTodos){
+    thead.innerHTML=`<tr>
+      <th>#</th><th>Colaborador</th><th>Time</th>
+      <th class="num">Meta</th><th class="num">GBV Líquido</th>
+      <th style="min-width:160px">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>
+    </tr>`;
+  } else {
+    thead.innerHTML=`<tr>
+      <th>#</th><th>Vendedor</th><th class="num">GBV Líquido</th>
+      <th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>
+    </tr>`;
+  }
+
+  const tbody=document.getElementById('ranking-body');
+  tbody.innerHTML='';
+  if(!rows.length){
+    const cols=isMasterTodos?8:6;
+    tbody.innerHTML=`<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--g400)">Nenhum dado disponível</td></tr>`;
+    return;
+  }
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    if(r.isMe)tr.className='me';
+    if((MASTER||ROLE==='people_ops')&&r.vendedor){
+      tr.classList.add('clickable');
+      tr.addEventListener('click',()=>{
+        const sel=document.getElementById('vendor-select');
+        sel.value=r.vendedor;sel.dispatchEvent(new Event('change'));
+      });
+    }
+    const pc=r.posicao===1?'rk1':r.posicao===2?'rk2':r.posicao===3?'rk3':'rkn';
+    const tiC=tierColor(r.multiplicador);
+
+    if(isMasterTodos){
+      const ating=r.atingimento||0;
+      const barW=Math.min(ating/1.5,1)*100;
+      const barC=barCol(ating);
+      tr.innerHTML=`
+        <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
+        <td>${r.label}</td>
+        <td style="font-size:.78rem;color:var(--g600)">${r.gestor_label||'—'}</td>
+        <td class="num">${r.valor_meta>0?R(r.valor_meta):'—'}</td>
+        <td class="num">${R(r.gbv_liquido)}</td>
+        <td>
+          <div class="pct-bar-wrap"><div class="pct-bar-fill" style="width:${barW}%;background:${barC}"></div></div>
+        </td>
+        <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
+        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>`;
+    } else {
+      tr.innerHTML=`
+        <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
+        <td>${r.label}</td>
+        <td class="num">${R(r.gbv_liquido)}</td>
+        <td class="num">${r.atingimento>0?P(r.atingimento):'—'}</td>
+        <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
+        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Render TL summary ─────────────────────────────────────────────────────────
+function renderTLSummary(tls){
+  const tbody=document.getElementById('tl-summary-body');
+  tbody.innerHTML='';
+  if(!tls||!tls.length){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma TL encontrada para este mês</td></tr>';
+    return;
+  }
+  let totalGbv=0, totalCom=0, totalMeta=0;
+  tls.forEach(tl=>{
+    const ating = tl.team_meta>0 ? tl.team_gbv/tl.team_meta : 0;
+    const barW   = Math.min(ating/1.5,1)*100;
+    const barC   = barCol(ating);
+    totalGbv  += tl.team_gbv;
+    totalCom  += tl.team_comissao;
+    totalMeta += tl.team_meta;
+
+    const tr=document.createElement('tr');
+    tr.classList.add('clickable');
+    tr.innerHTML=`
+      <td>
+        <div class="tl-name">${tl.label}</div>
+        <div class="tl-sub">${tl.tl_email}</div>
+      </td>
+      <td class="num">${tl.team_meta>0?R(tl.team_meta):'—'}</td>
+      <td class="num">${R(tl.team_gbv)}</td>
+      <td style="min-width:160px">
+        <div class="pct-bar-wrap"><div class="pct-bar-fill" style="width:${barW}%;background:${barC}"></div></div>
+      </td>
+      <td class="num">${R(tl.team_comissao)}</td>
+      <td class="num">${tl.member_count}</td>`;
+    tr.title='Ver equipe de '+tl.label;
+    tr.addEventListener('click',()=>{
+      const sel=document.getElementById('vendor-select');
+      if(sel){sel.value=tl.tl_email;sel.dispatchEvent(new Event('change'));}
+    });
+    tbody.appendChild(tr);
+  });
+  // Total row
+  const tr=document.createElement('tr');
+  tr.className='total-row';
+  const atTot = totalMeta>0 ? totalGbv/totalMeta : 0;
+  tr.innerHTML=`
+    <td><strong>Total Equipe</strong></td>
+    <td class="num">${totalMeta>0?R(totalMeta):'—'}</td>
+    <td class="num">${R(totalGbv)}</td>
+    <td>${atTot>0?P(atTot):'—'}</td>
+    <td class="num">${R(totalCom)}</td>
+    <td class="num">${tls.reduce((s,t)=>s+t.member_count,0)}</td>`;
+  tbody.appendChild(tr);
+}
+
+// ── Render trend charts ───────────────────────────────────────────────────────
+function renderTrend(data){
+  if(!data||!data.months||!data.months.length) return;
+
+  const labels = data.months.map(m=>monthShort(m));
+  const teamGbv  = data.team.map(t=>t.gbv);
+  const teamCom  = data.team.map(t=>t.comissao);
+
+  // Chart 1: Team GBV + Comissão dual-axis
+  if(chartTrendGbv){chartTrendGbv.destroy();chartTrendGbv=null;}
+  chartTrendGbv = new Chart(document.getElementById('chart-trend-gbv'),{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'GBV Líquido',
+          data:teamGbv,
+          borderColor:'#7B5CF6',
+          backgroundColor:'rgba(123,92,246,.10)',
+          fill:true, tension:.35, pointRadius:3, pointHoverRadius:6,
+          borderWidth:3, pointBackgroundColor:'#7B5CF6',
+          yAxisID:'y1',
+        },
+        {
+          label:'Comissão Final',
+          data:teamCom,
+          borderColor:'#E91E8C',
+          backgroundColor:'rgba(233,30,140,.08)',
+          fill:true, tension:.35, pointRadius:3, pointHoverRadius:6,
+          borderWidth:3, pointBackgroundColor:'#E91E8C',
+          yAxisID:'y2',
+        },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,usePointStyle:true}},
+        tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+R(c.parsed.y)}},
+      },
+      scales:{
+        y1:{type:'linear',position:'left',ticks:{callback:v=>fmtMoney(v),font:{size:10},color:'#7B5CF6',maxTicksLimit:5},grid:{color:'#f1f5f9'},border:{display:false}},
+        y2:{type:'linear',position:'right',ticks:{callback:v=>fmtMoney(v),font:{size:10},color:'#E91E8C',maxTicksLimit:5},grid:{display:false},border:{display:false}},
+        x:{grid:{display:false},border:{display:false}},
+      }
+    }
+  });
+
+  // Update sub with MoM delta
+  if(teamGbv.length>=2){
+    const last=teamGbv[teamGbv.length-1], prev=teamGbv[teamGbv.length-2];
+    const pct=((last-prev)/Math.abs(prev)*100).toFixed(1);
+    const up=last>=prev;
+    document.getElementById('trend-gbv-sub').innerHTML=
+      `<span style="color:${up?'#166534':'#991b1b'};font-weight:600">${up?'▲':'▼'} ${Math.abs(pct)}% vs mês anterior</span>`;
+  }
+
+  // Chart 2: Per-TL grouped bars
+  if(chartTrendTL){chartTrendTL.destroy();chartTrendTL=null;}
+  const tlColors=['#7B5CF6','#E91E8C','#3b82f6','#22c55e','#f59e0b'];
+  const tlKeys=Object.keys(data.by_tl||{});
+  if(tlKeys.length){
+    chartTrendTL=new Chart(document.getElementById('chart-trend-tl'),{
+      type:'bar',
+      data:{
+        labels,
+        datasets:tlKeys.map((tl,i)=>({
+          label:data.by_tl[tl].label,
+          data:data.by_tl[tl].gbv,
+          backgroundColor:tlColors[i%tlColors.length],
+          borderRadius:6,
+          borderSkipped:false,
+          maxBarThickness:28,
+        }))
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{size:11},boxWidth:8,padding:12,usePointStyle:true,pointStyle:'circle'}},
+          tooltip:{padding:10,callbacks:{label:c=>' '+c.dataset.label+': '+R(c.parsed.y)}},
+        },
+        scales:{
+          y:{beginAtZero:true,ticks:{callback:v=>fmtMoney(v),font:{size:10},maxTicksLimit:5},grid:{color:'#f1f5f9'},border:{display:false},stacked:false},
+          x:{grid:{display:false},border:{display:false},ticks:{font:{size:11,weight:'600'}}},
+        }
+      }
+    });
+  }
+}
+
+// ── Render payroll impact ─────────────────────────────────────────────────────
+function renderPayroll(p){
+  if(!p||!p.totais) return;
+
+  // Info bar
+  const dsr_pct=(p.dsr_factor*100).toFixed(2);
+  const reflexo_pct=((p.reflexo_rate||0.5)*100).toFixed(0);
+  document.getElementById('payroll-info-bar').innerHTML=`
+    <strong>Competência:</strong> <span class="info-pill">${p.mes_competencia_label}</span>
+    <strong>Pagamento em:</strong> <span class="info-pill">${p.mes_pagamento_label}</span>
+    <strong>DSR:</strong> <span class="info-pill">${dsr_pct}%</span>
+    <strong>Reflexo:</strong> <span class="info-pill">${reflexo_pct}% s/ (comissão+DSR)</span>
+  `;
+
+  // Cards
+  document.getElementById('pay-comissao').textContent = R(p.totais.comissao);
+  document.getElementById('pay-dsr').textContent      = R(p.totais.dsr);
+  document.getElementById('pay-dsr-sub').textContent  = `${dsr_pct}% sobre comissão`;
+  const elRefLabel=document.getElementById('pay-reflexo-label');
+  if(elRefLabel) elRefLabel.textContent=`Reflexo (${reflexo_pct}%)`;
+  document.getElementById('pay-reflexo').textContent  = R(p.totais.reflexo);
+  document.getElementById('pay-total').textContent    = R(p.totais.total);
+  const overhead = p.totais.comissao>0
+    ? ((p.totais.total/p.totais.comissao - 1)*100).toFixed(1)+'% de encargos'
+    : '';
+  document.getElementById('pay-pct-sub').textContent = overhead;
+
+  // Table
+  const tbody=document.getElementById('payroll-body');
+  tbody.innerHTML='';
+  if(!p.vendedores||!p.vendedores.length){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Sem dados</td></tr>';
+    return;
+  }
+  p.vendedores.forEach(v=>{
+    const tr=document.createElement('tr');
+    const overhead_pct = v.comissao>0 ? ((v.total/v.comissao-1)*100).toFixed(1) : '—';
+    tr.innerHTML=`
+      <td>${v.label}</td>
+      <td class="num">${R(v.comissao)}</td>
+      <td class="num">${R(v.dsr)} <span style="font-size:.7rem;color:var(--g400)">(${(p.dsr_factor*100).toFixed(2)}%)</span></td>
+      <td class="num">${R(v.reflexo)}</td>
+      <td class="num" style="font-weight:600">${R(v.total)} <span style="font-size:.7rem;color:var(--g400)">(+${overhead_pct}%)</span></td>`;
+    tbody.appendChild(tr);
+  });
+  // Total
+  const tot=document.createElement('tr');
+  tot.className='total-row';
+  const oh_tot=p.totais.comissao>0?((p.totais.total/p.totais.comissao-1)*100).toFixed(1):'—';
+  tot.innerHTML=`
+    <td>Total</td>
+    <td class="num">${R(p.totais.comissao)}</td>
+    <td class="num">${R(p.totais.dsr)}</td>
+    <td class="num">${R(p.totais.reflexo)}</td>
+    <td class="num">${R(p.totais.total)} <span style="font-size:.7rem;color:var(--g400)">(+${oh_tot}%)</span></td>`;
+  tbody.appendChild(tot);
+}
+
+// ── Render month-over-month comparison ────────────────────────────────────────
+function renderMomCompare(data, breakdown){
+  const wrap = document.getElementById('mom-compare-wrap');
+  if(!wrap||!data||!data.months||!data.months.length){ if(wrap) wrap.innerHTML=''; return; }
+
+  const months = data.months;
+  const team   = data.team || [];
+  const byTL   = data.by_tl || [];
+
+  // helpers
+  const fmt = v => R(v);
+  function delta(curr, prev){
+    if(!prev) return '';
+    const pct = ((curr - prev) / Math.abs(prev) * 100);
+    const abs = curr - prev;
+    const cls = abs > 0 ? 'mom-delta-pos' : abs < 0 ? 'mom-delta-neg' : 'mom-delta-neu';
+    const sign = abs >= 0 ? '+' : '';
+    return `<span class="${cls}">${sign}${pct.toFixed(1)}%<br><small>${sign}${fmt(abs)}</small></span>`;
+  }
+
+  // Map month → team row
+  const tmap = {};
+  team.forEach(r => { tmap[r.mes] = r; });
+
+  // Header row
+  let html = '<div style="overflow-x:auto"><table class="mom-tbl"><thead><tr>';
+  html += '<th style="min-width:130px"></th>';
+  months.forEach(m => { html += `<th>${monthShort(m)}</th>`; });
+  html += '<th class="mom-last-col">Δ último mês</th>';
+  html += '</tr></thead><tbody>';
+
+  // Summary rows
+  const rows = [
+    { key: 'gbv',       label: 'GBV Líquido' },
+    { key: 'com_bruta', label: 'Comissão Bruta' },
+    { key: 'com_final', label: 'Comissão Final' },
+  ];
+  rows.forEach(({key, label}) => {
+    html += `<tr><td>${label}</td>`;
+    months.forEach(m => {
+      const v = (tmap[m] || {})[key] || 0;
+      html += `<td>${fmt(v)}</td>`;
+    });
+    // Delta: last vs second-to-last
+    const vals = months.map(m => (tmap[m] || {})[key] || 0);
+    const d = vals.length >= 2 ? delta(vals[vals.length-1], vals[vals.length-2]) : '—';
+    html += `<td class="mom-last-col">${d}</td></tr>`;
+  });
+
+  // Breakdown by TL (master only)
+  if(breakdown && byTL.length){
+    html += '<tr class="mom-sep"><td colspan="' + (months.length + 2) + '">Comissão Final por Time</td></tr>';
+    byTL.forEach(tl => {
+      html += `<tr class="mom-tl"><td>${tl.label}</td>`;
+      tl.com_final.forEach(v => { html += `<td>${fmt(v)}</td>`; });
+      const vals = tl.com_final;
+      const d = vals.length >= 2 ? delta(vals[vals.length-1], vals[vals.length-2]) : '—';
+      html += `<td class="mom-last-col">${d}</td></tr>`;
+    });
+  }
+
+  html += '</tbody></table></div>';
+  wrap.innerHTML = html;
+}
+
+// ── Render transactions ───────────────────────────────────────────────────────
+function renderTx(){
+  let list=txAll;
+  if(currentFilter==='paid')           list=txAll.filter(t=>t.transaction_status==='paid');
+  else if(currentFilter==='refunded')  list=txAll.filter(t=>t.transaction_status==='refunded');
+  else if(currentFilter==='chargeback')list=txAll.filter(t=>t.transaction_status==='chargeback');
+
+  const tbody=document.getElementById('tx-body');
+  tbody.innerHTML='';
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma transação encontrada</td></tr>';
+    updatePills();return;
+  }
+  list.forEach(tx=>{
+    const isChurn=tx.is_churn>0;
+    const isExtra=tx.origem==='extra';
+    const tr=document.createElement('tr');
+    if(isChurn)tr.style.background='#fff5f5';
+    else if(isExtra)tr.style.background='#f3fbf5';
+    const[sc,sl]=statusLabel(tx.transaction_status).split(' ');
+    const origemCell=isExtra
+      ?`<span class="churn-flag" style="background:#16a34a">HP add</span>`
+      :`<span style="font-size:.75rem;color:var(--g400)">Sistema</span>`;
+    // Aprovação do vendedor: TODOS veem; só o PRÓPRIO vendedor/assistente (viewingSelf, sem simulação) edita.
+    const apOk=(apvState[tx.transaction_id]||{}).status==='aprovado';
+    const canApprove=viewingSelf && ROLE==='vendedor' && !viewAs && !isExtra;
+    const apCell=canApprove
+      ?`<button class="apv-btn ${apOk?'approve':''}" style="cursor:pointer;font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:10px;border:1px solid ${apOk?'#16a34a':'#cbd5e1'};background:${apOk?'#16a34a1a':'#fff'};color:${apOk?'#16a34a':'#475569'}" onclick="approveTx('${tx.transaction_id}',${apOk?'false':'true'})">${apOk?'✓ Aprovado':'Aprovar'}</button>`
+      :(apOk?'<span style="font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;background:#16a34a1a;color:#16a34a">✓ Aprovado</span>'
+            :'<span style="font-size:.7rem;color:var(--g400)">Pendente</span>');
+    // Aprovação de HP (dupla: TL + coordenador). Só linhas de HP (origem=extra). TL/coord decidem
+    // (backend valida tl_email/coord). Demais papéis só visualizam.
+    let hpCell='<span style="color:var(--g400)">—</span>';
+    if(tx.aprovacao_hp){
+      const h=tx.aprovacao_hp, canDecide=(ROLE==='tl'||ROLE==='gestor')&&!viewAs;
+      hpCell=`<div style="font-size:.68rem;line-height:1.5;white-space:nowrap">TL: ${badgeExtra(h.status_tl)} · Coord: ${badgeExtra(h.status_coord)}</div>`;
+      if(canDecide) hpCell+=`<div class="apv-actions" style="margin-top:3px">`
+        +`<button class="apv-btn approve" onclick="decideExtra('${h.id}','aprovado')">✓</button>`
+        +`<button class="apv-btn dispute" onclick="decideExtra('${h.id}','rejeitado')">✗</button></div>`;
+    }
+    // Forma de pagamento da transação
+    const FORMA={'a vista':['À vista','#7B5CF6'],'parcelado':['Parcelado','#E91E8C'],'inteligente':['Inteligente','#0ea5e9']};
+    const fp=FORMA[tx.forma_pagamento];
+    const formaCell=fp
+      ?`<span style="font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;background:${fp[1]}1a;color:${fp[1]}">${fp[0]}</span>`
+      :'<span style="color:var(--g400)">—</span>';
+    const clienteCell=tx.cliente_email
+      ?`<span style="font-size:.78rem;color:var(--g600)">${tx.cliente_email}</span>`
+      :'<span style="color:var(--g400)">—</span>';
+    tr.innerHTML=`
+      <td><span class="tx-id">${tx.transaction_id||'—'}</span></td>
+      <td>${tx.data_contrato||'—'}</td>
+      <td>${clienteCell}</td>
+      <td>${R(tx.gbv)}</td><td>${R(tx.parcela)}</td>
+      <td>${formaCell}</td>`+`
+      <td>${R(tx.gbv_liquido)}${isChurn?'<span class="churn-flag">churn</span>':''}</td>
+      <td>${tx.comissao!=null?R(tx.comissao):'<span style="color:var(--g400)">—</span>'}</td>
+      <td><span class="status-badge ${sc}">${sl}</span></td>
+      <td>${origemCell}</td>
+      <td>${apCell}</td>
+      <td>${hpCell}</td>`;
+    tbody.appendChild(tr);
+  });
+  updatePills();
+}
+
+function updatePills(){
+  document.getElementById('pill-total').textContent=`${txAll.length} transações`;
+}
+
+// Aprovação por transação (só o próprio vendedor/assistente; backend valida e-mail+papel)
+function approveTx(txId, approve){
+  const status=approve?'aprovado':'pendente';
+  fetch('/api/approvals',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({transaction_id:txId,status,mes:selectedMes?selectedMes+'-01':undefined})
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){toast('Erro: '+d.error);return;}
+    apvState[txId]={status};
+    toast(approve?'✓ Transação aprovada':'Aprovação removida');
+    renderTx();
+  }).catch(e=>toast('Erro: '+e.message));
+}
+
+// ── Sign-off do fechamento (visão do próprio vendedor) ──────────────────────────
+function loadSignoff(){
+  const card=document.getElementById('signoff-card');
+  const hp  =document.getElementById('hp-add-card');
+  if(!viewingSelf){ if(card)card.style.display='none'; if(hp)hp.style.display='none'; return; }
+  if(hp)  hp.style.display='';
+  if(card)card.style.display='';
+  loadExtras();
+  fetch(apiUrl('/api/signoff')).then(r=>r.json()).then(d=>{
+    const st=document.getElementById('signoff-status');
+    const btn=document.getElementById('btn-signoff');
+    const bd=document.getElementById('pending-badge');
+    if(d.signed){
+      st.innerHTML=`<span style="color:#16a34a;font-weight:600">✓ Fechamento confirmado</span> em ${fmtAcc(d.at)}.`;
+      btn.textContent='✓ Confirmado'; btn.disabled=true; btn.style.opacity='.6';
+      if(bd)bd.style.display='none';
+    } else {
+      st.textContent='Você ainda não confirmou o fechamento deste mês.';
+      btn.textContent='✓ Estou de acordo com o fechamento'; btn.disabled=false; btn.style.opacity='';
+      if(bd){bd.textContent='!';bd.style.display='inline';}
+    }
+  });
+}
+function doSignoff(){
+  const btn=document.getElementById('btn-signoff'); btn.disabled=true;
+  fetch('/api/signoff',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({mes:selectedMes||undefined})
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){toast('Erro: '+d.error);btn.disabled=false;return;}
+    toast('✓ Fechamento confirmado — e-mail enviado'); loadSignoff();
+  }).catch(e=>{toast('Erro: '+e.message);btn.disabled=false;});
+}
+
+// ── Adicionar HP que faltou (visão do próprio vendedor) ─────────────────────────
+const EXTRA_LABEL={pendente:'Pendente',aprovado:'Aprovado',rejeitado:'Rejeitado'};
+function badgeExtra(s){return `<span class="dot ${s==='aprovado'?'ap':(s==='rejeitado'?'di':'')}"></span>${EXTRA_LABEL[s]||s||'—'}`;}
+function renderHpList(rows){
+  const box=document.getElementById('hp-list');
+  if(!rows||!rows.length){box.innerHTML='<p style="font-size:.78rem;color:var(--g400)">Nenhum HP adicionado neste mês.</p>';return;}
+  box.innerHTML='<table class="tx-tbl" style="width:100%"><thead><tr><th>HP</th><th>GBV</th><th>Modalidade</th><th>TL</th><th>Coord.</th></tr></thead><tbody>'+
+    rows.map(r=>{
+      const val=r.fonte==='nao_localizado'?'<span style="color:#dc2626">não localizado</span>':R(r.gbv||0);
+      return `<tr><td><span class="tx-id">${r.transaction_id}</span></td><td>${val}</td>
+        <td>${r.modality_payment||'—'}</td><td>${badgeExtra(r.status_tl)}</td><td>${badgeExtra(r.status_coord)}</td></tr>`;
+    }).join('')+'</tbody></table>';
+}
+function loadExtras(){
+  if(!viewingSelf)return;
+  fetch(apiUrl('/api/extras')).then(r=>r.json()).then(renderHpList);
+}
+function addHP(){
+  const code=document.getElementById('hp-code').value.trim();
+  const nota=document.getElementById('hp-nota').value.trim();
+  if(!code){toast('Informe o código HP');return;}
+  const btn=document.getElementById('btn-add-hp'); btn.disabled=true;
+  fetch('/api/extras',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({transaction_id:code,nota,mes:selectedMes||undefined})
+  }).then(r=>r.json().then(d=>({ok:r.ok,d}))).then(({ok,d})=>{
+    btn.disabled=false;
+    if(!ok||d.error){toast('Erro: '+(d.error||'falha'));return;}
+    document.getElementById('hp-code').value='';document.getElementById('hp-nota').value='';
+    toast(d.fonte==='nao_localizado'?'HP enviado (valor não localizado — TL/coord vão revisar)':'✓ HP enviado para aprovação');
+    loadExtras();
+  }).catch(e=>{btn.disabled=false;toast('Erro: '+e.message);});
+}
+
+// ── Aba Aprovações (TL / coordenador) ───────────────────────────────────────────
+function loadAprovacoes(){
+  const tbody=document.getElementById('aprov-body');
+  tbody.innerHTML='<tr class="loading-row"><td colspan="9"><div class="spinner"></div>Carregando…</td></tr>';
+  fetch('/api/extras/pending').then(r=>r.json()).then(rows=>{
+    const bd=document.getElementById('aprov-badge');
+    if(bd){ if(rows.length){bd.textContent=rows.length;bd.style.display='inline';} else bd.style.display='none'; }
+    if(!rows.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--g400)">Nada pendente 🎉</td></tr>';return;}
+    tbody.innerHTML='';
+    rows.forEach(r=>{
+      const val=r.fonte==='nao_localizado'?'<span style="color:#dc2626">não localizado</span>':R(r.gbv||0);
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td>${r.vendedor_nome}</td><td><span class="tx-id">${r.transaction_id}</span></td>
+        <td>${(r.competencia||'').slice(0,7)}</td><td>${val}</td><td>${r.modality_payment||'—'}</td>
+        <td style="max-width:160px;font-size:.78rem">${r.nota||'—'}</td>
+        <td>${badgeExtra(r.status_tl)}</td><td>${badgeExtra(r.status_coord)}</td>
+        <td><div class="apv-actions">
+          <button class="apv-btn approve" onclick="decideExtra('${r.id}','aprovado')">✓</button>
+          <button class="apv-btn dispute" onclick="decideExtra('${r.id}','rejeitado')">✗</button>
+        </div></td>`;
+      tbody.appendChild(tr);
+    });
+  });
+}
+function decideExtra(id,decision){
+  fetch('/api/extras/'+id+'/decision',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({decision})
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){toast('Erro: '+d.error);return;}
+    toast(decision==='aprovado'?'✓ HP aprovado':'✗ HP rejeitado');
+    const tx=txAll.find(t=>t.aprovacao_hp&&t.aprovacao_hp.id===id);
+    if(tx&&d.status_tl){tx.aprovacao_hp.status_tl=d.status_tl;tx.aprovacao_hp.status_coord=d.status_coord;}
+    renderTx();
+  }).catch(e=>toast('Erro: '+e.message));
+}
+
+(function(){
+  const b1=document.getElementById('btn-signoff'); if(b1)b1.addEventListener('click',doSignoff);
+  const b2=document.getElementById('btn-add-hp');  if(b2)b2.addEventListener('click',addHP);
+})();
+
+// ── Receivables ───────────────────────────────────────────────────────────────
+let chartRecv=null;
+function renderRecebiveis(data){
+  let recebido=0,pendente=0,cancelado=0;
+  const byMonth={};
+  const PAID=new Set(['paid']),CANCEL=new Set(['refunded','chargeback','dispute']);
+  data.forEach(r=>{
+    const k=r.mes_pagamento||'N/D';
+    if(!byMonth[k])byMonth[k]={recebido:0,pendente:0,cancelado:0,parc_rec:0,parc_prev:0,parc_canc:0};
+    if(PAID.has(r.status)){recebido+=r.valor;byMonth[k].recebido+=r.valor;byMonth[k].parc_rec+=r.parcelas;}
+    else if(CANCEL.has(r.status)){cancelado+=r.valor;byMonth[k].cancelado+=r.valor;byMonth[k].parc_canc+=r.parcelas;}
+    else{pendente+=r.valor;byMonth[k].pendente+=r.valor;byMonth[k].parc_prev+=r.parcelas;}
+  });
+  const total=recebido+pendente;
+  document.getElementById('rv-total').textContent=R(total);
+  document.getElementById('rv-recebido').textContent=R(recebido);
+  document.getElementById('rv-recebido-pct').textContent=total>0?((recebido/total*100).toFixed(1)+'% do total'):'';
+  document.getElementById('rv-pendente').textContent=R(pendente);
+  document.getElementById('rv-pendente-pct').textContent=total>0?((pendente/total*100).toFixed(1)+'% do total'):'';
+  document.getElementById('rv-cancelado').textContent=R(cancelado);
+  const months=Object.keys(byMonth).filter(k=>k!=='N/D').sort();
+  if(chartRecv){chartRecv.destroy();chartRecv=null;}
+  chartRecv=new Chart(document.getElementById('chart-recv'),{
+    type:'bar',
+    data:{
+      labels:months.map(m=>{const d=new Date(m+'T12:00:00');return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});}),
+      datasets:[
+        {label:'Recebido',data:months.map(m=>byMonth[m]?.recebido||0),backgroundColor:'#22c55e',borderRadius:4},
+        {label:'A Receber',data:months.map(m=>byMonth[m]?.pendente||0),backgroundColor:'#3b82f6',borderRadius:4},
+        {label:'Cancelado',data:months.map(m=>byMonth[m]?.cancelado||0),backgroundColor:'#ef4444',borderRadius:4},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${R(c.parsed.y)}`}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>R(v)},grid:{display:false}}}}
+  });
+  const tbody=document.getElementById('rv-body');
+  tbody.innerHTML='';
+  [...months,...(byMonth['N/D']?['N/D']:[])].forEach(m=>{
+    const b=byMonth[m]||{};
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${m==='N/D'?'Data não confirmada':monthLong(m)}</td>
+      <td>${b.parc_rec||0}</td>
+      <td style="color:var(--green);font-weight:600">${R(b.recebido||0)}</td>
+      <td>${b.parc_prev||0}</td>
+      <td style="color:var(--blue);font-weight:600">${R(b.pendente||0)}</td>
+      <td style="color:var(--red)">${R(b.cancelado||0)}</td>`;
+    tbody.appendChild(tr);
+  });
+  if(!months.length&&!byMonth['N/D']){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--g400)">Nenhum dado encontrado</td></tr>';
+  }
+}
+
+// ── Section visibility ────────────────────────────────────────────────────────
+function setSections(mode){
+  const S=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'':'none';};
+
+  // All possible sections
+  const all=['section-trend','section-team','section-tl-summary','section-payroll',
+             'section-mom-compare','section-summary','section-progress','section-charts','section-ranking'];
+  all.forEach(id=>S(id,false));
+
+  if(mode==='gestor-overview'){
+    S('section-trend',true);S('section-team',true);
+    S('section-tl-summary',true);S('section-mom-compare',true);
+    // payroll is master-only — not shown here
+  } else if(mode==='todos-master'){
+    S('section-trend',true);S('section-team',true);
+    S('section-ranking',true);S('section-payroll',true);S('section-mom-compare',true);
+  } else if(mode==='peopleops-todos'){
+    // visão geral sem folha/PII
+    S('section-trend',true);S('section-team',true);
+    S('section-ranking',true);S('section-mom-compare',true);
+  } else if(mode==='gestor-tl'){
+    S('section-summary',true);S('section-progress',true);S('section-charts',true);
+    S('section-ranking',true);
+  } else {
+    // individual — drill num colaborador específico: SÓ os dados dele.
+    S('section-summary',true);S('section-progress',true);S('section-charts',true);
+    // a tabela de ranking só faz sentido para TL (equipe própria, filtrada no backend);
+    // master/people_ops/vendedor vendo um indivíduo NÃO veem a lista de todos.
+    if(ROLE==='tl') S('section-ranking',true);
+  }
+
+  const showTx=(mode!=='todos-master'&&mode!=='gestor-overview'&&mode!=='peopleops-todos');
+  S('tx-empty-master',!showTx);
+  document.getElementById('tx-content').style.display=showTx?'block':'none';
+  S('recv-empty',!showTx);
+  document.getElementById('recv-content').style.display=showTx?'block':'none';
+  S('btn-all', showTx&&viewingSelf);   // botão pode não existir → null-safe
+}
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+function apiUrl(base,vendedor){
+  const p=new URLSearchParams();
+  if(vendedor&&vendedor!=='todos')p.set('vendedor',vendedor);
+  if(selectedMes)p.set('mes',selectedMes);
+  const qs=p.toString();
+  return qs?base+'?'+qs:base;
+}
+
+// ── Load data ─────────────────────────────────────────────────────────────────
+function loadData(vendedor){
+  selectedVendor=vendedor||'todos';
+  viewingSelf=!(MASTER||ROLE==='gestor'||ROLE==='tl'||ROLE==='people_ops')
+              ||selectedVendor===SESSION_EMAIL||selectedVendor==='todos';
+
+  const isTodos=selectedVendor==='todos';
+
+  // ── Gestor overview ──
+  if(ROLE==='gestor'&&isTodos){
+    setSections('gestor-overview');
+    document.getElementById('dash-title').textContent='Visão Gestora · Equipe Comercial';
+    document.getElementById('dash-subtitle').textContent=SESSION_EMAIL;
+    Promise.all([
+      fetch(apiUrl('/api/tl-summary')).then(r=>r.json()),
+      fetch(apiUrl('/api/ranking')).then(r=>r.json()),
+      fetch('/api/trend').then(r=>r.json()),
+      fetch(apiUrl('/api/payroll-impact')).then(r=>r.json()),
+      fetch('/api/mom-compare').then(r=>r.json()),
+    ]).then(([tls,ranking,trend,payroll,mom])=>{
+      renderTLSummary(tls||[]);
+      renderRanking(ranking||[]);
+      renderTrend(trend||{});
+      renderPayroll(payroll||{});
+      renderMomCompare(mom||{}, false);
+    }).catch(e=>console.error(e));
+    return;
+  }
+
+  // ── People Ops · visão geral (todos os colaboradores, ativos e inativos, sem folha) ──
+  if(ROLE==='people_ops'&&isTodos){
+    setSections('peopleops-todos');
+    document.getElementById('dash-title').textContent='Dashboard · Equipe Comercial';
+    document.getElementById('dash-subtitle').textContent='Visão de People Ops — todos os colaboradores (ativos e inativos)';
+    document.getElementById('ranking-title').textContent='Todos os Colaboradores';
+    Promise.all([
+      fetch(apiUrl('/api/ranking')).then(r=>r.json()),
+      fetch('/api/trend').then(r=>r.json()),
+      fetch('/api/mom-compare').then(r=>r.json()),
+    ]).then(([ranking,trend,mom])=>{
+      renderRanking(ranking||[]);
+      renderTrend(trend||{});
+      renderMomCompare(mom||{}, true);
+    }).catch(e=>console.error(e));
+    return;
+  }
+
+  // ── Master todos ──
+  if(MASTER&&isTodos){
+    setSections('todos-master');
+    document.getElementById('dash-title').textContent='Dashboard · Equipe Comercial';
+    document.getElementById('dash-subtitle').textContent='Visão geral — todos os colaboradores';
+    document.getElementById('ranking-title').textContent='Todos os Colaboradores';
+    Promise.all([
+      fetch(apiUrl('/api/ranking')).then(r=>r.json()),
+      fetch('/api/trend').then(r=>r.json()),
+      fetch(apiUrl('/api/payroll-impact')).then(r=>r.json()),
+      fetch('/api/mom-compare').then(r=>r.json()),
+    ]).then(([ranking,trend,payroll,mom])=>{
+      renderRanking(ranking||[]);
+      renderTrend(trend||{});
+      renderPayroll(payroll||{});
+      renderMomCompare(mom||{}, true);
+    }).catch(e=>console.error(e));
+    return;
+  }
+
+  // ── Gestor drilling: TL → visão de equipe · vendedor → visão individual ──
+  const isGestorTL=ROLE==='gestor'&&!isTodos
+                   &&gestorTLset.has(String(selectedVendor).toLowerCase());
+  setSections(isGestorTL?'gestor-tl':'individual');
+
+  if(isGestorTL){
+    document.getElementById('ranking-title').textContent=`Equipe de ${vendorName(selectedVendor)}`;
+  } else if(ROLE==='tl'){
+    document.getElementById('ranking-title').textContent='Minha equipe';
+  }
+
+  const target=(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='tl')&&selectedVendor!=='todos'?selectedVendor:null;
+
+  Promise.all([
+    fetch(apiUrl('/api/summary',      target)).then(r=>r.json()),
+    fetch(apiUrl('/api/ranking',      target)).then(r=>r.json()),
+    fetch(apiUrl('/api/transactions', target)).then(r=>r.json()),
+    fetch(apiUrl('/api/approvals',    target)).then(r=>r.json()),
+  ]).then(([summary,ranking,transactions,approvals])=>{
+    if(summary) renderSummary(summary);
+    else document.getElementById('dash-title').textContent=(target?vendorName(target):SESSION_EMAIL)+' · sem dados este mês';
+    renderRanking(ranking||[]);
+    txAll=transactions||[];apvState=approvals||{};
+    renderTx();
+    loadSignoff();   // mostra "Faltou alguma venda? (Adicionar HP)" + sign-off SÓ na visão do próprio vendedor
+  }).catch(e=>{document.getElementById('dash-title').textContent='Erro ao carregar';console.error(e);});
+}
+
+// ── Month init ────────────────────────────────────────────────────────────────
+// vend (opcional): filtra os meses aos que o colaborador tem dados (Colaborador → Mês).
+async function initMonths(vend){
+  const q=(vend&&vend!=='todos')?('?vendedor='+encodeURIComponent(vend)):'';
+  const resp=await fetch('/api/months'+q).then(r=>r.json());
+  const months=Array.isArray(resp)?resp:(resp.months||[]);
+  const def=Array.isArray(resp)?null:resp.default;
+  const defParam=def?mesParam(def):null;
+  const sel=document.getElementById('month-select');
+  const prev=selectedMes;
+  sel.innerHTML='';
+  months.forEach(m=>{const opt=document.createElement('option');opt.value=mesParam(m);opt.textContent=monthLong(m);sel.appendChild(opt);});
+  // mantém o mês atual se ainda existe na nova lista; senão default (mês fechado) ou mais recente
+  const want=(prev&&months.some(m=>mesParam(m)===prev))?prev:(defParam||(sel.options[0]&&sel.options[0].value));
+  if(want) sel.value=want;
+  selectedMes=sel.value;
+  sel.onchange=async ()=>{
+    selectedMes=sel.value;
+    // Mês → Colaborador: reconstrói os colaboradores ativos do mês e volta p/ visão geral
+    if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='tl'){
+      await initVendorSelect();
+      loadData('todos');
+    } else {
+      loadData(SESSION_EMAIL);
+    }
+    // aba Rentabilidade por Modelo é month-aware → recarrega se estiver aberta
+    const avp=document.getElementById('panel-assistvend');
+    if(avp&&avp.classList.contains('active')) loadAssistVend();
+  };
+}
+
+// ── Vendor select init ────────────────────────────────────────────────────────
+async function initVendorSelect(){
+  const wrap=document.getElementById('vendor-wrap');
+  wrap.style.display='flex';
+  const badge=document.getElementById('role-badge');
+  const label=document.getElementById('vendor-label');
+  label.style.display='';
+  const selEl=document.getElementById('vendor-select');
+  selEl.style.display='';
+  selEl.innerHTML='<option value="todos">Todos</option>';   // idempotente p/ re-render
+  const gvWrap=document.getElementById('gestor-vendor-wrap');
+  gvWrap.style.display='none';   // só aparece p/ gestor
+  if(ROLE==='gestor'){
+    badge.textContent='GESTOR';badge.className='role-badge badge-gestor';
+    label.textContent='Team Leader:';
+    selEl.querySelector('option').textContent='Visão Geral';
+  } else if(ROLE==='people_ops'){
+    badge.textContent='People Ops';badge.className='role-badge badge-peopleops';
+    label.textContent='Colaborador:';
+    selEl.querySelector('option').textContent='Visão Geral';
+  } else if(ROLE==='tl'){
+    badge.textContent='TL';badge.className='role-badge badge-tl';
+    label.textContent='Vendedor:';
+    selEl.querySelector('option').textContent='Minha equipe';
+  } else {
+    badge.textContent='MASTER';badge.className='role-badge badge-master';
+  }
+  // mês selecionado → filtra ativos POR MÊS (datas de RH) no backend
+  const mq=selectedMes?('mes='+encodeURIComponent(selectedMes)):'';
+  const vendors=await fetch('/api/vendors'+(mq?'?'+mq:'')).then(r=>r.json());
+  (Array.isArray(vendors)?vendors:[]).forEach(v=>{
+    const opt=document.createElement('option');
+    opt.value=v;opt.textContent=vendorName(v);
+    selEl.appendChild(opt);
+  });
+
+  if(ROLE==='gestor'){
+    // seletor padrão = TLs; guarda o set p/ distinguir drill TL × vendedor
+    gestorTLset=new Set((Array.isArray(vendors)?vendors:[]).map(v=>String(v).toLowerCase()));
+    const gv=document.getElementById('gestor-vendor-select');
+    // popula o 2º seletor "Vendedor". tl=null → todos; tl=email → só o time daquele TL
+    async function fillGv(tlEmail){
+      gv.innerHTML='<option value="todos">'+(tlEmail?'Toda a equipe':'Todos os vendedores')+'</option>';
+      const url=tlEmail?('/api/vendors?tl='+encodeURIComponent(tlEmail)+(mq?'&'+mq:''))
+                       :('/api/vendors?all=1'+(mq?'&'+mq:''));
+      const vends=await fetch(url).then(r=>r.json()).catch(()=>[]);
+      (Array.isArray(vends)?vends:[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=vendorName(v);gv.appendChild(o);});
+    }
+    await fillGv(null);
+    gvWrap.style.display='flex';
+    // TL → Vendedor: escolher um TL filtra o 2º seletor só p/ o time dele
+    selEl.onchange=async ()=>{ await fillGv(selEl.value==='todos'?null:selEl.value); loadData(selEl.value); };
+    // Vendedor → Mês: escolher um vendedor filtra os meses ativos dele.
+    // "Toda a equipe" (todos) volta p/ o TIME do TL selecionado (selEl), não o total geral —
+    // só cai no total geral quando o TL também está em "Visão Geral".
+    gv.onchange   =async ()=>{ const v=gv.value; if(v!=='todos'){ await initMonths(v); loadData(v); } else { await initMonths(null); loadData(selEl.value); } };
+  } else {
+    // master / people_ops / tl: Colaborador → Mês
+    selEl.onchange=async ()=>{ const v=selEl.value; if(v!=='todos') await initMonths(v); else await initMonths(null); loadData(v); };
+  }
+}
+
+// ── Carga conforme papel EFETIVO ──────────────────────────────────────────────
+async function loadForRole(){
+  // o filtro extra de Vendedor só vale na visão Gestor "geral" (initVendorSelect o reativa)
+  document.getElementById('gestor-vendor-wrap').style.display='none';
+  // Simulação por pessoa (master/gestor vendo como TL ou Vendedor)
+  if(viewAs==='tl' || viewAs==='vendedor'){
+    await initPersonPicker(viewAs);
+    return;
+  }
+  if(MASTER||ROLE==='gestor'||ROLE==='people_ops'){
+    // deep-link ?v=email (só master real, sem simulação ativa)
+    const preselect = (MASTER&&!viewAs) ? new URLSearchParams(location.search).get('v') : null;
+    if(preselect){
+      await initVendorSelect();   // precisa do seletor pronto p/ pré-selecionar
+      const sel=document.getElementById('vendor-select');
+      if(sel){sel.value=preselect;if(sel.value!==preselect)sel.value='todos';}
+      loadData(preselect);
+    } else {
+      // overview NÃO depende dos dropdowns → carrega dados e dropdowns EM PARALELO
+      loadData('todos');
+      initVendorSelect().catch(()=>{});
+    }
+  } else if(ROLE==='tl'){
+    // TL real: dropdown com o time → drilar transações individuais de cada vendedor
+    loadData('todos');                 // começa na visão da equipe
+    initVendorSelect().catch(()=>{});  // popula o seletor de vendedores do time (em paralelo)
+  } else {
+    loadData(SESSION_EMAIL);
+  }
+}
+
+// Modo "Ver como TL/Vendedor": popula o seletor com as pessoas e carrega a primeira.
+async function initPersonPicker(kind){
+  const wrap=document.getElementById('vendor-wrap');wrap.style.display='flex';
+  const badge=document.getElementById('role-badge');
+  const label=document.getElementById('vendor-label');label.style.display='';
+  const sel=document.getElementById('vendor-select');sel.style.display='';
+  const gvWrap=document.getElementById('gestor-vendor-wrap');
+  const gv=document.getElementById('gestor-vendor-select');
+  gvWrap.style.display='none';
+  // ⚠️ passa o mês — sem ele o backend usa o mês corrente (Jun, roster ainda não carregado).
+  const mq=selectedMes?('mes='+encodeURIComponent(selectedMes)):'';
+  if(kind==='tl'){
+    badge.textContent='TL';badge.className='role-badge badge-tl';label.textContent='TL:';
+    let list=[];
+    if(REAL_MASTER){
+      const tls=await fetch('/api/tl-summary'+(mq?'?'+mq:'')).then(r=>r.json()).catch(()=>[]);
+      list=(Array.isArray(tls)?tls:[]).map(t=>[t.tl_email,t.label||vendorName(t.tl_email)]);
+    } else {
+      const es=await fetch('/api/vendors'+(mq?'?'+mq:'')).then(r=>r.json()).catch(()=>[]);
+      list=(Array.isArray(es)?es:[]).map(e=>[e,vendorName(e)]);
+    }
+    sel.innerHTML='';
+    list.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
+    // 2º seletor "Vendedor:" = time do TL escolhido → drilar transações individuais
+    async function carregaTime(tlEmail){
+      viewAsTL=tlEmail;   // o patch de fetch usa isso como vendedor= → backend resolve o TL
+      gv.innerHTML='<option value="todos">Toda a equipe</option>';
+      const team=await fetch('/api/vendors'+(mq?'?'+mq:'')).then(r=>r.json()).catch(()=>[]);
+      (Array.isArray(team)?team:[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=vendorName(v);gv.appendChild(o);});
+      gvWrap.style.display='flex';
+      loadData(tlEmail);   // visão do time do TL
+    }
+    sel.onchange=()=>carregaTime(sel.value);
+    gv.onchange =()=>{ const m=gv.value; if(m==='todos'){viewAsTL=sel.value;loadData(sel.value);} else {viewAsTL=m;loadData(m);} };
+    if(sel.options.length) carregaTime(sel.options[0].value);
+    else {document.getElementById('ranking-title').textContent='Nenhum TL encontrado';loadData('todos');}
+    return;
+  }
+  // kind === 'vendedor'
+  badge.textContent='VENDEDOR';badge.className='role-badge badge-vendedor';label.textContent='Vendedor:';
+  const es=await fetch('/api/vendors?all=1'+(mq?'&'+mq:'')).then(r=>r.json()).catch(()=>[]);
+  const list=(Array.isArray(es)?es:[]).map(e=>[e,vendorName(e)]);
+  sel.innerHTML='';
+  list.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
+  sel.onchange=()=>{viewAsTL=sel.value;loadData(sel.value);};
+  if(sel.options.length){viewAsTL=sel.options[0].value;loadData(viewAsTL);}
+  else {document.getElementById('ranking-title').textContent='Ninguém encontrado nesse nível';loadData('todos');}
+}
+
+// ── "Ver como" — troca de visão (só em memória; recarregar volta ao papel real) ──
+const VIEW_LABELS={people_ops:'People Ops',gestor:'Gestor',tl:'TL',vendedor:'Vendedor'};
+async function applyView(v){
+  const isHome=(v==='master'||v==='self');
+  viewAs   = isHome ? null : v;
+  viewAsTL = null;
+  MASTER   = (viewAs===null)&&REAL_MASTER;
+  ROLE     = viewAs ? viewAs : REAL_ROLE;
+  updateRoleTabs();   // esconde Acessos/AssistVend ao simular não-master; restaura ao voltar
+  const banner=document.getElementById('viewas-banner');
+  if(viewAs){
+    banner.style.display='flex';
+    document.getElementById('viewas-label').textContent=VIEW_LABELS[viewAs]||viewAs;
+  } else {
+    banner.style.display='none';
+  }
+  await loadForRole();
+}
+
+function setupViewSwitcher(){
+  const canSwitch = REAL_MASTER || REAL_ROLE==='gestor';
+  if(!canSwitch) return;
+  const wrap=document.getElementById('viewas-wrap');wrap.style.display='flex';
+  const vs=document.getElementById('view-select');
+  const badge=wrap.querySelector('.role-badge');
+  let opts;
+  if(REAL_MASTER){
+    badge.textContent='MASTER';badge.className='role-badge badge-master';
+    opts=[['master','Master (tudo)'],['people_ops','People Ops'],['gestor','Gestor'],['tl','TL…']];
+  } else { // gestor / coordenador
+    badge.textContent='COORDENADOR';badge.className='role-badge badge-gestor';
+    opts=[['self','Coordenador (minha visão)'],['tl','TL…'],['vendedor','Vendedor…']];
+  }
+  vs.innerHTML='';
+  opts.forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;vs.appendChild(o);});
+  vs.onchange=()=>applyView(vs.value);
+  const home=REAL_MASTER?'master':'self';
+  document.getElementById('viewas-reset').onclick=()=>{vs.value=home;applyView(home);};
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function boot(){
+  setupViewSwitcher();
+  await initMonths();
+  await loadForRole();
+}
+boot();
+</script>
+</body>
+</html>

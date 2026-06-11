@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Comissões · Tacyana Bueno · Maio 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#3b82f6;--green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --indigo:#6366f1;--teal:#14b8a6;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g400:#9ca3af;--g600:#4b5563;--g900:#111827;
+  --r:12px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--g50);color:var(--g900);min-height:100vh}
+header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{font-weight:700;font-size:1rem}
+.user-info{display:flex;align-items:center;gap:12px;font-size:.82rem;color:var(--g600)}
+.filter-bar{background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:9px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:56px;z-index:19;flex-wrap:wrap}
+.filter-bar label{font-size:.82rem;font-weight:600;color:#1d4ed8}
+.role-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.badge-tl{background:#dcfce7;color:#166534}
+.badge-preview{background:#f59e0b;color:#fff;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px}
+.f-select{padding:6px 32px 6px 12px;border:1px solid #93c5fd;border-radius:8px;font-size:.82rem;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
+.section{margin-bottom:40px}
+.section-title{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--g200)}
+.cards{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px 24px}
+.card .label{font-size:.68rem;font-weight:700;color:var(--g400);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.card .value{font-size:1.75rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.card .sub{font-size:.75rem;color:var(--g400);margin-top:8px;line-height:1.4}
+.card.accent{background:var(--g900);color:#fff}
+.card.accent .label{color:rgba(255,255,255,.5)}.card.accent .sub{color:rgba(255,255,255,.4)}
+.card.pending{background:#fffbeb;border:1px dashed #f59e0b}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:600;margin-top:8px}
+.t-red{background:#fee2e2;color:#b91c1c}.t-yellow{background:#fef9c3;color:#92400e}
+.t-green{background:#dcfce7;color:#166534}.t-blue{background:#dbeafe;color:#1d4ed8}
+.t-purple{background:#ede9fe;color:#6d28d9}
+.progress-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:28px 32px}
+.prog-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+.prog-pct{font-size:2.5rem;font-weight:800;letter-spacing:-.03em}
+.bar-track{background:var(--g100);border-radius:999px;height:14px;overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;transition:width .8s ease}
+.bar-markers{display:flex;justify-content:space-between;margin-top:8px;font-size:.65rem;color:var(--g400)}
+.next-hint{margin-top:12px;font-size:.8rem;color:var(--g600);padding:10px 14px;background:var(--g50);border-radius:8px;border-left:3px solid var(--blue)}
+.pending-hint{margin-top:12px;font-size:.8rem;color:#92400e;padding:10px 14px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b}
+.two-col{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.three-col{display:grid;gap:16px;grid-template-columns:3fr 2fr}
+@media(max-width:768px){.two-col,.three-col{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:24px 28px}
+.chart-title{font-size:.9rem;font-weight:700;margin-bottom:4px}
+.chart-sub{font-size:.75rem;color:var(--g400);margin-bottom:20px}
+.tbl-card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-card table{width:100%;border-collapse:collapse;font-size:.83rem}
+.tbl-card thead th{background:var(--g50);padding:11px 18px;text-align:left;font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);border-bottom:1px solid var(--g200);white-space:nowrap}
+.tbl-card thead th.num{text-align:right}
+.tbl-card tbody tr{border-bottom:1px solid var(--g100)}
+.tbl-card tbody tr:last-child{border-bottom:none}
+.tbl-card tbody tr:hover{background:var(--g50)}
+.tbl-card tbody td{padding:13px 18px;vertical-align:middle}
+.tbl-card tbody td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl-card tbody tr.total-row{background:var(--g50);font-weight:700;border-top:2px solid var(--g200)}
+.rank-pos{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;font-weight:700;font-size:.78rem}
+.rk1{background:#fef3c7;color:#92400e}.rk2{background:#f3f4f6;color:#374151}
+.rk3{background:#fde8d8;color:#9a3412}.rkn{background:var(--g100);color:var(--g600)}
+.pct-bar-wrap{width:100%;background:var(--g100);border-radius:999px;height:8px;overflow:hidden}
+.pct-bar-fill{height:100%;border-radius:999px}
+.warning-bar{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:.8rem;color:#92400e;margin-bottom:28px}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">Fluency · Comissões</span>
+  <div class="user-info">
+    <span class="role-badge badge-tl">TL</span>
+    <span class="badge-preview">PREVIEW</span>
+    <span>tacyana.bueno@fluencyacademy.io</span>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <label>Colaborador:</label>
+  <select class="f-select" style="min-width:220px" disabled><option>Tacyana Bueno</option></select>
+  <label>Mês:</label>
+  <select class="f-select" style="min-width:160px" disabled><option>Maio 2026</option></select>
+</div>
+
+<main>
+
+  <div style="margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--g200)">
+    <h1 style="font-size:1.4rem;font-weight:800;letter-spacing:-.02em">Tacyana Bueno — Team Leader</h1>
+    <p style="font-size:.85rem;color:var(--g400);margin-top:6px">tacyana.bueno@fluencyacademy.io · Maio 2026</p>
+  </div>
+
+  <div class="warning-bar">
+    ⚠️ <strong>GBV pendente de filtro</strong> — valor exibido inclui todos os status. Cálculo correto usa apenas transações <strong>completo/aprovado</strong>. Base e vlr_final abaixo são da apuração manual com o filtro correto.
+  </div>
+
+  <div class="section">
+    <div class="section-title">Resumo do mês</div>
+    <div class="cards">
+      <div class="card">
+        <div class="label">GBV (todos status)</div>
+        <div class="value" id="k-liq"></div>
+        <div class="sub">Pendente: filtrar completo/aprovado</div>
+      </div>
+      <div class="card">
+        <div class="label">Meta do Time</div>
+        <div class="value">R$ 3,9M</div>
+        <div class="sub">Soma metas liderados · R$ 3.892.500</div>
+      </div>
+      <div class="card">
+        <div class="label">Comissão (bruta)</div>
+        <div class="value" id="k-com"></div>
+        <div class="sub">Base manual · GBV completo/aprov.</div>
+      </div>
+      <div class="card">
+        <div class="label">Multiplicador</div>
+        <div class="value">0,6×</div>
+        <div class="sub">Ating. 93,8% → faixa 80–99,99%</div>
+      </div>
+      <div class="card accent">
+        <div class="label">Comissão Final</div>
+        <div class="value" id="k-final"></div>
+        <div class="sub">84.735 × 0,6</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Atingimento da meta</div>
+    <div class="progress-wrap">
+      <div class="prog-header">
+        <div>
+          <div class="prog-pct" id="prog-pct-tac" style="color:#f59e0b">93,8%</div>
+        </div>
+        <div style="font-size:.8rem;color:var(--g600)">Meta R$ 3.892.500 · Tier <strong>0,6×</strong> (80–99,99%)</div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:78.2%;background:#f59e0b"></div></div>
+      <div class="bar-markers"><span>0%</span><span>80%</span><span>100%</span><span>120%+</span></div>
+      <div class="next-hint">
+        Próximo tier: ≥ 100% → <strong>0,7×</strong> · precisaria de +R$ 241K GBV aprovado
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Histórico como TL · Mar–Mai 2026</div>
+    <div class="three-col">
+      <div class="chart-card">
+        <div class="chart-title">GBV Líquido · Tacyana Bueno</div>
+        <div class="chart-sub">Histórico mensal</div>
+        <div style="position:relative;height:300px"><canvas id="chart-trend-gbv"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Comissão Base vs. Final</div>
+        <div class="chart-sub">Base (bruta) × Final (após multiplicador)</div>
+        <div style="position:relative;height:300px"><canvas id="chart-trend-com"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Breakdown de comissão · Maio 2026</div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title">Por tipo de cobrança</div>
+        <div style="position:relative;height:240px"><canvas id="chart-tipo"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Distribuição % por tipo</div>
+        <div style="position:relative;height:240px"><canvas id="chart-donut"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Ranking da equipe · 12 liderados · Maio 2026</div>
+    <div class="tbl-card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Colaborador</th>
+            <th class="num">Meta</th>
+            <th class="num">GBV Líquido</th>
+            <th class="num">Atingimento</th>
+            <th>Tier</th>
+            <th class="num">Comissão Final</th>
+          </tr>
+        </thead>
+        <tbody id="ranking-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// Tacyana: modelo percentual com multiplicador especial (teto 1,0×)
+// Base = team_avista×3% + team_parcelado×1% + team_inteligente×0,5%
+// Maio/2026: metas não preenchidas em meta_vendedores — atingimento/mult/vlr_final pendentes
+const TL = {
+  gbv_liquido:     3615198,   // BQ todos os status — pendente: filtrar completo/aprovado
+  meta_time:       3892500,
+  atingimento:     0.938,
+  multiplicador:   0.6,
+  total_comissao:  84735,     // apuração manual com GBV completo/aprovado
+  com_inteligente: 6109.98,   // BQ aproximado (sem filtro status) — pendente
+  com_parcelado:   22885.08,  // BQ aproximado
+  com_avista:      3140.82,   // BQ aproximado
+  vlr_final:       50841,
+};
+
+const TEAM = [
+  {email:'everton.biridun@fluencyacademy.io',   gbv:473592},
+  {email:'larissa.ceccon@fluencyacademy.io',    gbv:450139},
+  {email:'rafael.delarosa@fluencyacademy.io',   gbv:445938},
+  {email:'erick@fluencyacademy.io',             gbv:350550},
+  {email:'amanda.conceicao@fluencyacademy.io',  gbv:310921},
+  {email:'eduardo@fluencyacademy.io',           gbv:297589},
+  {email:'jennifer.maia@fluencyacademy.io',     gbv:274117},
+  {email:'bruna.santos@fluencyacademy.io',      gbv:242821},
+  {email:'yan.santos@fluencyacademy.io',        gbv:232699},
+  {email:'isabelly.oliveira@fluencyacademy.io', gbv:232344},
+  {email:'laryssa.silva@fluencyacademy.io',     gbv:174672},
+  {email:'jussimar@fluencyacademy.io',          gbv:136932},
+];
+
+const TREND = [
+  {mes:'2026-03-01', gbv:2742588, comissao_base:24682.08, vlr_final:0},
+  {mes:'2026-04-01', gbv:2874570, comissao_base:26181.72, vlr_final:15709.03},
+  {mes:'2026-05-01', gbv:3615198, comissao_base:32135.88, vlr_final:0},
+];
+
+// ── Formatters ─────────────────────────────────────────────────────────────────
+function fmtMoney(v){
+  const n=Math.abs(Number(v)),s=Number(v)<0?'-':'';
+  if(n>=1e9)return s+(n/1e9).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' BI';
+  if(n>=1e6)return s+(n/1e6).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' M';
+  if(n>=1e3)return s+(n/1e3).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+' K';
+  return s+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+const R=v=>'R$ '+fmtMoney(v);
+
+function monthShort(s){
+  const d=new Date(s+'T12:00:00');
+  return d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','');
+}
+
+function rankCls(p){if(p===1)return'rk1';if(p===2)return'rk2';if(p===3)return'rk3';return'rkn';}
+function name(email){return email.split('@')[0].split('.').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join(' ');}
+
+// ── KPIs ───────────────────────────────────────────────────────────────────────
+document.getElementById('k-liq').textContent = R(TL.gbv_liquido);
+document.getElementById('k-com').textContent = R(TL.total_comissao);
+document.getElementById('k-final').textContent = R(TL.vlr_final);
+
+// ── Trend charts ───────────────────────────────────────────────────────────────
+new Chart(document.getElementById('chart-trend-gbv'),{
+  type:'bar',
+  data:{
+    labels:TREND.map(t=>monthShort(t.mes)),
+    datasets:[{
+      label:'GBV Líquido',
+      data:TREND.map(t=>t.gbv),
+      backgroundColor:TREND.map((_,i)=>i===2?'rgba(59,130,246,1)':'rgba(59,130,246,.45)'),
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},
+    scales:{x:{grid:{display:false}},y:{grid:{display:false},ticks:{callback:v=>R(v),font:{size:10}}}}}
+});
+
+new Chart(document.getElementById('chart-trend-com'),{
+  type:'bar',
+  data:{
+    labels:TREND.map(t=>monthShort(t.mes)),
+    datasets:[
+      {label:'Comissão Base',data:TREND.map(t=>t.comissao_base),backgroundColor:'rgba(107,114,128,.45)',borderRadius:4,borderSkipped:false},
+      {label:'Comissão Final',data:TREND.map(t=>t.vlr_final),backgroundColor:'rgba(34,197,94,.85)',borderRadius:4,borderSkipped:false},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}},
+             tooltip:{callbacks:{label:c=>c.dataset.label+': '+R(c.raw)}}},
+    scales:{x:{grid:{display:false}},y:{grid:{display:false},ticks:{callback:v=>R(v),font:{size:10}}}}}
+});
+
+// ── Breakdown charts ───────────────────────────────────────────────────────────
+new Chart(document.getElementById('chart-tipo'),{
+  type:'bar',
+  data:{
+    labels:['Inteligente','Parcelado','À Vista'],
+    datasets:[{
+      data:[TL.com_inteligente,TL.com_parcelado,TL.com_avista],
+      backgroundColor:['rgba(99,102,241,.85)','rgba(59,130,246,.85)','rgba(20,184,166,.85)'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>R(c.raw)}}},
+    scales:{x:{grid:{display:false},ticks:{callback:v=>R(v),font:{size:10}}},y:{grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('chart-donut'),{
+  type:'doughnut',
+  data:{
+    labels:['Inteligente','Parcelado','À Vista'],
+    datasets:[{
+      data:[TL.com_inteligente,TL.com_parcelado,TL.com_avista],
+      backgroundColor:['#6366f1','#3b82f6','#14b8a6'],
+      borderWidth:0,hoverOffset:4
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:12}},
+      tooltip:{callbacks:{label:c=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);return c.label+': '+R(c.raw)+' ('+((c.raw/tot)*100).toFixed(1)+'%)';}}}}}
+});
+
+// ── Ranking table ──────────────────────────────────────────────────────────────
+const sorted = [...TEAM].sort((a,b)=>b.gbv-a.gbv);
+const totalGbv = sorted.reduce((a,r)=>a+r.gbv,0);
+const tbody = document.getElementById('ranking-body');
+
+sorted.forEach((r,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><span class="rank-pos ${rankCls(i+1)}">${i+1}</span></td>
+    <td>${name(r.email)}</td>
+    <td class="num"><span style="color:var(--g400)">—</span></td>
+    <td class="num">${R(r.gbv)}</td>
+    <td class="num"><span style="color:var(--g400)">—</span></td>
+    <td><span style="color:var(--g400)">—</span></td>
+    <td class="num"><span style="color:var(--g400)">—</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+const totalTr=document.createElement('tr');
+totalTr.className='total-row';
+totalTr.innerHTML=`
+  <td colspan="2">Total</td>
+  <td class="num"><span style="color:var(--g400)">—</span></td>
+  <td class="num">${R(totalGbv)}</td>
+  <td class="num"></td>
+  <td></td>
+  <td class="num"><span style="color:var(--g400)">—</span></td>
+`;
+tbody.appendChild(totalTr);
+</script>
+</body>
+</html>
