@@ -1,7 +1,11 @@
 flask==3.0.3
 gunicorn==22.0.0
 google-cloud-bigquery==3.25.0
+google-cloud-storage>=2.16.0
 google-auth==2.34.0
 google-api-python-client==2.151.0
 requests==2.32.3
 reportlab==4.2.2
+matplotlib>=3.8.0
+markdown>=3.5
+openpyxl>=3.1.0

@@ -25,7 +25,7 @@ O app lê **duas tabelas nativas** em `fluency-finance.commission`:
 `DSR = comissão × dsr_rate(mês)` · `Reflexo(encargos) = (comissão+DSR) × 50%` · `Total = comissão + DSR + Reflexo`.
 - **DSR% varia por mês** (Mai'26 = 20%, Jun'26 = 14,81%, …) — vem de `parametros_folha`, NÃO do calendário. Reflexo = 50% fixo.
 - Aplica a **todos** uniformemente, **inclusive Fabio (PJ)** — a folha NÃO filtra ativos (todos com comissão>0 aparecem).
-- Mai/2026 confere com a conta oficial: comissão **263.910** · DSR **52.782** · Reflexo **158.346** · Total **475.038**.
+- Mai/2026 (valores oficiais após ajustes de 11/06/2026): comissão **278.002** · DSR **55.600** · Reflexo **166.801** · Total **500.404**.
 - Atualizar quando o FP&A mexer nos DSR%: `python3 build_parametros_folha.py --commit`.
 
 ⚠️ A external **`meta_vendedores`** (Google Sheet `1DFaBtF…`) está **furada** (planilha errada, metas vazias, hierarquia desatualizada s/ Ana Pamplona). O app **NÃO** a usa mais para exibir — só sobra nas funções de refresh admin (`vw_comissao`/`_rebuild`), que continuam furadas.

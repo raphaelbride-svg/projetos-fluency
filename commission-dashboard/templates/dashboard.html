@@ -116,6 +116,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 .info-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:9px;margin-bottom:16px;font-size:.81rem;color:#0369a1;flex-wrap:wrap}
 .info-bar strong{font-weight:700}
 .info-pill{background:#e0f2fe;color:#0369a1;border-radius:999px;padding:2px 10px;font-size:.74rem;font-weight:600;white-space:nowrap}
+.newcomer-pill{background:#fef3c7;color:#92400e;border-radius:999px;padding:2px 9px;font-size:.68rem;font-weight:700;white-space:nowrap;letter-spacing:.02em}
 
 /* trend section */
 .trend-meta{font-size:.75rem;color:var(--g400);margin-bottom:2px}
@@ -181,6 +182,96 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 .av-row:hover td{background:var(--g50,#f5f7fb)}
 .av-th:hover{color:var(--blue)}
 .av-caret{display:inline-block;width:10px;font-size:.7rem;transition:transform .1s}
+
+/* ── Aceites redesign ───────────────────────────────────────────────────────── */
+#aceites-redesign{--ac:#7B5CF6;--ac2:#E91E8C;--ac-soft:#efeaff;--ac-tint:#f7f3ff;--suc:#10b981;--suc-soft:#d1fae5;--wrn:#f59e0b;--wrn-soft:#fef3c7;--lck:#94a3b8;--lck-soft:#eef0f5;--shadow-pop:0 8px 28px rgba(123,92,246,.14)}
+#aceites-redesign .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:12px 0 20px;padding:10px 16px;background:#fff;border:1px solid var(--g200);border-radius:10px;box-shadow:0 1px 2px rgba(15,15,31,.04)}
+#aceites-redesign .flow-step{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g600)}
+#aceites-redesign .flow-step strong{color:var(--g900,#0f0f1f);font-weight:600}
+#aceites-redesign .flow-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:11px}
+#aceites-redesign .flow-badge.lock{background:var(--lck-soft);color:#5b6377}
+#aceites-redesign .flow-badge.pend{background:var(--wrn-soft);color:#92590a}
+#aceites-redesign .flow-badge.ok{background:var(--suc-soft);color:#047857}
+#aceites-redesign .flow-arrow{color:#9ca0b6;padding:0 12px;font-size:14px}
+#aceites-redesign .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+#aceites-redesign .kpi{background:#fff;border:1px solid var(--g200);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(15,15,31,.04)}
+#aceites-redesign .kpi-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--g600)}
+#aceites-redesign .kpi-icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px}
+#aceites-redesign .kpi-icon.ok{background:var(--suc-soft);color:var(--suc)}
+#aceites-redesign .kpi-icon.pend{background:var(--wrn-soft);color:var(--wrn)}
+#aceites-redesign .kpi-icon.lock{background:var(--lck-soft);color:#5b6377}
+#aceites-redesign .kpi-value{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#0f0f1f;line-height:1.1;font-variant-numeric:tabular-nums}
+#aceites-redesign .kpi-meta{font-size:12px;color:#9ca0b6}
+#aceites-redesign .admin-action{background:linear-gradient(135deg,var(--ac) 0%,#6e4be6 100%);color:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;box-shadow:0 8px 24px rgba(123,92,246,.18)}
+#aceites-redesign .admin-action.calm{background:#fff;color:var(--g900,#0f0f1f);border:1px solid var(--g200);box-shadow:0 1px 2px rgba(15,15,31,.04)}
+#aceites-redesign .admin-action-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.85;margin-bottom:4px}
+#aceites-redesign .admin-action.calm .admin-action-title{color:var(--g600);opacity:1}
+#aceites-redesign .admin-action-text{font-size:14px;font-weight:600;letter-spacing:-.01em}
+#aceites-redesign .admin-action-sub{font-size:12px;margin-top:2px;opacity:.82}
+#aceites-redesign .admin-action.calm .admin-action-sub{color:#9ca0b6;opacity:1}
+#aceites-redesign .btn-big{font-family:inherit;font-size:13px;font-weight:700;padding:12px 18px;border-radius:12px;background:#fff;color:var(--ac);border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:transform 120ms ease,box-shadow 120ms ease;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+#aceites-redesign .btn-big:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+#aceites-redesign .btn-big[disabled]{background:rgba(255,255,255,.18);color:rgba(255,255,255,.7);cursor:not-allowed;box-shadow:none}
+#aceites-redesign .global-progress{background:#fff;border:1px solid var(--g200);border-radius:14px;padding:14px 18px;margin-bottom:20px;box-shadow:0 1px 2px rgba(15,15,31,.04)}
+#aceites-redesign .gp-title-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+#aceites-redesign .gp-title{font-size:12px;font-weight:600;color:var(--g700,#1f2030)}
+#aceites-redesign .gp-percent{font-size:13px;font-weight:700;color:var(--ac);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+#aceites-redesign .gp-bar{height:8px;background:var(--g100,#f5f7fb);border-radius:999px;overflow:hidden}
+#aceites-redesign .gp-bar-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:999px;transition:width 400ms ease}
+#aceites-redesign .ac-section-title{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g600);margin:20px 4px 10px}
+#aceites-redesign .ac-section-title .dot{width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2))}
+#aceites-redesign .team{background:#fff;border:1px solid var(--g200);border-radius:14px;box-shadow:0 1px 2px rgba(15,15,31,.04);overflow:hidden;margin-bottom:10px;position:relative;transition:border-color 200ms ease,box-shadow 200ms ease}
+#aceites-redesign .team.expanded{border-color:transparent;box-shadow:var(--shadow-pop)}
+#aceites-redesign .team.expanded::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--ac) 0%,var(--ac2) 100%);border-radius:4px 0 0 4px}
+#aceites-redesign .team.expanded .team-header{background:linear-gradient(180deg,var(--ac-tint) 0%,var(--ac-soft) 50%,#fff 100%);border-bottom-color:var(--ac-soft)}
+#aceites-redesign .team-header{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:12px 18px 12px 22px;background:var(--g50,#f5f7fb);border-bottom:1px solid var(--g200);cursor:pointer;transition:background 180ms ease}
+#aceites-redesign .team-header:hover{background:#eeeef7}
+#aceites-redesign .team-id{min-width:0}
+#aceites-redesign .team-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca0b6}
+#aceites-redesign .team.expanded .team-label{color:var(--ac)}
+#aceites-redesign .team-tl-line{display:flex;align-items:baseline;gap:8px;font-size:14px;font-weight:600;color:#0f0f1f;letter-spacing:-.01em}
+#aceites-redesign .team-tl-line .who{font-weight:500;font-size:12px;color:var(--g600)}
+#aceites-redesign .team-progress{display:flex;align-items:center;gap:10px;min-width:200px}
+#aceites-redesign .team-bar{flex:1;height:6px;background:#e3e3ee;border-radius:999px;overflow:hidden;min-width:100px}
+#aceites-redesign .team-bar-fill{height:100%;background:var(--lck);border-radius:999px;transition:width 350ms ease,background 350ms ease}
+#aceites-redesign .team-bar-fill.has-progress{background:linear-gradient(90deg,var(--ac),var(--ac2))}
+#aceites-redesign .team-count{font-size:13px;font-weight:600;color:var(--g700,#1f2030);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+#aceites-redesign .team-toggle{display:flex;align-items:center;gap:8px}
+#aceites-redesign .chev{width:18px;height:18px;color:#9ca0b6;transition:transform 200ms ease,color 200ms ease}
+#aceites-redesign .team.expanded .chev{transform:rotate(180deg);color:var(--ac)}
+#aceites-redesign .members{display:none}
+#aceites-redesign .team.expanded .members{display:block;background:linear-gradient(180deg,var(--ac-tint) 0%,#fff 60%)}
+#aceites-redesign .member{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:11px 18px 11px 22px;border-bottom:1px solid var(--ac-soft);transition:background 120ms ease}
+#aceites-redesign .member:last-child{border-bottom:none}
+#aceites-redesign .team.expanded .member:hover{background:rgba(255,255,255,.55)}
+#aceites-redesign .member-avatar{width:32px;height:32px;border-radius:10px;background:var(--g50,#f5f7fb);color:var(--g600);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px}
+#aceites-redesign .member.done .member-avatar{background:var(--suc-soft);color:var(--suc)}
+#aceites-redesign .member.pending .member-avatar{background:var(--wrn-soft);color:var(--wrn)}
+#aceites-redesign .member.locked .member-avatar{background:var(--lck-soft);color:#5b6377}
+#aceites-redesign .member-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#aceites-redesign .member-name{font-weight:600;color:#0f0f1f;font-size:13px;letter-spacing:-.005em}
+#aceites-redesign .role-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:4px;background:var(--ac-soft);color:var(--ac)}
+#aceites-redesign .role-tag.coord{background:#fdf2f8;color:var(--ac2)}
+#aceites-redesign .role-tag.tl{background:var(--ac-soft);color:var(--ac)}
+#aceites-redesign .role-tag.vend{background:var(--g100,#f5f7fb);color:var(--g600)}
+#aceites-redesign .member-sub{font-size:11px;color:#9ca0b6;margin-top:2px}
+#aceites-redesign .status{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+#aceites-redesign .status-locked{background:var(--lck-soft);color:#5b6377}
+#aceites-redesign .status-open{background:var(--wrn-soft);color:#92590a}
+#aceites-redesign .status-done{background:var(--suc-soft);color:#047857}
+#aceites-redesign .status-mixed{background:var(--ac-soft);color:#5b3fc4}
+#aceites-redesign .member-action{display:flex;align-items:center;gap:6px;justify-content:flex-end;min-width:100px}
+#aceites-redesign .role-hint{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#9ca0b6}
+@media(max-width:720px){
+  #aceites-redesign .kpi-grid{grid-template-columns:1fr}
+  #aceites-redesign .admin-action{grid-template-columns:1fr;gap:12px}
+  #aceites-redesign .admin-action .btn-big{width:100%;justify-content:center}
+  #aceites-redesign .team-header{grid-template-columns:1fr auto}
+  #aceites-redesign .team-progress{display:none}
+  #aceites-redesign .member{grid-template-columns:auto 1fr}
+  #aceites-redesign .member .status,#aceites-redesign .member-action{grid-column:1/-1;justify-self:start}
+}
+
 </style>
 </head>
 <body>
@@ -200,6 +291,11 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 </div>
 
 <div class="filter-bar">
+  <label for="month-select">Mês:</label>
+  <select class="f-select month-select" id="month-select">
+    <option value="">Carregando…</option>
+  </select>
+  <div class="filter-sep"></div>
   <div id="viewas-wrap" style="display:none;align-items:center;gap:8px">
     <span class="role-badge badge-master">MASTER</span>
     <label for="view-select">Ver como:</label>
@@ -224,12 +320,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     <select class="f-select vendor-select" id="gestor-vendor-select">
       <option value="todos">Todos os vendedores</option>
     </select>
-    <div class="filter-sep"></div>
   </div>
-  <label for="month-select">Mês:</label>
-  <select class="f-select month-select" id="month-select">
-    <option value="">Carregando…</option>
-  </select>
 </div>
 
 <div class="tabs">
@@ -238,8 +329,12 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     Transações &amp; Aprovação
     <span class="tab-badge" id="pending-badge"></span>
   </div>
-  <div class="tab" data-tab="assistvend" id="tab-assistvend" style="display:none">Rentabilidade por Modelo</div>
+  <div class="tab" data-tab="assistvend" id="tab-assistvend" style="display:none">Financeiro</div>
   <div class="tab" data-tab="racional" id="tab-racional" style="display:none">Racional de Cálculo</div>
+  <div class="tab" data-tab="aprovacoes" id="tab-aprovacoes" style="display:none">
+    Aprovações Pendentes
+    <span class="tab-badge" id="aprov-badge" style="display:none"></span>
+  </div>
   <div class="tab" data-tab="acessos" id="tab-acessos" style="display:none">Acessos</div>
 </div>
 
@@ -313,13 +408,20 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
               <th>Atingimento</th>
               <th class="num">Comissão</th>
               <th class="num">Liderados</th>
+              <th class="num">Aceites</th>
             </tr>
           </thead>
           <tbody id="tl-summary-body">
-            <tr class="loading-row"><td colspan="6"><div class="spinner"></div>Carregando…</td></tr>
+            <tr class="loading-row"><td colspan="7"><div class="spinner"></div>Carregando…</td></tr>
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- ── Seção: Aceites de comissionamento ── -->
+    <div class="section" id="section-aceites" style="display:none">
+      <div class="section-title">Aceites de comissionamento</div>
+      <div id="aceites-body"></div>
     </div>
 
     <!-- ── Seção: Impacto em Folha (gestor/master overview) ── -->
@@ -388,7 +490,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <div class="value" id="k-meta">—</div>
           <div class="sub" id="k-ating-sub"></div>
         </div>
-        <div class="card" id="card-com-bruta">
+        <div class="card" id="card-com-bruta" style="display:none">
           <div class="label">Comissão (bruta)</div>
           <div class="value" id="k-com">—</div>
           <div class="sub" id="k-com-sub">Antes do multiplicador</div>
@@ -462,9 +564,37 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
       <h1 style="font-size:1.25rem;font-weight:700">Transações &amp; Aprovação</h1>
       <p style="font-size:.85rem;color:var(--g600);margin-top:2px">Valide cada transação do mês.</p>
     </div>
-    <div id="tx-empty-master" style="display:none" class="empty-state">
-      <div style="font-size:2rem">👆</div>
-      <p>Selecione um colaborador no filtro acima para ver as transações.</p>
+    <div id="tx-empty-master" style="display:none">
+      <div id="aceites-redesign">
+        <div class="flow">
+          <span class="flow-step"><span class="flow-badge lock">🔒</span> <strong>Master/coord libera</strong></span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-step"><span class="flow-badge pend">⏳</span> <strong>Assinante confirma</strong> no próprio dashboard</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-step"><span class="flow-badge ok">✓</span> <strong>Fechamento concluído</strong></span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label"><span class="kpi-icon ok">✓</span> Confirmaram</div><div class="kpi-value" id="kpi-confirmed">—</div><div class="kpi-meta">de <span id="kpi-total">—</span> assinantes</div></div>
+          <div class="kpi"><div class="kpi-label"><span class="kpi-icon pend">⏳</span> Aguardando assinatura</div><div class="kpi-value" id="kpi-pending">—</div><div class="kpi-meta">liberados, sem confirmar</div></div>
+          <div class="kpi"><div class="kpi-label"><span class="kpi-icon lock">🔒</span> Aguardando liberação</div><div class="kpi-value" id="kpi-locked">—</div><div class="kpi-meta">travados pra liberar</div></div>
+        </div>
+        <div class="admin-action" id="ac-admin-action" style="display:none">
+          <div>
+            <div class="admin-action-title">Ação de master / coordenador</div>
+            <div class="admin-action-text" id="ac-aa-text">Libere a revisão pra todos os assinantes</div>
+            <div class="admin-action-sub">Após liberar, cada assinante abre o próprio dashboard e clica em "Estou de acordo".</div>
+          </div>
+          <button class="btn-big" id="ac-btn-release-all">🔓 Liberar revisão do mês</button>
+        </div>
+        <div class="global-progress">
+          <div class="gp-title-row"><span class="gp-title">Progresso geral de assinaturas</span><span class="gp-percent" id="ac-gp-percent">0%</span></div>
+          <div class="gp-bar"><div class="gp-bar-fill" id="ac-gp-fill" style="width:0%"></div></div>
+        </div>
+        <div class="ac-section-title"><span class="dot"></span> Coordenação e liderança</div>
+        <div id="ac-leadership-list"><p style="color:var(--g400);padding:8px 0">Carregando…</p></div>
+        <div class="ac-section-title"><span class="dot"></span> Times de vendedores</div>
+        <div id="ac-teams-list"></div>
+      </div>
     </div>
     <div id="tx-content">
       <!-- Sign-off do fechamento (só na visão do próprio vendedor) — no TOPO -->
@@ -476,6 +606,15 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         </p>
         <div id="signoff-status" style="font-size:.85rem;margin-bottom:12px"></div>
         <button class="btn btn-primary" id="btn-signoff">✓ Estou de acordo com o fechamento</button>
+      </div>
+
+      <!-- Aceite do vendedor — visão read-only para TL/Coord/Master ao drilar um colaborador -->
+      <div id="signoff-view-card" class="tbl-card" style="display:none;margin-bottom:16px;padding:14px 18px;display:none">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:.82rem;font-weight:700;color:var(--g700)">Aceite de comissionamento:</span>
+          <span id="signoff-view-status" style="font-size:.85rem"></span>
+          <span id="signoff-view-time"   style="font-size:.78rem;color:var(--g400)"></span>
+        </div>
       </div>
 
       <!-- Adicionar HP que o sistema não trouxe (só na visão do próprio vendedor) — no TOPO -->
@@ -510,7 +649,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <thead>
             <tr>
               <th>Transaction ID</th><th>Data</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
-              <th>GBV Líquido</th><th>Comissão</th><th>Status Hotmart</th><th>Origem</th><th>Aprovação</th><th>Aprov. HP (TL/Coord)</th>
+              <th>GBV Líquido</th><th>Comissão</th><th>Status Hotmart</th><th>Origem</th><th>Aprovação</th><th>Status Pedido HP</th>
             </tr>
           </thead>
           <tbody id="tx-body">
@@ -583,6 +722,102 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
   </div>
 
   <div id="panel-assistvend" class="tab-panel">
+  <style>
+    #finsum-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid var(--g200);border-radius:14px;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+    .fs-kpi{padding:16px 20px;border-right:1px solid var(--g200);display:flex;flex-direction:column;gap:4px}
+    .fs-kpi:last-child{border-right:none}
+    .fs-kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g400)}
+    .fs-kpi-val{font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--g900);font-variant-numeric:tabular-nums;line-height:1.1}
+    .fs-kpi-val.ac{color:#7B5CF6}
+    .fs-kpi-val.na{color:var(--g400);font-size:14px;font-weight:500}
+    .fs-kpi-sub{font-size:10px;color:var(--g400)}
+    .fs-ratio{display:inline-flex;padding:1px 7px;border-radius:5px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+    .fs-ratio.low{background:#d1fae5;color:#047857}
+    .fs-ratio.mid{background:#fef3c7;color:#92400e}
+    .fs-ratio.hi{background:#fee2e2;color:#dc2626}
+    #fs-table{background:#fff;border:1px solid var(--g200);border-radius:14px;overflow:hidden;box-shadow:var(--sh)}
+    .fs-col-hd{display:grid;grid-template-columns:1fr 150px 150px 110px 80px 64px;background:#f4f4f8;border-bottom:2px solid var(--g200);padding:0 8px}
+    .fs-ch{padding:8px 12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--g400)}
+    .fs-ch.r{text-align:right}
+    .fs-row{display:grid;grid-template-columns:1fr 150px 150px 110px 80px 64px;align-items:center;padding:0 8px;border-bottom:1px solid var(--g200);min-height:48px;transition:background 100ms}
+    .fs-row:last-child{border-bottom:none}
+    .fs-row.l0{background:linear-gradient(90deg,#f5f3ff 0%,#fdf2f8 60%,#fff 100%);min-height:54px}
+    .fs-row.l0:hover{background:linear-gradient(90deg,#ede9fe 0%,#fce7f3 60%,#fdf2f8 100%)}
+    .fs-row.l1{background:#fafafa;min-height:48px;cursor:pointer}
+    .fs-row.l1:hover{background:#f5f3ff}
+    .fs-row.l2{background:#fff;min-height:40px}
+    .fs-row.l2:hover{background:#f9f8ff}
+    .fs-children{border-left:2px solid #d8b4fe;margin-left:20px}
+    .fs-children.l2b{border-left-color:#f0e6ff;margin-left:16px}
+    .fs-name{display:flex;align-items:center;gap:10px;padding:8px 12px;min-width:0}
+    .fs-toggle{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;cursor:pointer;flex:0 0 22px;border:none;background:#efeaff;color:#7B5CF6;font-family:inherit;transition:background 100ms}
+    .fs-toggle svg{width:12px;height:12px;transition:transform 180ms;stroke-width:2.5}
+    .fs-toggle.open svg{transform:rotate(90deg)}
+    .l1 .fs-toggle{background:#ede9fe}
+    .fs-toggle:hover{background:#ddd6fe}
+    .fs-av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 28px;letter-spacing:-.01em}
+    .l0 .fs-av{width:32px;height:32px;border-radius:10px;font-size:11px;flex:0 0 32px}
+    .l2 .fs-av{width:24px;height:24px;border-radius:7px;font-size:9px;flex:0 0 24px}
+    .fs-av.coord{background:#fce7f3;color:#be185d}
+    .fs-av.tl{background:#efeaff;color:#5b21b6}
+    .fs-av.vend{background:#dbeafe;color:#1d4ed8}
+    .fs-av.assist{background:#d1fae5;color:#065f46}
+    .fs-av.recup{background:#f3e8ff;color:#6d28d9}
+    .fs-av.newcomer{background:#fef3c7;color:#92400e}
+    .fs-name-inner{min-width:0}
+    .fs-name-text{font-weight:600;color:var(--g900);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+    .l0 .fs-name-text{font-size:14px}
+    .fs-name-badges{display:flex;align-items:center;gap:4px;margin-top:3px;flex-wrap:wrap}
+    .fs-bc{display:inline-flex;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+    .fs-bc.coord{background:#fce7f3;color:#be185d}
+    .fs-bc.tl{background:#efeaff;color:#5b21b6}
+    .fs-bc.vend{background:#dbeafe;color:#1d4ed8}
+    .fs-bc.assist{background:#d1fae5;color:#065f46}
+    .fs-bc.recup{background:#f3e8ff;color:#6d28d9}
+    .fs-br{display:inline-flex;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    .fs-br.taxa{background:#f3f4f6;color:#4b5563}
+    .fs-br.ote{background:#fef3c7;color:#92400e}
+    .fs-br.taxatl{background:#e0e7ff;color:#3730a3}
+    .fs-br.canais{background:#fce7f3;color:#9d174d}
+    .fs-nc{font-size:9px;color:#9ca0b6;font-style:italic;font-weight:500}
+    .fs-num{padding:8px 12px;text-align:right;font-size:12px;font-variant-numeric:tabular-nums;color:var(--g900);white-space:nowrap}
+    .fs-num.dim{color:var(--g400);font-size:11px}
+    .fs-num.hi{font-weight:700;color:#7B5CF6}
+    .fs-num.na{color:var(--g400);font-size:11px}
+    .fs-foot{padding:9px 18px;font-size:10px;color:var(--g400);background:#fafafa;border-top:1px solid var(--g200)}
+    #fs-loading{padding:48px;text-align:center;color:var(--g400);font-size:.9rem}
+  </style>
+
+    <!-- ── Resumo Financeiro (drilldown) ── -->
+    <div class="section">
+      <h1 style="font-size:1.25rem;font-weight:700;margin-bottom:4px">Resumo Financeiro</h1>
+      <p style="color:var(--g600);font-size:.85rem;margin-bottom:20px">GBV, comissão e custo/GBV por coordenação → TL → colaborador. Dados reais do BQ.</p>
+      <div id="finsum-kpi">
+        <div class="fs-kpi"><div class="fs-kpi-label">GBV Total</div><div class="fs-kpi-val" id="fskpi-gbv">—</div><div class="fs-kpi-sub">pós-churn</div></div>
+        <div class="fs-kpi"><div class="fs-kpi-label">Comissão Total</div><div class="fs-kpi-val ac" id="fskpi-com">—</div><div class="fs-kpi-sub" id="fskpi-com-sub">colaboradores</div></div>
+        <div class="fs-kpi"><div class="fs-kpi-label">Custo / GBV</div><div class="fs-kpi-val" id="fskpi-ratio">—</div><div class="fs-kpi-sub">comissão ÷ GBV líquido</div></div>
+        <div class="fs-kpi"><div class="fs-kpi-label">Receivable <span style="font-size:9px;background:#f3f4f6;color:#9ca3af;padding:1px 5px;border-radius:3px;text-transform:uppercase;font-weight:700">Em breve</span></div><div class="fs-kpi-val na">—</div><div class="fs-kpi-sub">a integrar</div></div>
+      </div>
+      <div id="fs-table">
+        <div id="fs-loading">Carregando…</div>
+        <div id="fs-body" style="display:none">
+          <div class="fs-col-hd">
+            <div class="fs-ch">Colaborador</div>
+            <div class="fs-ch r">GBV Líquido</div>
+            <div class="fs-ch r">Comissão</div>
+            <div class="fs-ch r">Receivable</div>
+            <div class="fs-ch r">Custo/GBV</div>
+            <div class="fs-ch r">Ating.</div>
+          </div>
+          <div id="fs-rows"></div>
+          <div class="fs-foot" id="fs-foot">* newcomers: aceite tratado como pendente.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--g200);margin:32px 0">
+
+    <!-- ── Rentabilidade por Modelo ── -->
     <div style="margin-bottom:24px">
       <h1 style="font-size:1.25rem;font-weight:700">Rentabilidade por Modelo — Vendedor (Analista %) × Assistente (OTE)</h1>
       <p style="font-size:.85rem;color:var(--g600);margin-top:2px" id="av-sub">—</p>
@@ -635,13 +870,14 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     </div>
   </div><!-- /assistvend -->
 
-  <!-- ══ APROVAÇÕES (TL / Coordenador) ═══════════════════════════════════ -->
+  <!-- ══ APROVAÇÕES (TL / Coordenador / Master) ═══════════════════════════ -->
   <div id="panel-aprovacoes" class="tab-panel">
-    <div style="margin-bottom:24px">
-      <h1 style="font-size:1.25rem;font-weight:700">Aprovações de HP</h1>
+    <div style="margin-bottom:20px">
+      <h1 style="font-size:1.25rem;font-weight:700">Aprovações Pendentes de HP</h1>
       <p style="font-size:.85rem;color:var(--g600);margin-top:2px">
-        HPs que vendedores adicionaram (vendas que o sistema não trouxe) e aguardam sua aprovação.
+        HPs adicionados por vendedores que aguardam aprovação.
         Um HP só entra no GBV do vendedor quando <b>TL e coordenador</b> aprovam.
+        <span id="aprov-scope-hint" style="margin-left:4px"></span>
       </p>
     </div>
     <div class="tbl-card">
@@ -649,7 +885,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         <thead>
           <tr>
             <th>Vendedor</th><th>HP</th><th>Mês</th><th>GBV</th><th>Modalidade</th>
-            <th>Obs.</th><th>Status TL</th><th>Status Coord.</th><th>Ação</th>
+            <th>Obs.</th><th>TL</th><th>Coord.</th><th>Ação</th>
           </tr>
         </thead>
         <tbody id="aprov-body">
@@ -687,7 +923,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <div class="rac-formula">Comissão = Σ (GBV pós-churn da modalidade × taxa) × multiplicador</div>
           <div class="rac-row"><b>Taxas:</b> À Vista <b>10%</b> · Parcelado <b>4%</b> · Inteligente <b>1,3%</b></div>
           <div class="rac-row"><b>Meta:</b> individual</div>
-          <table class="rac-tiers"><tr><td>&lt; 80%</td><td>0,5×</td></tr><tr><td>80–95%</td><td>0,8×</td></tr><tr><td>95–120%</td><td>1,0×</td></tr><tr><td>≥ 120% (teto)</td><td>1,2×</td></tr></table>
+          <table class="rac-tiers"><tr><td>&lt; 75%</td><td>0,3×</td></tr><tr><td>75–98%</td><td>0,5×</td></tr><tr><td>98–120%</td><td>1,0×</td></tr><tr><td>120–130%</td><td>1,2×</td></tr><tr><td>130–150%</td><td>1,3×</td></tr><tr><td>≥ 150%</td><td>1,5×</td></tr></table>
         </div>
 
         <div class="rac-card">
@@ -736,7 +972,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         <div class="rac-card">
           <h3>Coordenador (Fabio)</h3>
           <div class="rac-who">OTE ponderado por canal de vendas</div>
-          <div class="rac-formula">Comissão = Σ (% atingimento do canal × OTE do canal × multiplicador do canal)</div>
+          <div class="rac-formula">Comissão = Σ (OTE do canal × multiplicador do canal)</div>
           <div class="rac-row"><b>OTE total:</b> R$ 21.600 (12k × 1,8), por canal:</div>
           <div class="rac-row">• Esteiras <b>70%</b> = R$ 15.120 <span style="color:var(--g400)">(times LTESP)</span></div>
           <div class="rac-row">• Renovação <b>20%</b> = R$ 4.320 <span style="color:var(--g400)">(time Vanessa)</span></div>
@@ -749,6 +985,9 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
       <p style="color:var(--g400);font-size:.74rem;margin-top:16px">HP adicionados manualmente só entram no GBV após dupla aprovação (TL + coordenador). Métrica de todos = GBV pós-churn.</p>
     </div>
   </div><!-- /racional -->
+
+
+  <!-- ══ GOVERNANÇA ══════════════════════════════════════════════════ -->
 
 </main>
 
@@ -808,7 +1047,7 @@ function vendorName(e){return e.split('@')[0].split('.').map(p=>p.charAt(0).toUp
 // Escadas de multiplicador POR MODELO (cada cargo tem teto/faixas próprios).
 // [lo, hi, rótulo×, classe-cor]. hi=Infinity = teto.
 const LADDERS={
-  analista:  {scale:1.20, t:[[0,0.80,'0,5×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,Infinity,'1,2×','t-blue']]},
+  analista:  {scale:1.50, t:[[0,0.75,'0,3×','t-red'],[0.75,0.98,'0,5×','t-yellow'],[0.98,1.20,'1,0×','t-green'],[1.20,1.30,'1,2×','t-blue'],[1.30,1.50,'1,3×','t-purple'],[1.50,Infinity,'1,5×','t-purple']]},
   deluchi:   {scale:1.30, t:[[0,0.80,'0,5×','t-red'],[0.80,0.95,'0,8×','t-yellow'],[0.95,1.20,'1,0×','t-green'],[1.20,1.30,'1,2×','t-blue'],[1.30,Infinity,'1,3×','t-purple']]},
   assistente:{scale:1.10, t:[[0,0.70,'0,3×','t-red'],[0.70,0.80,'0,5×','t-yellow'],[0.80,0.90,'0,7×','t-yellow'],[0.90,1.10,'1,0×','t-green'],[1.10,Infinity,'1,3×','t-purple']]},
   tl_novo:   {scale:1.10, t:[[0,0.70,'0,3×','t-red'],[0.70,0.80,'0,5×','t-yellow'],[0.80,0.90,'0,7×','t-yellow'],[0.90,1.10,'1,0×','t-green'],[1.10,Infinity,'1,3×','t-purple']]},
@@ -862,7 +1101,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     tab.classList.add('active');
     document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
-    if(tab.dataset.tab==='assistvend') loadAssistVend();
+    if(tab.dataset.tab==='assistvend'){ loadAssistVend(); loadFinancialSummary(); }
     if(tab.dataset.tab==='acessos') loadAcessos();
     if(tab.dataset.tab==='aprovacoes') loadAprovacoes();
   });
@@ -873,10 +1112,10 @@ document.querySelectorAll('.tab').forEach(tab=>{
 //  AssistVend. Agora escondem na simulação e voltam ao retornar p/ Master.)
 function updateRoleTabs(){
   const set=(id,show)=>{const t=document.getElementById(id); if(t) t.style.display=show?'':'none';};
-  set('tab-assistvend', MASTER);              // master only (folha/PII)
-  set('tab-racional',   MASTER||ROLE==='gestor');  // racional de cálculo — master + coordenador
+  set('tab-assistvend', MASTER||ROLE==='aprovador');  // financeiro (rentabilidade + resumo) — master + aprovador
+  set('tab-racional',   MASTER||ROLE==='gestor'||ROLE==='aprovador');  // racional de cálculo — master + coord + aprovador
   set('tab-acessos',    MASTER);              // master only (log de acessos)
-  set('tab-aprovacoes', false);   // aba removida — aprovação de HP virou coluna em Transações
+  set('tab-aprovacoes', MASTER || ROLE==='gestor' || ROLE==='tl');  // aprovações HP: TL + coord + master
   // se a aba ativa virou oculta (ex.: master→Ver como TL na aba Acessos), volta p/ Resumo
   const active=document.querySelector('.tab.active');
   if(active && active.style.display==='none'){
@@ -884,6 +1123,14 @@ function updateRoleTabs(){
   }
 }
 updateRoleTabs();
+
+// Pré-carrega o badge de aprovações pendentes pra TL / coord / master
+if(MASTER || ROLE==='gestor' || ROLE==='tl'){
+  fetch('/api/extras/pending').then(r=>r.json()).then(rows=>{
+    const bd=document.getElementById('aprov-badge');
+    if(bd){ if(rows.length){bd.textContent=rows.length;bd.style.display='inline';} else bd.style.display='none'; }
+  }).catch(()=>{});
+}
 
 // ── Visão do vendedor: sem Recebíveis (só Resumo + Transações) ──────────────────
 if(ROLE==='vendedor'){ const t=document.getElementById('tab-recebiveis'); if(t) t.style.display='none'; }
@@ -906,6 +1153,147 @@ function avatarTag(p,cls){
 function nameCell(p){
   return `<div style="display:flex;align-items:center;gap:8px">${avatarTag(p,'mini-av')}<span>${p.name||vendorName(p.email)}</span></div>`;
 }
+// ── Resumo Financeiro — drilldown Coord→TL→membro ─────────────────────────────
+let _finsumLoaded = false;
+function loadFinancialSummary(){
+  if(_finsumLoaded) return;
+  const mes = selectedMes||'';
+  const q   = mes ? `?mes=${mes}` : '';
+  fetch('/api/financial-summary'+q).then(r=>r.json()).then(d=>{
+    if(d.error){ document.getElementById('fs-loading').textContent='Sem acesso.'; return; }
+    _finsumLoaded = true;
+
+    // KPIs
+    const tot = d.totals||{};
+    document.getElementById('fskpi-gbv').textContent  = Rc(tot.gbv_liq||0);
+    document.getElementById('fskpi-com').textContent  = Rc(tot.comissao||0);
+    const ratio = (tot.custo_gbv||0)*100;
+    const rCls  = ratio < 5 ? 'low' : ratio < 9 ? 'mid' : 'hi';
+    document.getElementById('fskpi-ratio').innerHTML  = `<span class="fs-ratio ${rCls}">${ratio.toFixed(2).replace('.',',')}%</span>`;
+
+    // helpers
+    const av = e => {
+      const parts = e.split('@')[0].split('.');
+      return (parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+    };
+    const initials = e => e.split('@')[0].split('.').map(p=>p[0].toUpperCase()+'.').join(' ');
+    const pct = v => (v*100).toFixed(1).replace('.',',')+'%';
+    const ratioHtml = v => {
+      if(!v) return '<span class="fs-num na">—</span>';
+      const p=(v*100); const cls=p<5?'low':p<9?'mid':'hi';
+      return `<span class="fs-ratio ${cls}">${p.toFixed(2).replace('.',',')}%</span>`;
+    };
+    const cargoBc = cargo => {
+      if(cargo.includes('coordenador')||cargo==='coord') return 'coord';
+      if(cargo.includes('team leader')) return 'tl';
+      if(cargo==='assistente') return 'assist';
+      if(cargo.includes('recupera')||cargo==='deluchi') return 'recup';
+      return 'vend';
+    };
+    const modeloBr = modelo => {
+      if(modelo==='assistente'||modelo==='tl_novo') return ['ote','OTE'];
+      if(modelo==='tl_vanessa'||modelo==='tl_tacyana') return ['taxatl','Taxa TL'];
+      if(modelo==='coord') return ['canais','3 Canais'];
+      if(modelo==='deluchi') return ['taxa','Taxa'];
+      return ['taxa','Taxa'];
+    };
+    const avCls = (cargo, email) => {
+      if(email.includes('deluchi')) return 'recup';
+      return cargoBc(cargo);
+    };
+
+    const mkRow = (m, level, showToggle) => {
+      const bcCls = cargoBc(m.cargo);
+      const [brCls, brLabel] = modeloBr(m.modelo);
+      const avC   = avCls(m.cargo, m.email);
+      const ncTag = m.newcomer ? `<span class="fs-nc">newcomer</span>` : '';
+      const sigDot = m.signed
+        ? `<span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;flex:0 0 6px"></span>`
+        : `<span style="width:6px;height:6px;border-radius:50%;background:#f59e0b;display:inline-block;flex:0 0 6px"></span>`;
+      const toggleBtn = showToggle
+        ? `<button class="fs-toggle" onclick="fsToggle(this)" style="pointer-events:auto">
+             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="7 5 12 10 7 15"/></svg>
+           </button>`
+        : `<span style="width:22px;flex:0 0 22px"></span>`;
+      // GBV/ating depends on level
+      const gbv   = level===1 ? (m.team_gbv||m.gbv_liq||0) : (m.gbv_liq||0);
+      const at    = level===1 ? (m.team_atingimento||m.atingimento||0) : (m.atingimento||0);
+      const ratio = level===1 ? (m.team_custo_gbv||0) : (m.custo_gbv||0);
+      const com   = m.comissao||0;
+      const atStr = at ? pct(at) : '—';
+      const lvlCls = ['l0','l1','l2'][level]||'l2';
+      return `<div class="fs-row ${lvlCls}">
+        <div class="fs-name">
+          ${toggleBtn}
+          <div class="fs-av ${avC}">${av(m.email)}</div>
+          <div class="fs-name-inner">
+            <div class="fs-name-text">${m.name}</div>
+            <div class="fs-name-badges">
+              <span class="fs-bc ${bcCls}">${m.cargo.includes('team leader')?'TL':m.cargo.includes('coord')?'Coord':m.cargo.charAt(0).toUpperCase()+m.cargo.slice(1)}</span>
+              <span class="fs-br ${brCls}">${brLabel}</span>
+              ${ncTag}${sigDot}
+            </div>
+          </div>
+        </div>
+        <div class="fs-num ${level===0?'hi':''}">${Rc(gbv)}</div>
+        <div class="fs-num ${level===0?'hi':''}">${Rc(com)}</div>
+        <div class="fs-num na">—</div>
+        <div class="fs-num">${ratioHtml(ratio)}</div>
+        <div class="fs-num">${atStr}</div>
+      </div>`;
+    };
+
+    // Build coord row
+    const coord = d.coord||{};
+    let html = mkRow({...coord, cargo:'coordenador', signed: coord.signed||false}, 0, true);
+
+    // Children wrapper open
+    html += `<div class="fs-children" id="fsc-coord">`;
+
+    // TLs
+    (d.tls||[]).forEach((tl,ti) => {
+      const tlId = `fsc-tl-${ti}`;
+      html += mkRow({...tl, cargo:'team leader'}, 1, true).replace('onclick="fsToggle(this)"', `onclick="fsToggle(this,'${tlId}')" data-target="${tlId}"`);
+      html += `<div class="fs-children l2b" id="${tlId}">`;
+      (tl.members||[]).forEach(m => { html += mkRow(m, 2, false); });
+      html += `</div>`;
+    });
+
+    // Direct reports of coord (if any)
+    (d.direct||[]).forEach(m => { html += mkRow(m, 2, false); });
+
+    html += `</div>`; // close fsc-coord
+
+    document.getElementById('fs-rows').innerHTML = html;
+    document.getElementById('fs-loading').style.display = 'none';
+    document.getElementById('fs-body').style.display    = '';
+
+    // Open coord children by default
+    document.querySelectorAll('#fsc-coord>.fs-row.l1, #fsc-coord>.fs-children').forEach(el => {
+      if(el.classList.contains('fs-children')) el.style.display='block';
+    });
+    // Mark coord toggle as open
+    const coordToggle = document.querySelector('#fs-rows>.fs-row.l0 .fs-toggle');
+    if(coordToggle) coordToggle.classList.add('open');
+
+    // Mark all TL toggles as closed initially
+    document.querySelectorAll('[id^="fsc-tl-"]').forEach(el => el.style.display='none');
+
+  }).catch(e=>{ document.getElementById('fs-loading').textContent='Erro ao carregar.'; console.error(e); });
+}
+
+function fsToggle(btn, childId){
+  btn.classList.toggle('open');
+  if(!childId){
+    // coord toggle
+    const ch = document.getElementById('fsc-coord');
+    if(ch) ch.style.display = btn.classList.contains('open') ? 'block' : 'none';
+    return;
+  }
+  const ch = document.getElementById(childId);
+  if(ch) ch.style.display = btn.classList.contains('open') ? 'block' : 'none';
+}
+
 function loadAcessos(){
   fetch('/api/access-log').then(r=>r.json()).then(d=>{
     const us=(d.by_user||[]);
@@ -1138,7 +1526,7 @@ function renderSummary(d){
   const comp=d.competencia ? monthLong(d.competencia) : '';
   // e-mail "próprio" efetivo: ao simular (ver como TL/Vendedor) é o alvo, não o master logado
   const selfEmail=((viewAs==='tl'||viewAs==='vendedor')&&viewAsTL)?viewAsTL:SESSION_EMAIL;
-  const isOther=(MASTER||ROLE==='gestor'||ROLE==='people_ops')&&selectedVendor!=='todos'&&selectedVendor!==SESSION_EMAIL;
+  const isOther=(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador')&&selectedVendor!=='todos'&&selectedVendor!==SESSION_EMAIL;
   document.getElementById('dash-title').textContent = isOther
     ? vendorName(selectedVendor)+' · '+comp
     : 'Meu Dashboard · '+comp;
@@ -1152,9 +1540,7 @@ function renderSummary(d){
     ? P(d.atingimento_meta)+' atingido' : '';
   document.getElementById('k-com').textContent   = Rc(d.total_comissao);
   document.getElementById('k-final').textContent = Rc(d.vlr_final_comissao);
-  // Comissão (bruta) some na visão de TL/Coord (pedido) — lá só faz sentido a Final
-  const cb=document.getElementById('card-com-bruta');
-  if(cb) cb.style.display=['tl_vanessa','tl_tacyana','tl_novo','coord'].includes(d.modelo)?'none':'';
+
   document.getElementById('k-mult-sub').textContent = `Multiplicador: ${d.multiplicador>0?d.multiplicador.toFixed(1)+'×':'—'}`;
 
   // flags "vs mês ant." removidas da visão TL/Vendedor (pedido) — limpa os badges de delta
@@ -1190,7 +1576,8 @@ function renderSummary(d){
     f.style.width=(Math.min(pct/L.scale,1)*100)+'%';
     f.style.background=barCol(pct);
   },100);
-  document.getElementById('tier-wrap').innerHTML=`<span class="badge ${tierInfo(pct,modelo).c}">${tierInfo(pct,modelo).l}</span>`;
+  document.getElementById('tier-wrap').innerHTML=`<span class="badge ${tierInfo(pct,modelo).c}">${tierInfo(pct,modelo).l}</span>`
+    +(d.nota_fim_mes?' <span class="newcomer-pill">🕐 Entrada fim do mês · ating. ajustado a 100%</span>':'');
   if(pct>0){
     const quota=Number(d.gbv_liquido)/pct;
     const next=L.t.map(x=>x[0]).find(lo=>lo>pct);          // próximo limiar do modelo
@@ -1250,7 +1637,7 @@ function renderRanking(data){
   const team = Array.isArray(data) ? null  : (data.team||null);
   renderTeam(team);
 
-  const isMasterTodos = (MASTER||ROLE==='people_ops') && selectedVendor==='todos';
+  const isMasterTodos = (MASTER||ROLE==='people_ops'||ROLE==='aprovador') && selectedVendor==='todos';
   const thead = document.getElementById('ranking-thead');
   if(isMasterTodos){
     thead.innerHTML=`<tr>
@@ -1275,7 +1662,7 @@ function renderRanking(data){
   rows.forEach(r=>{
     const tr=document.createElement('tr');
     if(r.isMe)tr.className='me';
-    if((MASTER||ROLE==='people_ops')&&r.vendedor){
+    if((MASTER||ROLE==='people_ops'||ROLE==='aprovador')&&r.vendedor){
       tr.classList.add('clickable');
       tr.addEventListener('click',()=>{
         const sel=document.getElementById('vendor-select');
@@ -1284,6 +1671,7 @@ function renderRanking(data){
     }
     const pc=r.posicao===1?'rk1':r.posicao===2?'rk2':r.posicao===3?'rk3':'rkn';
     const tiC=tierColor(r.multiplicador);
+    const newcomerTag=r.nota_fim_mes?` <span class="newcomer-pill" style="font-size:.62rem">🕐 fim do mês</span>`:'';
 
     if(isMasterTodos){
       const ating=r.atingimento||0;
@@ -1291,7 +1679,7 @@ function renderRanking(data){
       const barC=barCol(ating);
       tr.innerHTML=`
         <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
-        <td>${r.label}</td>
+        <td>${r.label}${newcomerTag}</td>
         <td style="font-size:.78rem;color:var(--g600)">${r.gestor_label||'—'}</td>
         <td class="num">${r.valor_meta>0?R(r.valor_meta):'—'}</td>
         <td class="num">${R(r.gbv_liquido)}</td>
@@ -1303,7 +1691,7 @@ function renderRanking(data){
     } else {
       tr.innerHTML=`
         <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
-        <td>${r.label}</td>
+        <td>${r.label}${newcomerTag}</td>
         <td class="num">${R(r.gbv_liquido)}</td>
         <td class="num">${r.atingimento>0?P(r.atingimento):'—'}</td>
         <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
@@ -1314,14 +1702,21 @@ function renderRanking(data){
 }
 
 // ── Render TL summary ─────────────────────────────────────────────────────────
-function renderTLSummary(tls){
+function renderTLSummary(tls, signoffData){
   const tbody=document.getElementById('tl-summary-body');
   tbody.innerHTML='';
   if(!tls||!tls.length){
-    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma TL encontrada para este mês</td></tr>';
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma TL encontrada para este mês</td></tr>';
     return;
   }
-  let totalGbv=0, totalCom=0, totalMeta=0;
+  // build signoff map tl_email → {signed, total}
+  const soMap={};
+  if(signoffData&&signoffData.by_tl){
+    signoffData.by_tl.forEach(t=>{
+      soMap[t.tl_email]={signed:t.signed.length, total:t.signed.length+t.unsigned.length};
+    });
+  }
+  let totalGbv=0, totalCom=0, totalMeta=0, totalSigned=0, totalMembers=0;
   tls.forEach(tl=>{
     const ating = tl.team_meta>0 ? tl.team_gbv/tl.team_meta : 0;
     const barW   = Math.min(ating/1.5,1)*100;
@@ -1329,6 +1724,11 @@ function renderTLSummary(tls){
     totalGbv  += tl.team_gbv;
     totalCom  += tl.team_comissao;
     totalMeta += tl.team_meta;
+    const so=soMap[tl.tl_email]||null;
+    if(so){totalSigned+=so.signed; totalMembers+=so.total;}
+    const aceiteCell = so
+      ? `<td class="num"><span style="font-weight:700;color:${so.signed===so.total?'#16a34a':so.signed>0?'#ca8a04':'#dc2626'}">${so.signed}/${so.total}</span></td>`
+      : `<td class="num" style="color:var(--g400)">—</td>`;
 
     const tr=document.createElement('tr');
     tr.classList.add('clickable');
@@ -1343,7 +1743,8 @@ function renderTLSummary(tls){
         <div class="pct-bar-wrap"><div class="pct-bar-fill" style="width:${barW}%;background:${barC}"></div></div>
       </td>
       <td class="num">${R(tl.team_comissao)}</td>
-      <td class="num">${tl.member_count}</td>`;
+      <td class="num">${tl.member_count}</td>
+      ${aceiteCell}`;
     tr.title='Ver equipe de '+tl.label;
     tr.addEventListener('click',()=>{
       const sel=document.getElementById('vendor-select');
@@ -1355,15 +1756,257 @@ function renderTLSummary(tls){
   const tr=document.createElement('tr');
   tr.className='total-row';
   const atTot = totalMeta>0 ? totalGbv/totalMeta : 0;
+  const aceiteTotal = totalMembers>0
+    ? `<td class="num"><strong style="color:${totalSigned===totalMembers?'#16a34a':'#ca8a04'}">${totalSigned}/${totalMembers}</strong></td>`
+    : `<td class="num">—</td>`;
   tr.innerHTML=`
     <td><strong>Total Equipe</strong></td>
     <td class="num">${totalMeta>0?R(totalMeta):'—'}</td>
     <td class="num">${R(totalGbv)}</td>
     <td>${atTot>0?P(atTot):'—'}</td>
     <td class="num">${R(totalCom)}</td>
-    <td class="num">${tls.reduce((s,t)=>s+t.member_count,0)}</td>`;
+    <td class="num">${tls.reduce((s,t)=>s+t.member_count,0)}</td>
+    ${aceiteTotal}`;
   tbody.appendChild(tr);
 }
+
+function renderSignoffStatus(data){
+  // resumo panel: simple summary chip list
+  const el=document.getElementById('aceites-body');
+  if(el) _renderSignoffInto(el, data);
+  // transações panel: full redesign
+  renderAceitesRedesign(data);
+}
+function _renderSignoffInto(el, data){
+  if(!el||!data) return;
+  const byTl=data.by_tl||[];
+  if(!byTl.length){
+    el.innerHTML='<p style="color:var(--g400);padding:16px 0">Nenhum colaborador encontrado.</p>';
+    return;
+  }
+  const pctColor=p=>p===1?'#16a34a':p>=0.5?'#ca8a04':'#dc2626';
+  let html=`<div style="margin-bottom:14px;font-size:.85rem;color:var(--g600)"><strong>${data.total_signed}</strong> de <strong>${data.total}</strong> colaboradores confirmaram o fechamento deste mês.</div>`;
+  byTl.forEach(tl=>{
+    const n=tl.signed.length+tl.unsigned.length;
+    const pct=n>0?tl.signed.length/n:0;
+    const col=pctColor(pct);
+    html+=`<div class="tbl-card" style="margin-bottom:10px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-weight:700;font-size:.88rem">${tl.label}</span>
+        <span style="font-size:.75rem;color:var(--g400)">${tl.tl_email}</span>
+        <span style="margin-left:auto;font-size:.85rem;font-weight:700;color:${col}">${tl.signed.length}/${n}</span>
+      </div>
+      <div style="height:5px;background:var(--g200);border-radius:3px;margin-bottom:10px">
+        <div style="height:5px;background:${col};border-radius:3px;width:${pct*100}%;transition:width .4s"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">`;
+    tl.signed.forEach(m=>{
+      html+=`<span style="padding:3px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:.75rem">✓ ${m.label}</span>`;
+    });
+    tl.unsigned.forEach(m=>{
+      html+=`<span style="padding:3px 10px;border-radius:999px;background:#fee2e2;color:#dc2626;font-size:.75rem">✗ ${m.label}</span>`;
+    });
+    html+=`</div></div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderAceitesRedesign(data){
+  if(!data) return;
+  const isAdmin = MASTER || ROLE==='gestor';
+  const byTl    = data.by_tl || [];
+  const lead    = data.leadership || {};
+  const coord   = lead.coord || null;
+  const tls     = lead.tls  || [];
+
+  // Build flat list of all signers for KPI count
+  const leadMembers = coord ? [coord, ...tls] : [];
+  const vendorMembers = byTl.flatMap(t=>[
+    ...t.signed.map(m=>({...m, signed:true,  authorized:true})),
+    ...t.unsigned.map(m=>({...m, signed:false, authorized:true})),
+  ]);
+  const everyone = [...leadMembers, ...vendorMembers];
+  const totConfirmed = everyone.filter(m=>m.signed).length;
+  const totPending   = everyone.filter(m=>m.authorized && !m.signed).length;
+  const totLocked    = everyone.filter(m=>!m.authorized && !m.signed).length;
+  const totTotal     = everyone.length;
+
+  // KPIs
+  const setTxt=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setTxt('kpi-confirmed', totConfirmed);
+  setTxt('kpi-pending',   totPending);
+  setTxt('kpi-locked',    totLocked);
+  setTxt('kpi-total',     totTotal);
+
+  // Progress bar
+  const pct = totTotal ? (totConfirmed/totTotal)*100 : 0;
+  const gpFill=document.getElementById('ac-gp-fill');
+  const gpPct =document.getElementById('ac-gp-percent');
+  if(gpFill) gpFill.style.width=pct+'%';
+  if(gpPct)  gpPct.textContent=Math.round(pct)+'%';
+
+  // Admin action banner
+  const aa=document.getElementById('ac-admin-action');
+  const aaT=document.getElementById('ac-aa-text');
+  const aaBtn=document.getElementById('ac-btn-release-all');
+  if(aa){
+    aa.style.display = isAdmin ? 'grid' : 'none';
+    if(isAdmin){
+      if(totLocked===0){
+        aa.classList.add('calm');
+        if(aaT) aaT.textContent='Tudo liberado · aguardando assinantes confirmarem';
+        if(aaBtn){ aaBtn.disabled=true; aaBtn.textContent='✓ Mês liberado'; }
+      } else {
+        aa.classList.remove('calm');
+        if(aaT) aaT.textContent=`Libere a revisão pra ${totLocked} assinante${totLocked>1?'s':''} ainda bloqueado${totLocked>1?'s':''}`;
+        if(aaBtn){ aaBtn.disabled=false; aaBtn.textContent='🔓 Liberar revisão do mês'; }
+      }
+    }
+  }
+
+  // Helper: initials from name
+  const initials=name=>String(name||'?').trim().split(/\s+/).slice(0,2).map(n=>(n[0]||'').toUpperCase()).join('');
+  const firstName=name=>String(name||'').split(/\s+/)[0];
+
+  function memberStatus(m){
+    if(m.signed)     return {key:'done',   label:'Confirmou'};
+    if(m.authorized) return {key:'open',   label:'Aguardando assinar'};
+    return                  {key:'locked', label:'Aguarda liberação'};
+  }
+  function groupStatus(members){
+    const signed=members.filter(m=>m.signed).length;
+    const auth  =members.filter(m=>m.authorized).length;
+    if(signed===members.length&&members.length) return {key:'done',  label:'Todos confirmaram'};
+    if(signed>0)                                return {key:'mixed', label:`${signed} de ${members.length} assinaram`};
+    if(auth===members.length&&members.length)   return {key:'open',  label:'Aguardando assinantes'};
+    if(auth>0)                                  return {key:'mixed', label:'Parcialmente liberado'};
+    return                                             {key:'locked',label:'Aguarda liberação'};
+  }
+
+  function renderMemberRow(m, role){
+    const st=memberStatus(m);
+    const roleLabel=role==='coord'?'Coordenador':role==='tl'?'TL':'Vendedor';
+    const teamHint=role==='tl'&&m.team?` · time ${m.team}`:'';
+    const signedHint=m.signed&&m.signed_at?` · assinou ${m.signed_at.slice(0,16).replace('T',' ')}`:
+                     m.signed?' · confirmou':'';
+    const isMe = m.email && m.email.toLowerCase() === SESSION_EMAIL.toLowerCase();
+    let actionHtml='';
+    if(isAdmin){
+      if(st.key==='locked')
+        actionHtml=`<button class="btn btn-sm btn-primary" data-action="release-one" data-email="${m.email}">🔓 Liberar</button>`;
+      else if(st.key==='open')
+        actionHtml=`<span class="role-hint">aguardando ${firstName(m.name||m.label||m.email)}</span>
+                    <button class="btn btn-sm btn-ghost btn-danger" data-action="revoke-one" data-email="${m.email}" title="Revogar">↺</button>`;
+    } else if(isMe && !m.signed && ROLE==='tl'){
+      actionHtml=`<button class="btn btn-sm btn-primary" onclick="doSignoffFromAceites()">✓ Assinar</button>`;
+    }
+    return `<div class="member ${st.key}" data-email="${m.email||''}">
+      <div class="member-avatar">${initials(m.name||m.label||m.email||'?')}</div>
+      <div>
+        <div class="member-name-row">
+          <span class="member-name">${m.name||m.label||m.email||'—'}</span>
+          <span class="role-tag ${role}">${roleLabel}</span>
+        </div>
+        <div class="member-sub">${m.email||''}${teamHint}${signedHint}</div>
+      </div>
+      <span class="status status-${st.key}">${st.label}</span>
+      <div class="member-action">${actionHtml}</div>
+    </div>`;
+  }
+
+  function buildBlock({label, title, subtitle, members, alwaysExpanded}){
+    const signed=members.filter(m=>m.signed).length;
+    const pctM=members.length?(signed/members.length)*100:0;
+    const gs=groupStatus(members);
+    const expanded=alwaysExpanded;
+    return `<div class="team${expanded?' expanded':''}">
+      <div class="team-header" data-toggle>
+        <div class="team-id">
+          <div class="team-label">${label}</div>
+          <div class="team-tl-line">${title}<span class="who">${subtitle?'· '+subtitle:''}</span></div>
+        </div>
+        <div class="team-progress">
+          <div class="team-bar"><div class="team-bar-fill${pctM>0?' has-progress':''}" style="width:${pctM}%"></div></div>
+          <div class="team-count">${signed}/${members.length}</div>
+        </div>
+        <div class="team-toggle">
+          <span class="status status-${gs.key}">${gs.label}</span>
+          <svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+        </div>
+      </div>
+      <div class="members">${members.map(m=>renderMemberRow(m, m._role||'vend')).join('')}</div>
+    </div>`;
+  }
+
+  // Leadership block
+  const ll=document.getElementById('ac-leadership-list');
+  if(ll){
+    if(!coord && !tls.length){
+      ll.innerHTML='<p style="color:var(--g400);font-size:.85rem;padding:8px 0">Dados de liderança não disponíveis para este papel.</p>';
+    } else {
+      const lmembers=[
+        ...(coord?[{...coord, _role:'coord'}]:[]),
+        ...tls.map(t=>({...t, _role:'tl'}))
+      ];
+      ll.innerHTML=buildBlock({
+        label:'Coordenação',
+        title: coord ? (coord.name||'Fabio Dias') : 'Liderança',
+        subtitle: `coordenador + ${tls.length} TL${tls.length!==1?'s':''}`,
+        members: lmembers,
+        alwaysExpanded: true,
+      });
+    }
+  }
+
+  // Teams blocks
+  const tl2=document.getElementById('ac-teams-list');
+  if(tl2){
+    if(!byTl.length){
+      tl2.innerHTML='<p style="color:var(--g400);font-size:.85rem;padding:8px 0">Nenhum time encontrado.</p>';
+    } else {
+      tl2.innerHTML=byTl.map(t=>{
+        const members=[
+          ...t.signed.map(m=>({...m,signed:true,authorized:true,_role:'vend'})),
+          ...t.unsigned.map(m=>({...m,signed:false,authorized:true,_role:'vend'})),
+        ];
+        return buildBlock({
+          label: 'Time',
+          title: t.label||t.tl_email,
+          subtitle: t.tl_email,
+          members,
+          alwaysExpanded: false,
+        });
+      }).join('');
+    }
+  }
+
+  // Wire up toggle expand/collapse
+  document.querySelectorAll('#aceites-redesign .team-header[data-toggle]').forEach(h=>{
+    h.addEventListener('click', function(e){
+      if(e.target.closest('button')) return;
+      this.closest('.team').classList.toggle('expanded');
+    });
+  });
+
+  // Wire up action buttons (best-effort — no autorizar/revogar endpoints yet)
+  document.querySelectorAll('#aceites-redesign [data-action="release-one"]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      toast('Liberação individual: endpoint /api/signoff/autorizar ainda não disponível.');
+    });
+  });
+  document.querySelectorAll('#aceites-redesign [data-action="revoke-one"]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      toast('Revogação: endpoint /api/signoff/revogar ainda não disponível.');
+    });
+  });
+  const relBtn=document.getElementById('ac-btn-release-all');
+  if(relBtn) relBtn.addEventListener('click', ()=>{
+    toast('Liberação em massa: endpoint /api/signoff/autorizar ainda não disponível.');
+  });
+}
+
 
 // ── Render trend charts ───────────────────────────────────────────────────────
 function renderTrend(data){
@@ -1610,15 +2253,26 @@ function renderTx(){
       ?`<button class="apv-btn ${apOk?'approve':''}" style="cursor:pointer;font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:10px;border:1px solid ${apOk?'#16a34a':'#cbd5e1'};background:${apOk?'#16a34a1a':'#fff'};color:${apOk?'#16a34a':'#475569'}" onclick="approveTx('${tx.transaction_id}',${apOk?'false':'true'})">${apOk?'✓ Aprovado':'Aprovar'}</button>`
       :(apOk?'<span style="font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;background:#16a34a1a;color:#16a34a">✓ Aprovado</span>'
             :'<span style="font-size:.7rem;color:var(--g400)">Pendente</span>');
-    // Aprovação de HP (dupla: TL + coordenador). Só linhas de HP (origem=extra). TL/coord decidem
-    // (backend valida tl_email/coord). Demais papéis só visualizam.
+    // Status do Pedido HP (dupla: TL + coordenador). Visível a todos; TL/gestor têm botões de ação.
     let hpCell='<span style="color:var(--g400)">—</span>';
     if(tx.aprovacao_hp){
-      const h=tx.aprovacao_hp, canDecide=(ROLE==='tl'||ROLE==='gestor')&&!viewAs;
-      hpCell=`<div style="font-size:.68rem;line-height:1.5;white-space:nowrap">TL: ${badgeExtra(h.status_tl)} · Coord: ${badgeExtra(h.status_coord)}</div>`;
-      if(canDecide) hpCell+=`<div class="apv-actions" style="margin-top:3px">`
-        +`<button class="apv-btn approve" onclick="decideExtra('${h.id}','aprovado')">✓</button>`
-        +`<button class="apv-btn dispute" onclick="decideExtra('${h.id}','rejeitado')">✗</button></div>`;
+      const h=tx.aprovacao_hp;
+      const bothOk  = h.status_tl==='aprovado' && h.status_coord==='aprovado';
+      const anyRej  = h.status_tl==='rejeitado' || h.status_coord==='rejeitado';
+      const waitCoord = h.status_tl==='aprovado' && h.status_coord==='pendente';
+      let badge;
+      if(bothOk)      badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#dcfce7;color:#166534">✓ Aceito</span>';
+      else if(anyRej) badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#fee2e2;color:#991b1b">✗ Não aceito</span>';
+      else if(waitCoord) badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#fef3c7;color:#92400e">⏳ Ag. coord</span>';
+      else               badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#fef3c7;color:#92400e">⏳ Ag. TL</span>';
+      hpCell = badge;
+      const canDecide=(ROLE==='tl'||ROLE==='gestor')&&!viewAs;
+      if(!bothOk && !anyRej){
+        hpCell+=`<div style="font-size:.65rem;line-height:1.5;white-space:nowrap;margin-top:2px;color:var(--g500)">TL: ${badgeExtra(h.status_tl)} · Coord: ${badgeExtra(h.status_coord)}</div>`;
+        if(canDecide) hpCell+=`<div class="apv-actions" style="margin-top:3px">`
+          +`<button class="apv-btn approve" onclick="decideExtra('${h.id}','aprovado')">✓</button>`
+          +`<button class="apv-btn dispute" onclick="decideExtra('${h.id}','rejeitado')">✗</button></div>`;
+      }
     }
     // Forma de pagamento da transação
     const FORMA={'a vista':['À vista','#7B5CF6'],'parcelado':['Parcelado','#E91E8C'],'inteligente':['Inteligente','#0ea5e9']};
@@ -1663,11 +2317,42 @@ function approveTx(txId, approve){
   }).catch(e=>toast('Erro: '+e.message));
 }
 
-// ── Sign-off do fechamento (visão do próprio vendedor) ──────────────────────────
+// ── Sign-off do fechamento ───────────────────────────────────────────────────────
 function loadSignoff(){
-  const card=document.getElementById('signoff-card');
-  const hp  =document.getElementById('hp-add-card');
-  if(!viewingSelf){ if(card)card.style.display='none'; if(hp)hp.style.display='none'; return; }
+  const card    =document.getElementById('signoff-card');
+  const hp      =document.getElementById('hp-add-card');
+  const viewCard=document.getElementById('signoff-view-card');
+
+  // TL/Coord/Master drillando um vendedor específico → card read-only
+  if(!viewingSelf && (ROLE==='tl'||ROLE==='gestor'||MASTER) && selectedVendor && selectedVendor!=='todos'){
+    if(card)    card.style.display='none';
+    if(hp)      hp.style.display='none';
+    if(viewCard)viewCard.style.display='';
+    fetch(apiUrl('/api/signoff', selectedVendor)).then(r=>r.json()).then(d=>{
+      const st=document.getElementById('signoff-view-status');
+      const dt=document.getElementById('signoff-view-time');
+      if(!st) return;
+      if(d.signed){
+        st.innerHTML='<span style="color:#16a34a;font-weight:700">✓ Confirmado</span>';
+        dt.textContent='em '+fmtAcc(d.at);
+      } else {
+        st.innerHTML='<span style="color:#ca8a04;font-weight:700">⏳ Ainda não confirmado</span>';
+        dt.textContent='';
+      }
+    }).catch(()=>{});
+    return;
+  }
+
+  // Qualquer outro caso sem visão própria: esconde tudo
+  if(!viewingSelf){
+    if(card)    card.style.display='none';
+    if(hp)      hp.style.display='none';
+    if(viewCard)viewCard.style.display='none';
+    return;
+  }
+
+  // Visão própria do vendedor
+  if(viewCard)viewCard.style.display='none';
   if(hp)  hp.style.display='';
   if(card)card.style.display='';
   loadExtras();
@@ -1679,6 +2364,15 @@ function loadSignoff(){
       st.innerHTML=`<span style="color:#16a34a;font-weight:600">✓ Fechamento confirmado</span> em ${fmtAcc(d.at)}.`;
       btn.textContent='✓ Confirmado'; btn.disabled=true; btn.style.opacity='.6';
       if(bd)bd.style.display='none';
+      // HP bloqueado após aceite
+      const hpCard=document.getElementById('hp-add-card');
+      if(hpCard){
+        ['hp-code','hp-nota','btn-add-hp'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=true;});
+        const warn=document.createElement('p');
+        warn.style.cssText='font-size:.8rem;color:#dc2626;margin-top:8px';
+        warn.textContent='Inclusão de HP desabilitada após o envio do aceite.';
+        if(!hpCard.querySelector('.hp-aceite-warn')){warn.className='hp-aceite-warn';hpCard.appendChild(warn);}
+      }
     } else {
       st.textContent='Você ainda não confirmou o fechamento deste mês.';
       btn.textContent='✓ Estou de acordo com o fechamento'; btn.disabled=false; btn.style.opacity='';
@@ -1686,14 +2380,30 @@ function loadSignoff(){
     }
   });
 }
+function _signoffError(d,btn){
+  if(btn) btn.disabled=false;
+  if(d.code==='hp_pendente') toast('⚠ '+d.error);
+  else toast('Erro: '+d.error);
+}
 function doSignoff(){
   const btn=document.getElementById('btn-signoff'); btn.disabled=true;
   fetch('/api/signoff',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({mes:selectedMes||undefined})
   }).then(r=>r.json()).then(d=>{
-    if(d.error){toast('Erro: '+d.error);btn.disabled=false;return;}
+    if(d.error){_signoffError(d,btn);return;}
     toast('✓ Fechamento confirmado — e-mail enviado'); loadSignoff();
   }).catch(e=>{toast('Erro: '+e.message);btn.disabled=false;});
+}
+function doSignoffFromAceites(){
+  fetch('/api/signoff',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({mes:selectedMes||undefined})
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){_signoffError(d,null);return;}
+    toast('✓ Fechamento confirmado — e-mail enviado');
+    // Recarrega o painel de aceites para refletir assinatura
+    fetch(apiUrl('/api/signoff-status')).then(r=>r.json()).then(renderSignoffStatus).catch(()=>{});
+    loadSignoff();
+  }).catch(e=>toast('Erro: '+e.message));
 }
 
 // ── Adicionar HP que faltou (visão do próprio vendedor) ─────────────────────────
@@ -1732,6 +2442,12 @@ function addHP(){
 // ── Aba Aprovações (TL / coordenador) ───────────────────────────────────────────
 function loadAprovacoes(){
   const tbody=document.getElementById('aprov-body');
+  const hint=document.getElementById('aprov-scope-hint');
+  if(hint){
+    if(MASTER)          hint.textContent='(visão master — todos os times)';
+    else if(ROLE==='gestor') hint.textContent='(coordenador — HPs aguardando coord)';
+    else                hint.textContent='(apenas HPs do seu time)';
+  }
   tbody.innerHTML='<tr class="loading-row"><td colspan="9"><div class="spinner"></div>Carregando…</td></tr>';
   fetch('/api/extras/pending').then(r=>r.json()).then(rows=>{
     const bd=document.getElementById('aprov-badge');
@@ -1740,19 +2456,24 @@ function loadAprovacoes(){
     tbody.innerHTML='';
     rows.forEach(r=>{
       const val=r.fonte==='nao_localizado'?'<span style="color:#dc2626">não localizado</span>':R(r.gbv||0);
+      const canDecide=(ROLE==='tl'||ROLE==='gestor')&&!window.viewAs;
       const tr=document.createElement('tr');
       tr.innerHTML=`
-        <td>${r.vendedor_nome}</td><td><span class="tx-id">${r.transaction_id}</span></td>
-        <td>${(r.competencia||'').slice(0,7)}</td><td>${val}</td><td>${r.modality_payment||'—'}</td>
+        <td>${r.vendedor_nome}<div style="font-size:.72rem;color:var(--g400)">${r.vendedor}</div></td>
+        <td><span class="tx-id">${r.transaction_id}</span></td>
+        <td>${(r.competencia||'').slice(0,7)}</td><td class="num">${val}</td>
+        <td>${r.modality_payment||'—'}</td>
         <td style="max-width:160px;font-size:.78rem">${r.nota||'—'}</td>
-        <td>${badgeExtra(r.status_tl)}</td><td>${badgeExtra(r.status_coord)}</td>
+        <td>${badgeExtra(r.status_tl)}${r.tl_email&&r.status_tl==='pendente'?`<div style="font-size:.7rem;color:var(--g400);margin-top:2px">${r.tl_email}</div>`:''}</td><td>${badgeExtra(r.status_coord)}</td>
         <td><div class="apv-actions">
-          <button class="apv-btn approve" onclick="decideExtra('${r.id}','aprovado')">✓</button>
-          <button class="apv-btn dispute" onclick="decideExtra('${r.id}','rejeitado')">✗</button>
+          ${canDecide
+            ? `<button class="apv-btn approve" onclick="decideExtra('${r.id}','aprovado')">✓ Aprovar</button>
+               <button class="apv-btn dispute" onclick="decideExtra('${r.id}','rejeitado')">✗ Rejeitar</button>`
+            : '<span style="font-size:.78rem;color:var(--g400)">somente leitura</span>'}
         </div></td>`;
       tbody.appendChild(tr);
     });
-  });
+  }).catch(e=>{tbody.innerHTML=`<tr><td colspan="9" style="color:#dc2626;padding:16px">${e.message}</td></tr>`;});
 }
 function decideExtra(id,decision){
   fetch('/api/extras/'+id+'/decision',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -1763,6 +2484,7 @@ function decideExtra(id,decision){
     const tx=txAll.find(t=>t.aprovacao_hp&&t.aprovacao_hp.id===id);
     if(tx&&d.status_tl){tx.aprovacao_hp.status_tl=d.status_tl;tx.aprovacao_hp.status_coord=d.status_coord;}
     renderTx();
+    loadAprovacoes();  // recarrega tabela e badge após decisão
   }).catch(e=>toast('Erro: '+e.message));
 }
 
@@ -1832,32 +2554,38 @@ function setSections(mode){
 
   // All possible sections
   const all=['section-trend','section-team','section-tl-summary','section-payroll',
-             'section-mom-compare','section-summary','section-progress','section-charts','section-ranking'];
+             'section-mom-compare','section-summary','section-progress','section-charts',
+             'section-ranking','section-aceites'];
   all.forEach(id=>S(id,false));
 
   if(mode==='gestor-overview'){
     S('section-trend',true);S('section-team',true);
-    S('section-tl-summary',true);S('section-mom-compare',true);
+    S('section-tl-summary',true);S('section-aceites',true);S('section-mom-compare',true);
     // payroll is master-only — not shown here
   } else if(mode==='todos-master'){
     S('section-trend',true);S('section-team',true);
     S('section-ranking',true);S('section-payroll',true);S('section-mom-compare',true);
+    S('section-aceites',true);
   } else if(mode==='peopleops-todos'){
     // visão geral sem folha/PII
     S('section-trend',true);S('section-team',true);
     S('section-ranking',true);S('section-mom-compare',true);
   } else if(mode==='gestor-tl'){
     S('section-summary',true);S('section-progress',true);S('section-charts',true);
-    S('section-ranking',true);
+    S('section-ranking',true);S('section-aceites',true);
+  } else if(mode==='tl-todos'){
+    // TL visualizando toda a equipe: mostra resumo próprio + ranking do time + aceites
+    S('section-summary',true);S('section-progress',true);
+    S('section-ranking',true);S('section-aceites',true);
   } else {
     // individual — drill num colaborador específico: SÓ os dados dele.
     S('section-summary',true);S('section-progress',true);S('section-charts',true);
     // a tabela de ranking só faz sentido para TL (equipe própria, filtrada no backend);
     // master/people_ops/vendedor vendo um indivíduo NÃO veem a lista de todos.
-    if(ROLE==='tl') S('section-ranking',true);
+    if(ROLE==='tl'){ S('section-ranking',true); S('section-aceites',true); }
   }
 
-  const showTx=(mode!=='todos-master'&&mode!=='gestor-overview'&&mode!=='peopleops-todos');
+  const showTx=(mode!=='todos-master'&&mode!=='gestor-overview'&&mode!=='peopleops-todos'&&mode!=='tl-todos');
   S('tx-empty-master',!showTx);
   document.getElementById('tx-content').style.display=showTx?'block':'none';
   S('recv-empty',!showTx);
@@ -1877,7 +2605,7 @@ function apiUrl(base,vendedor){
 // ── Load data ─────────────────────────────────────────────────────────────────
 function loadData(vendedor){
   selectedVendor=vendedor||'todos';
-  viewingSelf=!(MASTER||ROLE==='gestor'||ROLE==='tl'||ROLE==='people_ops')
+  viewingSelf=!(MASTER||ROLE==='gestor'||ROLE==='tl'||ROLE==='people_ops'||ROLE==='aprovador')
               ||selectedVendor===SESSION_EMAIL||selectedVendor==='todos';
 
   const isTodos=selectedVendor==='todos';
@@ -1893,8 +2621,10 @@ function loadData(vendedor){
       fetch('/api/trend').then(r=>r.json()),
       fetch(apiUrl('/api/payroll-impact')).then(r=>r.json()),
       fetch('/api/mom-compare').then(r=>r.json()),
-    ]).then(([tls,ranking,trend,payroll,mom])=>{
-      renderTLSummary(tls||[]);
+      fetch(apiUrl('/api/signoff-status')).then(r=>r.json()),
+    ]).then(([tls,ranking,trend,payroll,mom,signoff])=>{
+      renderTLSummary(tls||[], signoff||null);
+      renderSignoffStatus(signoff||null);
       renderRanking(ranking||[]);
       renderTrend(trend||{});
       renderPayroll(payroll||{});
@@ -1904,7 +2634,7 @@ function loadData(vendedor){
   }
 
   // ── People Ops · visão geral (todos os colaboradores, ativos e inativos, sem folha) ──
-  if(ROLE==='people_ops'&&isTodos){
+  if((ROLE==='people_ops'||ROLE==='aprovador')&&isTodos){
     setSections('peopleops-todos');
     document.getElementById('dash-title').textContent='Dashboard · Equipe Comercial';
     document.getElementById('dash-subtitle').textContent='Visão de People Ops — todos os colaboradores (ativos e inativos)';
@@ -1932,11 +2662,13 @@ function loadData(vendedor){
       fetch('/api/trend').then(r=>r.json()),
       fetch(apiUrl('/api/payroll-impact')).then(r=>r.json()),
       fetch('/api/mom-compare').then(r=>r.json()),
-    ]).then(([ranking,trend,payroll,mom])=>{
+      fetch(apiUrl('/api/signoff-status')).then(r=>r.json()),
+    ]).then(([ranking,trend,payroll,mom,signoff])=>{
       renderRanking(ranking||[]);
       renderTrend(trend||{});
       renderPayroll(payroll||{});
       renderMomCompare(mom||{}, true);
+      renderSignoffStatus(signoff||null);
     }).catch(e=>console.error(e));
     return;
   }
@@ -1944,7 +2676,8 @@ function loadData(vendedor){
   // ── Gestor drilling: TL → visão de equipe · vendedor → visão individual ──
   const isGestorTL=ROLE==='gestor'&&!isTodos
                    &&gestorTLset.has(String(selectedVendor).toLowerCase());
-  setSections(isGestorTL?'gestor-tl':'individual');
+  const isTLTodos=ROLE==='tl'&&isTodos;
+  setSections(isGestorTL?'gestor-tl': isTLTodos?'tl-todos':'individual');
 
   if(isGestorTL){
     document.getElementById('ranking-title').textContent=`Equipe de ${vendorName(selectedVendor)}`;
@@ -1952,20 +2685,25 @@ function loadData(vendedor){
     document.getElementById('ranking-title').textContent='Minha equipe';
   }
 
-  const target=(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='tl')&&selectedVendor!=='todos'?selectedVendor:null;
+  const target=(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'||ROLE==='tl')&&selectedVendor!=='todos'?selectedVendor:null;
 
-  Promise.all([
+  // TL e gestor-tl buscam aceites junto com os outros dados
+  const needsSignoff = ROLE==='tl' || isGestorTL;
+  const fetches = [
     fetch(apiUrl('/api/summary',      target)).then(r=>r.json()),
     fetch(apiUrl('/api/ranking',      target)).then(r=>r.json()),
     fetch(apiUrl('/api/transactions', target)).then(r=>r.json()),
     fetch(apiUrl('/api/approvals',    target)).then(r=>r.json()),
-  ]).then(([summary,ranking,transactions,approvals])=>{
+    needsSignoff ? fetch(apiUrl('/api/signoff-status')).then(r=>r.json()) : Promise.resolve(null),
+  ];
+  Promise.all(fetches).then(([summary,ranking,transactions,approvals,signoff])=>{
     if(summary) renderSummary(summary);
     else document.getElementById('dash-title').textContent=(target?vendorName(target):SESSION_EMAIL)+' · sem dados este mês';
     renderRanking(ranking||[]);
     txAll=transactions||[];apvState=approvals||{};
     renderTx();
     loadSignoff();   // mostra "Faltou alguma venda? (Adicionar HP)" + sign-off SÓ na visão do próprio vendedor
+    if(needsSignoff) renderSignoffStatus(signoff||null);
   }).catch(e=>{document.getElementById('dash-title').textContent='Erro ao carregar';console.error(e);});
 }
 
@@ -1988,7 +2726,7 @@ async function initMonths(vend){
   sel.onchange=async ()=>{
     selectedMes=sel.value;
     // Mês → Colaborador: reconstrói os colaboradores ativos do mês e volta p/ visão geral
-    if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='tl'){
+    if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'||ROLE==='tl'){
       await initVendorSelect();
       loadData('todos');
     } else {
@@ -1997,6 +2735,10 @@ async function initMonths(vend){
     // aba Rentabilidade por Modelo é month-aware → recarrega se estiver aberta
     const avp=document.getElementById('panel-assistvend');
     if(avp&&avp.classList.contains('active')) loadAssistVend();
+    // Resumo Financeiro é month-aware → reseta cache e recarrega se aberto
+    _finsumLoaded=false;
+    const fsp=document.getElementById('panel-assistvend');
+    if(fsp&&fsp.classList.contains('active')) loadFinancialSummary();
   };
 }
 
@@ -2020,6 +2762,10 @@ async function initVendorSelect(){
     badge.textContent='People Ops';badge.className='role-badge badge-peopleops';
     label.textContent='Colaborador:';
     selEl.querySelector('option').textContent='Visão Geral';
+  } else if(ROLE==='aprovador'){
+    badge.textContent='APROVADOR';badge.className='role-badge badge-master';
+    label.textContent='Colaborador:';
+    selEl.querySelector('option').textContent='Visão Geral';
   } else if(ROLE==='tl'){
     badge.textContent='TL';badge.className='role-badge badge-tl';
     label.textContent='Vendedor:';
@@ -2030,9 +2776,10 @@ async function initVendorSelect(){
   // mês selecionado → filtra ativos POR MÊS (datas de RH) no backend
   const mq=selectedMes?('mes='+encodeURIComponent(selectedMes)):'';
   const vendors=await fetch('/api/vendors'+(mq?'?'+mq:'')).then(r=>r.json());
-  (Array.isArray(vendors)?vendors:[]).forEach(v=>{
+  (Array.isArray(vendors)?vendors:[]).forEach((v,i)=>{
     const opt=document.createElement('option');
-    opt.value=v;opt.textContent=vendorName(v);
+    opt.value=v;
+    opt.textContent=(ROLE==='tl'&&i===0)?`Minha comissão (${vendorName(v)})`:vendorName(v);
     selEl.appendChild(opt);
   });
 
@@ -2071,7 +2818,7 @@ async function loadForRole(){
     await initPersonPicker(viewAs);
     return;
   }
-  if(MASTER||ROLE==='gestor'||ROLE==='people_ops'){
+  if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'){
     // deep-link ?v=email (só master real, sem simulação ativa)
     const preselect = (MASTER&&!viewAs) ? new URLSearchParams(location.search).get('v') : null;
     if(preselect){
@@ -2143,7 +2890,7 @@ async function initPersonPicker(kind){
 }
 
 // ── "Ver como" — troca de visão (só em memória; recarregar volta ao papel real) ──
-const VIEW_LABELS={people_ops:'People Ops',gestor:'Gestor',tl:'TL',vendedor:'Vendedor'};
+const VIEW_LABELS={people_ops:'People Ops',gestor:'Gestor',aprovador:'Aprovador',tl:'TL',vendedor:'Vendedor'};
 async function applyView(v){
   const isHome=(v==='master'||v==='self');
   viewAs   = isHome ? null : v;
@@ -2170,7 +2917,7 @@ function setupViewSwitcher(){
   let opts;
   if(REAL_MASTER){
     badge.textContent='MASTER';badge.className='role-badge badge-master';
-    opts=[['master','Master (tudo)'],['people_ops','People Ops'],['gestor','Gestor'],['tl','TL…']];
+    opts=[['master','Master (tudo)'],['people_ops','People Ops'],['gestor','Gestor'],['aprovador','Aprovador (Yani)'],['tl','TL…']];
   } else { // gestor / coordenador
     badge.textContent='COORDENADOR';badge.className='role-badge badge-gestor';
     opts=[['self','Coordenador (minha visão)'],['tl','TL…'],['vendedor','Vendedor…']];

@@ -14,10 +14,12 @@ OTE_TL_NOVO = 7000.0   # Novo TL I
 
 def mult_analista(at):
     if at is None: return None
-    if at < 0.80: return 0.5
-    if at < 0.95: return 0.8
+    if at < 0.75: return 0.3
+    if at < 0.98: return 0.5
     if at < 1.20: return 1.0
-    return 1.2  # teto
+    if at < 1.30: return 1.2
+    if at < 1.50: return 1.3
+    return 1.5
 
 def mult_assist(at):   # tambem usado por Novo TL I e novos vendedores
     # Tabela oficial (PDF "2 - Comissionamento Assistentes Comerciais"): NAO existe degrau 1,2.
