@@ -34,6 +34,9 @@ _TL_NAME_TO_EMAIL = {
     "vanessa":              "vanessa.lopes@fluencyacademy.io",
     "fabio":                "fabio.dias@fluencyacademy.io",
     "fabio dias":           "fabio.dias@fluencyacademy.io",
+    "yan":                  "yan.santos@fluencyacademy.io",
+    "yan santos":           "yan.santos@fluencyacademy.io",
+    "yan chaves":           "yan.santos@fluencyacademy.io",
 }
 
 def sync_target_sheet(mes_ym: str, bq_client: bigquery.Client) -> int:
