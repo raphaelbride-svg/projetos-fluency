@@ -123,51 +123,103 @@ def sync_target_sheet(mes_ym: str, bq_client: bigquery.Client) -> int:
         )).result()
 
         # ── ote_fator: consulta datas de admissão em people-analytics ────────────
-        dias_no_mes  = calendar.monthrange(year, month)[1]
-        mes_inicio   = datetime.date(year, month, 1)
-        mes_fim      = datetime.date(year, month, dias_no_mes)
+        # Isolado em try próprio: falha de permissão cross-project aqui (people-analytics-fluency)
+        # NAO pode abortar o sync de gestor/valor_meta, que sao independentes.
+        try:
+            dias_no_mes  = calendar.monthrange(year, month)[1]
+            mes_inicio   = datetime.date(year, month, 1)
+            mes_fim      = datetime.date(year, month, dias_no_mes)
 
-        people_bq = bigquery.Client(project="people-analytics-fluency")
-        adm_rows  = people_bq.query(
-            "SELECT LOWER(Email) AS email, Data_Admissao "
-            "FROM `people-analytics-fluency.rh_staging.dim_nome` "
-            "WHERE LOWER(Email) IN UNNEST(@emails)",
-            job_config=bigquery.QueryJobConfig(
-                query_parameters=[bigquery.ArrayQueryParameter("emails","STRING",list(set(all_emails)))]
-            ), location="southamerica-east1"
-        ).result()
-        admissao = {r["email"]: r["Data_Admissao"] for r in adm_rows}
+            people_bq = bigquery.Client(project="people-analytics-fluency")
+            adm_rows  = people_bq.query(
+                "SELECT LOWER(Email) AS email, Data_Admissao "
+                "FROM `people-analytics-fluency.rh_staging.dim_nome` "
+                "WHERE LOWER(Email) IN UNNEST(@emails)",
+                job_config=bigquery.QueryJobConfig(
+                    query_parameters=[bigquery.ArrayQueryParameter("emails","STRING",list(set(all_emails)))]
+                ), location="southamerica-east1"
+            ).result()
+            admissao = {r["email"]: r["Data_Admissao"] for r in adm_rows}
 
-        ote_rows = []
-        newcomers_prop = []
-        for email in all_emails:
-            adm = admissao.get(email)
-            if adm and adm >= mes_inicio:
-                dias_trab = max(1, (mes_fim - adm).days + 1)
-                fator     = round(min(1.0, dias_trab / dias_no_mes), 6)
-                newcomers_prop.append(f"{email}({fator:.2f})")
-            else:
-                fator = 1.0
-            ote_rows.append({"email": email, "ote_fator": fator})
+            ote_rows = []
+            newcomers_prop = []
+            for email in all_emails:
+                adm = admissao.get(email)
+                if adm and adm >= mes_inicio:
+                    dias_trab = max(1, (mes_fim - adm).days + 1)
+                    fator     = round(min(1.0, dias_trab / dias_no_mes), 6)
+                    newcomers_prop.append(f"{email}({fator:.2f})")
+                else:
+                    fator = 1.0
+                ote_rows.append({"email": email, "ote_fator": fator})
 
-        # ── MERGE 2: ote_fator ──────────────────────────────────────────────────
-        ote_json = json.dumps(ote_rows)
-        bq_client.query(f"""
-            MERGE `fluency-finance.commission.hierarquia_comercial` T
-            USING (
-              SELECT LOWER(JSON_VALUE(raw, '$.email'))             AS email,
-                     CAST(JSON_VALUE(raw, '$.ote_fator') AS FLOAT64) AS ote_fator
-              FROM UNNEST(JSON_QUERY_ARRAY(@rows)) AS raw
-            ) S
-            ON LOWER(T.email_vendedor) = S.email
-               AND T.mes_venda = DATE('{competencia}')
-            WHEN MATCHED THEN UPDATE SET T.ote_fator = S.ote_fator
-        """, job_config=bigquery.QueryJobConfig(
-            query_parameters=[bigquery.ScalarQueryParameter("rows","STRING",ote_json)]
-        )).result()
+            # ── MERGE 2: ote_fator ──────────────────────────────────────────────────
+            ote_json = json.dumps(ote_rows)
+            bq_client.query(f"""
+                MERGE `fluency-finance.commission.hierarquia_comercial` T
+                USING (
+                  SELECT LOWER(JSON_VALUE(raw, '$.email'))             AS email,
+                         CAST(JSON_VALUE(raw, '$.ote_fator') AS FLOAT64) AS ote_fator
+                  FROM UNNEST(JSON_QUERY_ARRAY(@rows)) AS raw
+                ) S
+                ON LOWER(T.email_vendedor) = S.email
+                   AND T.mes_venda = DATE('{competencia}')
+                WHEN MATCHED THEN UPDATE SET T.ote_fator = S.ote_fator
+            """, job_config=bigquery.QueryJobConfig(
+                query_parameters=[bigquery.ScalarQueryParameter("rows","STRING",ote_json)]
+            )).result()
 
-        prop_str = (", ".join(newcomers_prop)) or "(nenhum)"
-        print(f"  sync_target_sheet: {len(mappings)} gestores | ote_fator proporcional: {prop_str}")
+            prop_str = (", ".join(newcomers_prop)) or "(nenhum)"
+            print(f"  sync_target_sheet: {len(mappings)} gestores | ote_fator proporcional: {prop_str}")
+        except Exception as e:
+            print(f"  sync_target_sheet: ote_fator NAO sincronizado (erro people-analytics-fluency): {e}")
+
+        # ── MERGE 3: valor_meta a partir da aba "Meta Vendedores" (coluna "Total") ──
+        # Fonte da verdade da meta individual. NUNCA copiar/herdar de outro mês.
+        meta_tab = next(
+            (s["properties"]["title"] for s in spreadsheet["sheets"]
+             if s["properties"]["title"].strip().lower() == "meta vendedores"),
+            None
+        )
+        n_meta = 0
+        if meta_tab:
+            meta_rows = sheets_svc.spreadsheets().values().get(
+                spreadsheetId=file_id, range=f"'{meta_tab}'!A:I",
+                valueRenderOption="FORMATTED_VALUE",
+            ).execute().get("values", [])
+            meta_header_idx = next(
+                (i for i, r in enumerate(meta_rows) if r and str(r[0]).strip().lower() in ("company email","email","vendedor")),
+                None
+            )
+            if meta_header_idx is not None:
+                import re
+                def _parse_money(s):
+                    s = re.sub(r"[^0-9,.]", "", str(s))
+                    s = s.replace(".", "").replace(",", ".")
+                    return float(s) if s else 0.0
+                meta_mappings = []
+                for row in meta_rows[meta_header_idx + 1:]:
+                    if not row or len(row) < 9: continue
+                    email = str(row[0]).strip().lower()
+                    if "@" not in email: continue
+                    meta_mappings.append({"email": email, "valor_meta": _parse_money(row[8])})
+                if meta_mappings:
+                    meta_json = json.dumps(meta_mappings)
+                    bq_client.query(f"""
+                        MERGE `fluency-finance.commission.hierarquia_comercial` T
+                        USING (
+                          SELECT LOWER(JSON_VALUE(raw, '$.email'))               AS email,
+                                 CAST(JSON_VALUE(raw, '$.valor_meta') AS FLOAT64) AS valor_meta
+                          FROM UNNEST(JSON_QUERY_ARRAY(@rows)) AS raw
+                        ) S
+                        ON LOWER(T.email_vendedor) = S.email
+                           AND T.mes_venda = DATE('{competencia}')
+                        WHEN MATCHED THEN UPDATE SET T.valor_meta = S.valor_meta
+                    """, job_config=bigquery.QueryJobConfig(
+                        query_parameters=[bigquery.ScalarQueryParameter("rows","STRING",meta_json)]
+                    )).result()
+                    n_meta = len(meta_mappings)
+        print(f"  sync_target_sheet: valor_meta sincronizado para {n_meta} vendedores/assistentes (aba 'Meta Vendedores')" if n_meta else "  sync_target_sheet: aba 'Meta Vendedores' não encontrada ou vazia — valor_meta NÃO sincronizado")
         return len(mappings)
     except Exception as e:
         print(f"  sync_target_sheet ERRO: {e}")

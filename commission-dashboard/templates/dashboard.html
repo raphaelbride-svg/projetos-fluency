@@ -1589,9 +1589,16 @@ function renderSummary(d){
 
   if(chartTipo){chartTipo.destroy();chartTipo=null;}
   if(chartGbv){chartGbv.destroy();chartGbv=null;}
+  const RATE_LABELS={
+    analista:   ['Inteligente (1,3%)','Parcelado (4%)','À Vista (10%)'],
+    deluchi:    ['Inteligente (2,25%)','Parcelado (4%)','À Vista (8%)'],
+    tl_vanessa: ['Inteligente (0,5%)','Parcelado (1,5%)','À Vista (4%)'],
+    tl_tacyana: ['Inteligente (0,5%)','Parcelado (1%)','À Vista (3%)'],
+  };
+  const tipoLabels=RATE_LABELS[modelo]||['Inteligente','Parcelado','À Vista'];
   chartTipo=new Chart(document.getElementById('chart-tipo'),{
     type:'doughnut',
-    data:{labels:['Inteligente (1,3%)','Parcelado (4%)','À Vista (8%+)'],
+    data:{labels:tipoLabels,
           datasets:[{data:[d.comissao_inteligente,d.comissao_parcelado,d.comissao_a_vista],
                      backgroundColor:['#7B5CF6','#22c55e','#f59e0b'],
                      borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
