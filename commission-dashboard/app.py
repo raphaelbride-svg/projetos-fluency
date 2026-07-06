@@ -1724,6 +1724,110 @@ def api_tl_summary():
         })
     return jsonify(result)
 
+
+# ── API: Produtividade por horário (master + gestor) ──────────────────────────
+
+_PRODUTIVIDADE_HORA_SQL = """
+    WITH vendas AS (
+      SELECT
+        LOWER(vendedor)             AS vendedor,
+        is_churn,
+        gbv,
+        contract_created_at_brt
+      FROM `fluency-gold.conversion.obt_conversions`
+      WHERE DATE_TRUNC(contract_created_at_brt_date, MONTH) = DATE(@mes)
+        AND vendedor IS NOT NULL
+        AND (@dia IS NULL OR EXTRACT(DAY FROM contract_created_at_brt_date) = @dia)
+    ),
+    hier AS (
+      -- Squad = o próprio TL quando a pessoa é TL (venda própria conta no squad dela);
+      -- senão, squad = o gestor (TL) dela. Sem mapa fixo de nome de squad — o roster manda.
+      SELECT
+        LOWER(email_vendedor) AS email_vendedor,
+        CASE WHEN LOWER(COALESCE(cargo,'')) LIKE '%team leader%'
+             THEN LOWER(email_vendedor)
+             ELSE LOWER(COALESCE(gestor,'')) END AS squad_lead
+      FROM `fluency-finance.commission.hierarquia_comercial`
+      WHERE mes_venda = DATE(@mes)
+    )
+    SELECT
+      COALESCE(NULLIF(h.squad_lead,''), 'sem_time') AS squad_lead,
+      v.vendedor,
+      EXTRACT(HOUR FROM v.contract_created_at_brt)  AS hora,
+      COUNT(*)                                       AS qtd_vendas,
+      SUM(IF(v.is_churn, 0, v.gbv))                  AS gbv_pc
+    FROM vendas v
+    LEFT JOIN hier h ON h.email_vendedor = v.vendedor
+    GROUP BY 1,2,3
+"""
+
+def _empty_horas() -> list[dict]:
+    return [{"hora": h, "gbv": 0.0, "qtd": 0, "ticket_medio": 0.0} for h in range(24)]
+
+@app.route("/api/produtividade-hora")
+@login_required
+def api_produtividade_hora():
+    role = _get_role_data()["role"]
+    if role not in ("master", "gestor"):
+        return jsonify({"error": "forbidden"}), 403
+    mes = resolve_month()
+    dia_raw = request.args.get("dia", "").strip()
+    dia = int(dia_raw) if dia_raw.isdigit() and 1 <= int(dia_raw) <= 31 else None
+    rows = run_query(
+        _PRODUTIVIDADE_HORA_SQL,
+        [
+            bigquery.ScalarQueryParameter("mes", "DATE", mes),
+            bigquery.ScalarQueryParameter("dia", "INT64", dia),
+        ],
+        cache_ttl=120,
+    )
+
+    times: dict[str, dict] = {}
+    vendedores: dict[str, dict] = {}
+    for r in rows:
+        squad = str(r["squad_lead"])
+        vend  = str(r["vendedor"])
+        hora  = int(r["hora"])
+        qtd   = int(r["qtd_vendas"])
+        gbv   = float(r["gbv_pc"] or 0)
+
+        t = times.setdefault(squad, {
+            "tl_email": squad,
+            "label": "Sem time atribuído" if squad == "sem_time" else _name_from_email(squad),
+            "horas": _empty_horas(),
+        })
+        t["horas"][hora]["qtd"] += qtd
+        t["horas"][hora]["gbv"] += gbv
+
+        v = vendedores.setdefault(vend, {
+            "squad_lead": squad,
+            "label": _name_from_email(vend),
+            "horas": _empty_horas(),
+        })
+        v["horas"][hora]["qtd"] += qtd
+        v["horas"][hora]["gbv"] += gbv
+
+    for bucket in (*times.values(), *vendedores.values()):
+        for h in bucket["horas"]:
+            h["ticket_medio"] = (h["gbv"] / h["qtd"]) if h["qtd"] else 0.0
+
+    times_out = _filter_active(list(times.values()), "tl_email")
+    # _filter_active espera uma lista de dicts com a chave de e-mail; o dict de
+    # vendedores é indexado por e-mail, então filtramos as chaves inativas direto.
+    inactive = _inactive_emails_for_month(mes) or set()
+    vendedores_out = {
+        email: v for email, v in vendedores.items()
+        if email.lower() not in inactive
+    }
+
+    return jsonify({
+        "mes": mes,
+        "dia": dia,
+        "times": sorted(times_out, key=lambda t: t["label"]),
+        "vendedores": vendedores_out,
+    })
+
+
 def _build_leadership_payload(mes: str) -> dict:
     """Retorna {coord, tls} com status de sign-off de coord e TLs do mês.
     authorized=True sempre (signoff_autorizacao não existe — tudo liberado)."""
@@ -2445,6 +2549,153 @@ def api_assist_vs_vendedor():
         "mes": mes[:7], "mes_label": _MESES_PT[md.month - 1] + " " + str(md.year),
         "dsr_fact": DSR, "people": people, "grupos": grupos, "historico": historico, "ranking_hist": ranking_hist,
         "fonte": "Comissão+GBV = vw_comissao por mês (Jun = projeção; folha pró-rata nos dias). Folha = baseline Supabase. Impacto = DSR 20% + INSS/FGTS (taxa efetiva por pessoa).",
+    })
+
+
+# ── API: B2B · PARCERIA (F.Corporate) — por transação, isolado da hierarquia B2C
+# Regra (Raphael, 2026-07-06): comissão = SUM(purchase_amount) × 3%, atribuída à
+# vendedora "dona" da empresa (Carteira, aba AUX da planilha Comissionamento B2C),
+# via join tracking_source (tag "[F]_Empresa") x commission.b2b_carteira_map.
+# ⚠️ "Parceria" é UM dos modelos de comissionamento B2B (Raphael, 2026-07-06) —
+# haverá modelos separados para "Convênio" e "Subsídio Parcial", cada um com sua
+# própria regra/rota/aba. NÃO misturar. NÃO usar tracking_source_sck pra atribuir
+# vendedora — é o e-mail de quem registrou a venda, não necessariamente a dona da
+# conta. NÃO é GBV, NÃO tem vendedor/TL/coordenador B2C associado. Ver skill
+# comissao-b2b-parceria pro racional completo e pipeline/load_b2b_carteira_map.py
+# (refresh do de-para).
+@app.route("/api/b2b-parceria")
+@login_required
+def api_b2b_parceria():
+    if _get_role_data()["role"] != "master":
+        return jsonify({"error": "forbidden"}), 403
+    mes_param = request.args.get("mes", "").strip()
+    where_mes, params = "", []
+    if mes_param and mes_param != "todos":
+        where_mes = "AND DATE_TRUNC(DATE(approved_date_brt), MONTH) = DATE(@mes)"
+        params.append(bigquery.ScalarQueryParameter("mes", "DATE", mes_param + "-01"))
+    rows = run_query(f"""
+        WITH src AS (
+          SELECT
+            LOWER(TRIM(tracking_source)) AS tag_norm,
+            purchase_amount
+          FROM `fluency-silver.hotmart.transactions`
+          WHERE LOWER(product_name) LIKE '%f.corporate%'
+            AND purchase_status IN ('COMPLETE', 'APPROVED')
+            {where_mes}
+        )
+        SELECT
+          CASE
+            WHEN m.carteira IS NULL THEN 'Não mapeado'
+            WHEN m.carteira IN ('Avulso', '-') THEN 'Sem carteira'
+            ELSE m.carteira
+          END                        AS vendedora,
+          COUNT(*)                   AS qtd_transacoes,
+          SUM(src.purchase_amount)   AS total_purchase_amount
+        FROM src
+        LEFT JOIN `fluency-finance.commission.b2b_carteira_map` m
+          ON m.tag_empresa_norm = src.tag_norm
+        GROUP BY 1
+        ORDER BY 3 DESC
+    """, params, cache_ttl=90)
+    vendedores, tot_qtd, tot_amount = [], 0, 0.0
+    for r in rows:
+        amt = float(r["total_purchase_amount"] or 0)
+        qtd = int(r["qtd_transacoes"] or 0)
+        tot_qtd += qtd
+        tot_amount += amt
+        vendedores.append({
+            "vendedora": r["vendedora"],
+            "qtd_transacoes": qtd,
+            "total_purchase_amount": round(amt, 2),
+            "comissao": round(amt * 0.03, 2),
+        })
+    return jsonify({
+        "modelo": "Parceria",
+        "mes": mes_param or "todos",
+        "vendedores": vendedores,
+        "totais": {
+            "qtd_transacoes": tot_qtd,
+            "total_purchase_amount": round(tot_amount, 2),
+            "comissao": round(tot_amount * 0.03, 2),
+        },
+        "fonte": "Modelo B2B · Parceria — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
+    })
+
+
+# ── API: B2B (Entradas, AC="B2B") — Convênio + Portal de Benefícios + Fluency
+# Pass + Subsídio Parcial, isolado do modelo b2b2c/Parceria ────────────────────
+# Regra (Raphael, 2026-07-06): comissão = SUM(coluna L "Valor de compra com
+# impostos") × 6%, por vendedora (coluna AI "Carteira"), quebrado por Contrato
+# (coluna AD). Corte de mês = coluna F ("Confirmação do pagamento"). Fonte: aba
+# Entradas da planilha Comissionamento B2C — snapshot em
+# commission.b2b_entradas_snapshot (pipeline/load_b2b_entradas.py).
+# ⚠️ Essa planilha é editada ao vivo pelo time — o snapshot reflete o momento em
+# que o loader rodou por último, não é live. ⚠️ "Aguardando validação" = linhas
+# com #REF! na coluna AI (fórmula quebrada na sheet) — EXCLUÍDO dos totais
+# oficiais até o Raphael corrigir e o snapshot ser refeito (decisão 2026-07-06).
+# "Sem carteira" = coluna AI vazia ou "-" — ENTRA no total (decisão 2026-07-06).
+@app.route("/api/b2b")
+@login_required
+def api_b2b():
+    if _get_role_data()["role"] != "master":
+        return jsonify({"error": "forbidden"}), 403
+    mes_param = request.args.get("mes", "").strip()
+    where_mes, params = "", []
+    if mes_param and mes_param != "todos":
+        where_mes = "AND mes = @mes"
+        params.append(bigquery.ScalarQueryParameter("mes", "STRING", mes_param))
+    rows = run_query(f"""
+        SELECT vendedora, contrato, COUNT(*) AS qtd, SUM(valor) AS total
+        FROM `fluency-finance.commission.b2b_entradas_snapshot`
+        WHERE 1=1 {where_mes}
+        GROUP BY 1, 2
+        ORDER BY 4 DESC
+    """, params, cache_ttl=90)
+    by_vendedora = {}
+    por_contrato = {}
+    pendente = {"qtd_transacoes": 0, "total": 0.0}
+    tot_qtd, tot_amount = 0, 0.0
+    for r in rows:
+        vend = r["vendedora"]
+        contrato = r["contrato"]
+        qtd = int(r["qtd"] or 0)
+        amt = float(r["total"] or 0)
+        por_contrato[contrato] = por_contrato.get(contrato, 0.0) + amt
+        if vend == "Aguardando validação":
+            pendente["qtd_transacoes"] += qtd
+            pendente["total"] += amt
+            continue
+        tot_qtd += qtd
+        tot_amount += amt
+        v = by_vendedora.setdefault(vend, {"vendedora": vend, "qtd_transacoes": 0, "total_valor": 0.0, "contratos": {}})
+        v["qtd_transacoes"] += qtd
+        v["total_valor"] += amt
+        v["contratos"][contrato] = v["contratos"].get(contrato, 0.0) + amt
+    vendedores = []
+    for v in sorted(by_vendedora.values(), key=lambda x: -x["total_valor"]):
+        vendedores.append({
+            "vendedora": v["vendedora"],
+            "qtd_transacoes": v["qtd_transacoes"],
+            "total_valor": round(v["total_valor"], 2),
+            "comissao": round(v["total_valor"] * 0.06, 2),
+            "contratos": {k: round(val, 2) for k, val in v["contratos"].items()},
+        })
+    return jsonify({
+        "modelo": "B2B",
+        "mes": mes_param or "todos",
+        "vendedores": vendedores,
+        "por_contrato": {k: round(val, 2) for k, val in sorted(por_contrato.items(), key=lambda x: -x[1])},
+        "totais": {
+            "qtd_transacoes": tot_qtd,
+            "total_valor": round(tot_amount, 2),
+            "comissao": round(tot_amount * 0.06, 2),
+        },
+        "pendente_validacao": {
+            "qtd_transacoes": pendente["qtd_transacoes"],
+            "total_valor": round(pendente["total"], 2),
+            "comissao": round(pendente["total"] * 0.06, 2),
+        },
+        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira). Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet) fica FORA do total oficial até correção.",
     })
 
 

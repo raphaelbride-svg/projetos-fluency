@@ -46,6 +46,11 @@ header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height
 .tab{padding:14px 18px;font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--g600);transition:all .15s;white-space:nowrap;user-select:none}
 .tab:hover{color:var(--g900)}.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
 .tab-panel{display:none}.tab-panel.active{display:block}
+.b2b-subtabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--g200)}
+.b2b-subtab{padding:9px 16px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--g600);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.b2b-subtab:hover{color:var(--g900)}
+.b2b-subtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.b2b-sub-panel{display:none}.b2b-sub-panel.active{display:block}
 
 main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 .section{margin-bottom:40px}
@@ -331,11 +336,13 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
   </div>
   <div class="tab" data-tab="assistvend" id="tab-assistvend" style="display:none">Financeiro</div>
   <div class="tab" data-tab="racional" id="tab-racional" style="display:none">Racional de Cálculo</div>
+  <div class="tab" data-tab="produtividade" id="tab-produtividade" style="display:none">Produtividade por Horário</div>
   <div class="tab" data-tab="aprovacoes" id="tab-aprovacoes" style="display:none">
     Aprovações Pendentes
     <span class="tab-badge" id="aprov-badge" style="display:none"></span>
   </div>
   <div class="tab" data-tab="acessos" id="tab-acessos" style="display:none">Acessos</div>
+  <div class="tab" data-tab="b2b" id="tab-b2b" style="display:none">B2B</div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -721,6 +728,72 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     </div>
   </div>
 
+  <!-- ══ B2B — unificado: Parceria (b2b2c) + Convênio/Portal/Pass, isolado da hierarquia B2C ═══ -->
+  <div id="panel-b2b" class="tab-panel">
+    <div style="margin-bottom:20px">
+      <h1 style="font-size:1.25rem;font-weight:700">B2B</h1>
+      <p style="font-size:.85rem;color:var(--g600);margin-top:2px">
+        Dois modelos de comissionamento B2B, cada um com regra, fonte e taxa próprias — <b>não são somados</b>
+        entre si. Use o filtro abaixo pra alternar. <b>Não</b> é a hierarquia vendedor/TL/coordenador B2C.
+      </p>
+    </div>
+
+    <div class="b2b-subtabs">
+      <button type="button" class="b2b-subtab active" data-b2bsub="parceria">b2b2c · Parceria (3%)</button>
+      <button type="button" class="b2b-subtab" data-b2bsub="convenio">B2B · Convênio/Portal/Pass (6%)</button>
+    </div>
+
+    <!-- Sub: Parceria / b2b2c (F.Corporate) -->
+    <div id="b2b-sub-parceria" class="b2b-sub-panel active">
+      <p style="font-size:.8rem;color:var(--g600);margin:-6px 0 18px">
+        Comissão por transação (não GBV). Fonte: <code>fluency-silver.hotmart.transactions</code>
+        (product_name contém "f.corporate") cruzada com a Carteira (aba AUX) via <code>tracking_source</code>.
+      </p>
+      <div class="cards" style="margin-bottom:22px">
+        <div class="card"><div class="label">Transações</div><div class="value" id="b2b-kpi-qtd">—</div></div>
+        <div class="card"><div class="label">Total Purchase Amount</div><div class="value" id="b2b-kpi-total">—</div></div>
+        <div class="card"><div class="label">Comissão (3%)</div><div class="value" id="b2b-kpi-comissao">—</div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Por vendedora (Carteira)</div>
+        <div class="tbl-card"><table>
+          <thead><tr><th>Vendedora</th><th class="num">Transações</th><th class="num">Total Purchase Amount</th><th class="num">Comissão (3%)</th></tr></thead>
+          <tbody id="b2b-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+        </table></div>
+        <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="b2b-fonte"></p>
+      </div>
+    </div><!-- /b2b-sub-parceria -->
+
+    <!-- Sub: Convênio/Portal Benefícios/F.Pass/Subsídio (Entradas, AC="B2B") -->
+    <div id="b2b-sub-convenio" class="b2b-sub-panel">
+      <p style="font-size:.8rem;color:var(--g600);margin:-6px 0 18px">
+        Comissão de 6% sobre o valor de compra, aba <code>Entradas</code> (planilha Comissionamento B2C), por vendedora (Carteira).
+        Snapshot estático — a planilha é editada ao vivo, os números refletem a última carga.
+      </p>
+      <div class="cards" style="margin-bottom:22px">
+        <div class="card"><div class="label">Transações</div><div class="value" id="b2bx-kpi-qtd">—</div></div>
+        <div class="card"><div class="label">Total (coluna L)</div><div class="value" id="b2bx-kpi-total">—</div></div>
+        <div class="card"><div class="label">Comissão (6%)</div><div class="value" id="b2bx-kpi-comissao">—</div></div>
+      </div>
+      <div id="b2bx-pendente-banner" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:.8rem"></div>
+      <div class="section">
+        <div class="section-title">Por vendedora (Carteira)</div>
+        <div class="tbl-card"><table>
+          <thead><tr><th>Vendedora</th><th class="num">Transações</th><th class="num">Total</th><th class="num">Comissão (6%)</th><th>Contratos</th></tr></thead>
+          <tbody id="b2bx-body"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+        </table></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Por tipo de Contrato</div>
+        <div class="tbl-card"><table>
+          <thead><tr><th>Contrato</th><th class="num">Total</th></tr></thead>
+          <tbody id="b2bx-contrato-body"></tbody>
+        </table></div>
+        <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="b2bx-fonte"></p>
+      </div>
+    </div><!-- /b2b-sub-convenio -->
+  </div><!-- /panel-b2b -->
+
   <div id="panel-assistvend" class="tab-panel">
   <style>
     #finsum-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid var(--g200);border-radius:14px;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
@@ -986,6 +1059,80 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     </div>
   </div><!-- /racional -->
 
+  <!-- ══ PRODUTIVIDADE POR HORÁRIO (master + gestor) ══════════════════ -->
+  <div id="panel-produtividade" class="tab-panel">
+    <div class="section">
+      <h1 style="font-size:1.25rem;font-weight:700">Produtividade por Horário</h1>
+      <p style="color:var(--g600);font-size:.86rem;margin-top:2px">GBV, quantidade de vendas e ticket médio por hora do dia (0h–23h) — visão por time, com detalhe por vendedor. Métrica = GBV pós-churn.</p>
+
+      <style>
+        .prod-metric-toggle{display:flex;gap:8px;margin:16px 0}
+        .prod-metric-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.8rem;font-weight:600;color:var(--g600);cursor:pointer;transition:all .15s}
+        .prod-metric-btn:hover{border-color:#7B5CF6}
+        .prod-metric-btn.active{background:#7B5CF6;border-color:#7B5CF6;color:#fff}
+        .prod-filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px}
+        .prod-filters select{padding:6px 10px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.8rem;color:var(--g600)}
+        .prod-filters select:focus{outline:none;border-color:#7B5CF6}
+      </style>
+
+      <div class="prod-filters">
+        <select id="prod-f-ano"></select>
+        <select id="prod-f-mes"></select>
+        <select id="prod-f-dia"><option value="">Dia: todos</option></select>
+        <select id="prod-f-tl"><option value="">TL: todos</option></select>
+        <select id="prod-f-vendedor"><option value="">Vendedor: todos</option></select>
+      </div>
+
+      <div class="prod-metric-toggle">
+        <button class="prod-metric-btn active" data-metric="gbv">GBV</button>
+        <button class="prod-metric-btn" data-metric="qtd">Qtd. de vendas</button>
+        <button class="prod-metric-btn" data-metric="ticket_medio">Ticket médio</button>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Por hora do dia — todos os times</div>
+        <div class="chart-sub" id="prod-chart-sub">GBV pós-churn por hora</div>
+        <div class="chart-wrap" style="height:320px"><canvas id="chart-produtividade"></canvas></div>
+      </div>
+
+      <div id="prod-times-wrap">
+        <div class="section-title" style="margin-top:24px">Times — clique para detalhar por vendedor</div>
+        <div class="tbl-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th class="num" id="prod-times-total-th">Total (GBV)</th>
+                <th>Horário de pico</th>
+                <th class="num">Vendas no pico</th>
+              </tr>
+            </thead>
+            <tbody id="prod-times-body">
+              <tr class="loading-row"><td colspan="4"><div class="spinner"></div>Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="prod-drill" style="display:none;margin-top:22px">
+        <div class="section-title" id="prod-drill-title">Vendedores do time</div>
+        <div class="tbl-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Vendedor</th>
+                <th class="num" id="prod-vend-total-th">Total (GBV)</th>
+                <th>Horário de pico</th>
+                <th class="num">Vendas no pico</th>
+              </tr>
+            </thead>
+            <tbody id="prod-vendedores-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /produtividade -->
+
 
   <!-- ══ GOVERNANÇA ══════════════════════════════════════════════════ -->
 
@@ -1104,6 +1251,8 @@ document.querySelectorAll('.tab').forEach(tab=>{
     if(tab.dataset.tab==='assistvend'){ loadAssistVend(); loadFinancialSummary(); }
     if(tab.dataset.tab==='acessos') loadAcessos();
     if(tab.dataset.tab==='aprovacoes') loadAprovacoes();
+    if(tab.dataset.tab==='b2b') loadB2BSub(document.querySelector('.b2b-subtab.active').dataset.b2bsub);
+    if(tab.dataset.tab==='produtividade') loadProdutividade();
   });
 });
 
@@ -1115,7 +1264,9 @@ function updateRoleTabs(){
   set('tab-assistvend', MASTER||ROLE==='aprovador');  // financeiro (rentabilidade + resumo) — master + aprovador
   set('tab-racional',   MASTER||ROLE==='gestor'||ROLE==='aprovador');  // racional de cálculo — master + coord + aprovador
   set('tab-acessos',    MASTER);              // master only (log de acessos)
+  set('tab-b2b',          MASTER);            // master only (B2B unificado: Parceria/b2b2c + Convênio/Portal/F.Pass/Subsídio)
   set('tab-aprovacoes', MASTER || ROLE==='gestor' || ROLE==='tl');  // aprovações HP: TL + coord + master
+  set('tab-produtividade', MASTER||ROLE==='gestor');  // produtividade por horário — master + coord (Fabio)
   // se a aba ativa virou oculta (ex.: master→Ver como TL na aba Acessos), volta p/ Resumo
   const active=document.querySelector('.tab.active');
   if(active && active.style.display==='none'){
@@ -1294,6 +1445,263 @@ function fsToggle(btn, childId){
   if(ch) ch.style.display = btn.classList.contains('open') ? 'block' : 'none';
 }
 
+// ── Produtividade por Horário (master + gestor) ────────────────────────────────
+let _prodLoaded = false;
+let _prodFiltersInit = false;
+let _prodData = null;
+let _prodMetric = 'gbv';
+let _prodTl = '';        // '' = todos os TLs
+let _prodVendedor = '';  // '' = todos os vendedores
+let chartProdutividade = null;
+const PROD_METRIC_LABEL = {gbv:'GBV', qtd:'Qtd. de vendas', ticket_medio:'Ticket médio'};
+const PROD_MESES = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+const PROD_MESES_LABEL = {'01':'Janeiro','02':'Fevereiro','03':'Março','04':'Abril','05':'Maio','06':'Junho','07':'Julho','08':'Agosto','09':'Setembro','10':'Outubro','11':'Novembro','12':'Dezembro'};
+
+async function initProdFilters(){
+  if(_prodFiltersInit) return;
+  _prodFiltersInit = true;
+  const resp = await fetch('/api/months').then(r=>r.json()).catch(()=>({months:[]}));
+  const months = (Array.isArray(resp)?resp:(resp.months||[])).map(m=>String(m).slice(0,7)); // YYYY-MM
+  const mesesPorAno = {};
+  months.forEach(m=>{ const [a,mm]=m.split('-'); (mesesPorAno[a]=mesesPorAno[a]||new Set()).add(mm); });
+  const anos = Object.keys(mesesPorAno).sort((a,b)=>b-a);
+  const cur = (selectedMes||months[0]||'').slice(0,7);
+  const curAno = cur ? cur.slice(0,4) : anos[0];
+  const curMes = cur ? cur.slice(5,7) : null;
+
+  const anoSel = document.getElementById('prod-f-ano');
+  anoSel.innerHTML = (anos.length?anos:[curAno]).map(a=>`<option value="${a}">${a}</option>`).join('');
+  anoSel.value = curAno;
+
+  function fillMeses(){
+    const ano = anoSel.value;
+    const disponiveis = mesesPorAno[ano] ? [...mesesPorAno[ano]].sort() : PROD_MESES;
+    const mesSel = document.getElementById('prod-f-mes');
+    const keep = disponiveis.includes(mesSel.value) ? mesSel.value : (disponiveis.includes(curMes)?curMes:disponiveis[disponiveis.length-1]);
+    mesSel.innerHTML = disponiveis.map(m=>`<option value="${m}">${PROD_MESES_LABEL[m]||m}</option>`).join('');
+    mesSel.value = keep;
+  }
+  fillMeses();
+  fillDias();
+
+  function fillDias(){
+    const ano = +anoSel.value, mes = +document.getElementById('prod-f-mes').value;
+    const dias = new Date(ano, mes, 0).getDate(); // dia 0 do mês seguinte = último dia do mês atual
+    const diaSel = document.getElementById('prod-f-dia');
+    const prev = diaSel.value;
+    diaSel.innerHTML = '<option value="">Dia: todos</option>' +
+      Array.from({length:dias}, (_,i)=>i+1).map(d=>`<option value="${d}">Dia ${d}</option>`).join('');
+    diaSel.value = (prev && +prev<=dias) ? prev : '';
+  }
+
+  anoSel.onchange = ()=>{ fillMeses(); fillDias(); _prodReload(); };
+  document.getElementById('prod-f-mes').onchange = ()=>{ fillDias(); _prodReload(); };
+  document.getElementById('prod-f-dia').onchange = ()=> _prodReload();
+  document.getElementById('prod-f-tl').onchange = (e)=>{
+    _prodTl = e.target.value; _prodVendedor = '';
+    _prodFillVendedorOptions();
+    document.getElementById('prod-drill').style.display = 'none';
+    renderProdutividade();
+  };
+  document.getElementById('prod-f-vendedor').onchange = (e)=>{
+    _prodVendedor = e.target.value;
+    renderProdutividade();
+  };
+}
+
+function _prodSelectedMes(){
+  const ano = document.getElementById('prod-f-ano').value;
+  const mes = document.getElementById('prod-f-mes').value;
+  return `${ano}-${mes}`;
+}
+
+function loadProdutividade(){
+  initProdFilters().then(()=>{ if(!_prodLoaded) _prodReload(); });
+}
+
+function _prodReload(){
+  const mes = _prodSelectedMes();
+  const dia = document.getElementById('prod-f-dia').value;
+  let q = `?mes=${mes}`;
+  if(dia) q += `&dia=${dia}`;
+  fetch('/api/produtividade-hora'+q).then(r=>r.json()).then(d=>{
+    if(d.error){
+      document.getElementById('prod-times-body').innerHTML =
+        '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem acesso.</td></tr>';
+      return;
+    }
+    _prodLoaded = true;
+    _prodData = d;
+    // preserva TL/Vendedor selecionados se ainda existirem nos novos dados (ex.: só trocou o Dia)
+    const times = d.times||[];
+    if(_prodTl && !times.some(t=>t.tl_email===_prodTl)) _prodTl = '';
+    const vend = d.vendedores||{};
+    if(_prodVendedor && !vend[_prodVendedor]) _prodVendedor = '';
+    _prodFillTlOptions();
+    _prodFillVendedorOptions();
+    if(!_prodTl && !_prodVendedor) document.getElementById('prod-drill').style.display = 'none';
+    renderProdutividade();
+  }).catch(e=>console.error(e));
+}
+
+function _prodFillTlOptions(){
+  const sel = document.getElementById('prod-f-tl');
+  const times = (_prodData&&_prodData.times)||[];
+  sel.innerHTML = '<option value="">TL: todos</option>' +
+    times.map(t=>`<option value="${escAttr(t.tl_email)}">${escAttr(t.label)}</option>`).join('');
+  sel.value = _prodTl;
+}
+
+function _prodFillVendedorOptions(){
+  const sel = document.getElementById('prod-f-vendedor');
+  const all = (_prodData&&_prodData.vendedores)||{};
+  const entries = Object.entries(all).filter(([email,v])=> !_prodTl || v.squad_lead===_prodTl);
+  const sorted = entries.sort((a,b)=>a[1].label.localeCompare(b[1].label));
+  sel.innerHTML = '<option value="">Vendedor: todos</option>' +
+    sorted.map(([email,v])=>`<option value="${escAttr(email)}">${escAttr(v.label)}</option>`).join('');
+  sel.value = _prodVendedor;
+}
+
+function _prodPeak(horas){
+  return horas.reduce((best,h)=> h[_prodMetric]>best[_prodMetric] ? h : best, horas[0]);
+}
+function _prodFmt(v){
+  return _prodMetric==='qtd' ? N(v) : Rc(v);
+}
+function _prodFilteredTimes(){
+  const times = (_prodData&&_prodData.times)||[];
+  return _prodTl ? times.filter(t=>t.tl_email===_prodTl) : times;
+}
+function _prodFilteredVendedorEntries(){
+  const all = (_prodData&&_prodData.vendedores)||{};
+  let entries = Object.entries(all);
+  if(_prodTl) entries = entries.filter(([email,v])=>v.squad_lead===_prodTl);
+  if(_prodVendedor) entries = entries.filter(([email])=>email===_prodVendedor);
+  return entries;
+}
+function _prodChartSeries(){
+  if(_prodVendedor){
+    return _prodFilteredVendedorEntries().map(([email,v])=>({label:v.label, horas:v.horas}));
+  }
+  return _prodFilteredTimes();
+}
+
+function renderProdutividade(){
+  if(!_prodData) return;
+  const label = PROD_METRIC_LABEL[_prodMetric];
+  document.getElementById('prod-chart-sub').textContent = `${label} por hora — pós-churn`;
+  document.getElementById('prod-times-total-th').textContent = `Total (${label})`;
+  document.getElementById('prod-vend-total-th').textContent  = `Total (${label})`;
+
+  const series = _prodChartSeries();
+  const labels = Array.from({length:24}, (_,h)=>h+'h');
+  const tlColors=['#7B5CF6','#E91E8C','#3b82f6','#22c55e','#f59e0b'];
+  if(chartProdutividade){ chartProdutividade.destroy(); chartProdutividade=null; }
+  chartProdutividade = new Chart(document.getElementById('chart-produtividade'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets: series.map((s,i)=>({
+        label: s.label,
+        data: s.horas.map(h=>h[_prodMetric]),
+        backgroundColor: tlColors[i%tlColors.length],
+        borderRadius:6, borderSkipped:false, maxBarThickness:22,
+      })),
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:8,padding:12,usePointStyle:true,pointStyle:'circle'}},
+        tooltip:{padding:10,callbacks:{label:c=>' '+c.dataset.label+': '+_prodFmt(c.parsed.y)}},
+      },
+      scales:{
+        y:{beginAtZero:true,ticks:{callback:v=>_prodMetric==='qtd'?N(v):fmtMoney(v),font:{size:10},maxTicksLimit:6},grid:{color:'#f1f5f9'},border:{display:false}},
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:10}}},
+      }
+    }
+  });
+
+  // Filtro por Vendedor: pula a tabela de times e abre direto o drill do vendedor
+  const timesWrap = document.getElementById('prod-times-wrap');
+  if(_prodVendedor){
+    timesWrap.style.display = 'none';
+    renderProdutividadeDrillVendedores(_prodFilteredVendedorEntries(), 'Vendedor selecionado');
+    return;
+  }
+  timesWrap.style.display = '';
+
+  // Tabela de times — clicável, abre drill-down por vendedor
+  const times = _prodFilteredTimes();
+  const tbody = document.getElementById('prod-times-body');
+  if(!times.length){
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem dados para este filtro</td></tr>';
+    document.getElementById('prod-drill').style.display = 'none';
+    return;
+  }
+  const sorted = [...times].sort((a,b)=>{
+    const ta=a.horas.reduce((s,h)=>s+h[_prodMetric],0), tb=b.horas.reduce((s,h)=>s+h[_prodMetric],0);
+    return tb-ta;
+  });
+  tbody.innerHTML='';
+  sorted.forEach(t=>{
+    const total = t.horas.reduce((s,h)=>s+h[_prodMetric],0);
+    const peak  = _prodPeak(t.horas);
+    const tr=document.createElement('tr');
+    tr.classList.add('clickable');
+    tr.innerHTML = `
+      <td>${t.label}</td>
+      <td class="num">${_prodFmt(total)}</td>
+      <td>${peak.qtd>0 ? peak.hora+'h–'+(peak.hora+1)+'h' : '—'}</td>
+      <td class="num">${N(peak.qtd)}</td>`;
+    tr.title = 'Ver vendedores de '+t.label;
+    tr.addEventListener('click', ()=>renderProdutividadeDrill(t));
+    tbody.appendChild(tr);
+  });
+  // se um TL já está selecionado no filtro, abre o drill dele direto
+  if(_prodTl && sorted.length===1) renderProdutividadeDrill(sorted[0]);
+}
+
+function renderProdutividadeDrill(time){
+  const vendedores = Object.entries(_prodData.vendedores||{})
+    .filter(([email,v])=>v.squad_lead===time.tl_email)
+    .map(([email,v])=>[email,v]);
+  renderProdutividadeDrillVendedores(vendedores, 'Vendedores — '+time.label);
+}
+
+function renderProdutividadeDrillVendedores(entries, title){
+  const drill = document.getElementById('prod-drill');
+  const tbody = document.getElementById('prod-vendedores-body');
+  document.getElementById('prod-drill-title').textContent = title;
+  if(!entries.length){
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem vendas para este filtro</td></tr>';
+  } else {
+    const sorted = entries.map(([email,v])=>({email, ...v})).sort((a,b)=>{
+      const ta=a.horas.reduce((s,h)=>s+h[_prodMetric],0), tb=b.horas.reduce((s,h)=>s+h[_prodMetric],0);
+      return tb-ta;
+    });
+    tbody.innerHTML = sorted.map(v=>{
+      const total = v.horas.reduce((s,h)=>s+h[_prodMetric],0);
+      const peak  = _prodPeak(v.horas);
+      return `<tr>
+        <td>${v.label}</td>
+        <td class="num">${_prodFmt(total)}</td>
+        <td>${peak.qtd>0 ? peak.hora+'h–'+(peak.hora+1)+'h' : '—'}</td>
+        <td class="num">${N(peak.qtd)}</td></tr>`;
+    }).join('');
+  }
+  drill.style.display = 'block';
+  drill.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+document.querySelectorAll('.prod-metric-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.prod-metric-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    _prodMetric = btn.dataset.metric;
+    renderProdutividade();
+  });
+});
+
 function loadAcessos(){
   fetch('/api/access-log').then(r=>r.json()).then(d=>{
     const us=(d.by_user||[]);
@@ -1311,6 +1719,88 @@ function loadAcessos(){
       <td style="color:var(--g400)">${r.ip||'—'}</td></tr>`).join('')
       : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem registros</td></tr>';
   }).catch(e=>console.error(e));
+}
+
+// ── B2B — toggle interno entre os 2 modelos (Parceria/b2b2c 3% × Convênio/B2B 6%) ──
+const _b2bLoaded = {parceria:false, convenio:false};
+document.querySelectorAll('.b2b-subtab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(btn.classList.contains('active')) return;
+    document.querySelectorAll('.b2b-subtab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.b2b-sub-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('b2b-sub-'+btn.dataset.b2bsub).classList.add('active');
+    loadB2BSub(btn.dataset.b2bsub);
+  });
+});
+function loadB2BSub(sub){
+  if(_b2bLoaded[sub]) return;
+  _b2bLoaded[sub] = true;
+  if(sub==='parceria') loadB2BParceria(); else loadB2B();
+}
+
+// ── B2B · Parceria (F.Corporate) — por transação, isolado da hierarquia B2C ───
+function loadB2BParceria(){
+  document.getElementById('b2b-body').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
+  fetch(apiUrl('/api/b2b-parceria')).then(r=>r.json()).then(d=>{
+    if(d.error){
+      document.getElementById('b2b-body').innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">${d.error}</td></tr>`;
+      return;
+    }
+    const t=d.totais||{};
+    document.getElementById('b2b-kpi-qtd').textContent = N(t.qtd_transacoes||0);
+    document.getElementById('b2b-kpi-total').textContent = Rc(t.total_purchase_amount||0);
+    document.getElementById('b2b-kpi-comissao').textContent = Rc(t.comissao||0);
+    const vs=(d.vendedores||[]);
+    const dim=n=>(n==='Sem carteira'||n==='Não mapeado');
+    document.getElementById('b2b-body').innerHTML = vs.length ? vs.map(v=>`<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+      <td>${v.vendedora}</td>
+      <td class="num">${N(v.qtd_transacoes)}</td>
+      <td class="num">${Rc(v.total_purchase_amount)}</td>
+      <td class="num">${Rc(v.comissao)}</td></tr>`).join('')
+      : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações</td></tr>';
+    document.getElementById('b2b-fonte').textContent = d.fonte||'';
+  }).catch(e=>{ console.error('b2b-parceria',e);
+    document.getElementById('b2b-body').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Erro ao carregar</td></tr>';
+  });
+}
+
+// ── B2B (Entradas, AC="B2B") — Convênio/Portal Benefícios/F.Pass/Subsídio ──────
+function loadB2B(){
+  document.getElementById('b2bx-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
+  fetch(apiUrl('/api/b2b')).then(r=>r.json()).then(d=>{
+    if(d.error){
+      document.getElementById('b2bx-body').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">${d.error}</td></tr>`;
+      return;
+    }
+    const t=d.totais||{};
+    document.getElementById('b2bx-kpi-qtd').textContent = N(t.qtd_transacoes||0);
+    document.getElementById('b2bx-kpi-total').textContent = Rc(t.total_valor||0);
+    document.getElementById('b2bx-kpi-comissao').textContent = Rc(t.comissao||0);
+    const pend=d.pendente_validacao||{};
+    const banner=document.getElementById('b2bx-pendente-banner');
+    if(pend.qtd_transacoes>0){
+      banner.style.display='block';
+      banner.textContent = `⏳ Aguardando validação (#REF! na planilha): ${N(pend.qtd_transacoes)} transações, ${Rc(pend.total_valor)} — FORA do total acima até correção na sheet.`;
+    } else { banner.style.display='none'; }
+    const vs=(d.vendedores||[]);
+    const dim=n=>(n==='Sem carteira');
+    document.getElementById('b2bx-body').innerHTML = vs.length ? vs.map(v=>{
+      const contratos=Object.entries(v.contratos||{}).map(([k,val])=>`${k}: ${Rc(val)}`).join(' · ');
+      return `<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+      <td>${v.vendedora}</td>
+      <td class="num">${N(v.qtd_transacoes)}</td>
+      <td class="num">${Rc(v.total_valor)}</td>
+      <td class="num">${Rc(v.comissao)}</td>
+      <td style="font-size:.75rem;color:var(--g600)">${contratos}</td></tr>`;
+    }).join('') : '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Sem transações</td></tr>';
+    const pc=d.por_contrato||{};
+    document.getElementById('b2bx-contrato-body').innerHTML = Object.entries(pc).map(([k,v])=>`<tr>
+      <td>${k}</td><td class="num">${Rc(v)}</td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--g400)">—</td></tr>';
+    document.getElementById('b2bx-fonte').textContent = d.fonte||'';
+  }).catch(e=>{ console.error('b2b',e);
+    document.getElementById('b2bx-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Erro ao carregar</td></tr>';
+  });
 }
 
 // ── Presença (avatares de quem está online) + heartbeat ────────────────────────
@@ -2746,6 +3236,14 @@ async function initMonths(vend){
     _finsumLoaded=false;
     const fsp=document.getElementById('panel-assistvend');
     if(fsp&&fsp.classList.contains('active')) loadFinancialSummary();
+    // Produtividade por Horário é month-aware → reseta cache e recarrega se aberta
+    _prodLoaded=false;
+    const pp=document.getElementById('panel-produtividade');
+    if(pp&&pp.classList.contains('active')) loadProdutividade();
+    // B2B (Parceria + Convênio) é month-aware → reseta cache dos 2 sub-modelos e recarrega o ativo
+    _b2bLoaded.parceria=false; _b2bLoaded.convenio=false;
+    const b2bp=document.getElementById('panel-b2b');
+    if(b2bp&&b2bp.classList.contains('active')) loadB2BSub(document.querySelector('.b2b-subtab.active').dataset.b2bsub);
   };
 }
 
