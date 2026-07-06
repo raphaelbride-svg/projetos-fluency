@@ -397,6 +397,59 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
       </div>
     </div>
 
+    <!-- ── Seção: Visão Consolidada B2C + B2B (master only) ── -->
+    <style>
+      .cons-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:4px}
+      @media (max-width:900px){.cons-grid{grid-template-columns:repeat(2,1fr)}}
+      .cons-card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:16px 18px}
+      .cons-card.accent{border-color:#7B5CF6;background:linear-gradient(135deg,#f5f3ff 0%,#fdf2f8 100%)}
+      .cons-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+      .cons-drill{margin-top:10px;padding-top:10px;border-top:1px dashed var(--g200)}
+      .cons-drill-row{display:flex;justify-content:space-between;font-size:.78rem;padding:3px 0;color:var(--g600)}
+      .cons-drill-row b{color:var(--g900);font-variant-numeric:tabular-nums}
+      .cons-drill-empty{font-size:.78rem;color:var(--g400);padding:4px 0}
+    </style>
+    <div class="section" id="section-consolidado" style="display:none">
+      <div class="section-title">Visão Consolidada — B2C + B2B</div>
+      <div class="cons-grid">
+        <div class="cons-card">
+          <div class="cons-top">
+            <div><div class="label">B2C</div><div class="value" id="cons-b2c-val">—</div></div>
+            <button class="fs-toggle" onclick="fsToggle(this,'cons-b2c-drill')">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="7 5 12 10 7 15"/></svg>
+            </button>
+          </div>
+          <div class="sub" style="color:var(--g400)">Vendedores + Assistentes + TLs</div>
+          <div class="cons-drill" id="cons-b2c-drill" style="display:none"></div>
+        </div>
+        <div class="cons-card">
+          <div class="cons-top">
+            <div><div class="label">B2B · Convênio (6%)</div><div class="value" id="cons-b2b-val">—</div></div>
+            <button class="fs-toggle" onclick="fsToggle(this,'cons-b2b-drill')">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="7 5 12 10 7 15"/></svg>
+            </button>
+          </div>
+          <div class="sub" style="color:var(--g400)">Convênio + Portal + Fluency Pass</div>
+          <div class="cons-drill" id="cons-b2b-drill" style="display:none"></div>
+        </div>
+        <div class="cons-card">
+          <div class="cons-top">
+            <div><div class="label">b2b2c · Parceria (3%)</div><div class="value" id="cons-b2b2c-val">—</div></div>
+            <button class="fs-toggle" onclick="fsToggle(this,'cons-b2b2c-drill')">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="7 5 12 10 7 15"/></svg>
+            </button>
+          </div>
+          <div class="sub" style="color:var(--g400)">F.Corporate por carteira</div>
+          <div class="cons-drill" id="cons-b2b2c-drill" style="display:none"></div>
+        </div>
+        <div class="cons-card accent">
+          <div class="label">Total Geral</div>
+          <div class="value" id="cons-total-val">—</div>
+          <div class="sub" style="color:var(--g400)">B2C + B2B + b2b2c</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Seção: Team Leaders (gestor overview) ── -->
     <div class="section" id="section-tl-summary" style="display:none">
       <div class="section-title">Team Leaders — clique para detalhar</div>
@@ -2203,6 +2256,49 @@ function renderTeam(team){
   if(el) el.textContent = ating!=null ? P(ating) : '—';
 }
 
+// ── Render consolidado B2C + B2B (master, visão "todos") ───────────────────────
+function _consDrillFill(id, byNome){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const entries = Object.entries(byNome).sort((a,b)=>b[1]-a[1]);
+  el.innerHTML = entries.length
+    ? entries.map(([nome,val])=>`<div class="cons-drill-row"><span>${escAttr(nome)}</span><b>${Rc(val)}</b></div>`).join('')
+    : '<div class="cons-drill-empty">Sem dados para este mês</div>';
+}
+function renderConsolidado(ranking, dataConvenio, dataParceria){
+  const sec = document.getElementById('section-consolidado');
+  if(!sec || sec.style.display==='none') return; // só master · visão "todos"
+
+  const team    = (ranking && ranking.team) || {};
+  const b2cRows = (ranking && ranking.rows) || [];
+  const b2cTotal = team.comissao_total || 0;
+  document.getElementById('cons-b2c-val').textContent = Rc(b2cTotal);
+  const byTl = {};
+  b2cRows.forEach(r=>{
+    const k = r.gestor_label || 'Sem TL / Coordenação direta';
+    byTl[k] = (byTl[k]||0) + (r.comissao_final||0);
+  });
+  _consDrillFill('cons-b2c-drill', byTl);
+
+  const mesAtual = selectedMes || '';
+  function sumPorVendedora(data){
+    const linhas = ((data && data.linhas) || []).filter(l=>!mesAtual || l.mes===mesAtual);
+    const byVend = {};
+    linhas.forEach(l=>{ const k=l.vendedora||'Sem carteira'; byVend[k]=(byVend[k]||0)+(l.comissao||0); });
+    const total = linhas.reduce((s,l)=>s+(l.comissao||0), 0);
+    return {total, byVend};
+  }
+  const conv = sumPorVendedora(dataConvenio);
+  const parc = sumPorVendedora(dataParceria);
+
+  document.getElementById('cons-b2b-val').textContent   = Rc(conv.total);
+  document.getElementById('cons-b2b2c-val').textContent = Rc(parc.total);
+  _consDrillFill('cons-b2b-drill',   conv.byVend);
+  _consDrillFill('cons-b2b2c-drill', parc.byVend);
+
+  document.getElementById('cons-total-val').textContent = Rc(b2cTotal + conv.total + parc.total);
+}
+
 // ── Render ranking ────────────────────────────────────────────────────────────
 function renderRanking(data){
   const rows = Array.isArray(data) ? data : (data.rows||[]);
@@ -3125,7 +3221,7 @@ function setSections(mode){
   const S=(id,v)=>{const el=document.getElementById(id);if(el)el.style.display=v?'':'none';};
 
   // All possible sections
-  const all=['section-trend','section-team','section-tl-summary','section-payroll',
+  const all=['section-trend','section-team','section-consolidado','section-tl-summary','section-payroll',
              'section-mom-compare','section-summary','section-progress','section-charts',
              'section-ranking','section-aceites'];
   all.forEach(id=>S(id,false));
@@ -3135,7 +3231,7 @@ function setSections(mode){
     S('section-tl-summary',true);S('section-aceites',true);S('section-mom-compare',true);
     // payroll is master-only — not shown here
   } else if(mode==='todos-master'){
-    S('section-trend',true);S('section-team',true);
+    S('section-trend',true);S('section-team',true);S('section-consolidado',true);
     S('section-ranking',true);S('section-payroll',true);S('section-mom-compare',true);
     S('section-aceites',true);
   } else if(mode==='peopleops-todos'){
@@ -3235,12 +3331,15 @@ function loadData(vendedor){
       fetch(apiUrl('/api/payroll-impact')).then(r=>r.json()),
       fetch('/api/mom-compare').then(r=>r.json()),
       fetch(apiUrl('/api/signoff-status')).then(r=>r.json()),
-    ]).then(([ranking,trend,payroll,mom,signoff])=>{
+      fetch('/api/b2b').then(r=>r.json()).catch(()=>null),
+      fetch('/api/b2b-parceria').then(r=>r.json()).catch(()=>null),
+    ]).then(([ranking,trend,payroll,mom,signoff,dc,dp])=>{
       renderRanking(ranking||[]);
       renderTrend(trend||{});
       renderPayroll(payroll||{});
       renderMomCompare(mom||{}, true);
       renderSignoffStatus(signoff||null);
+      renderConsolidado(ranking, dc, dp);
     }).catch(e=>console.error(e));
     return;
   }
