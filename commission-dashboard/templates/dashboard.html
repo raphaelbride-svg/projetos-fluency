@@ -2260,9 +2260,15 @@ function renderTeam(team){
 function _consDrillFill(id, byNome){
   const el = document.getElementById(id);
   if(!el) return;
-  const entries = Object.entries(byNome).sort((a,b)=>b[1]-a[1]);
+  const comissaoOf = v => (v && typeof v === 'object') ? (v.comissao||0) : (v||0);
+  const entries = Object.entries(byNome).sort((a,b)=>comissaoOf(b[1])-comissaoOf(a[1]));
   el.innerHTML = entries.length
-    ? entries.map(([nome,val])=>`<div class="cons-drill-row"><span>${escAttr(nome)}</span><b>${Rc(val)}</b></div>`).join('')
+    ? entries.map(([nome,v])=>{
+        const comissao = comissaoOf(v);
+        const valor = (v && typeof v === 'object') ? v.valor : null;
+        const valorTag = valor!=null ? ` <span style="font-weight:400;color:var(--g400)">(transacionado ${Rc(valor)})</span>` : '';
+        return `<div class="cons-drill-row"><span>${escAttr(nome)}</span><b>${Rc(comissao)}${valorTag}</b></div>`;
+      }).join('')
     : '<div class="cons-drill-empty">Sem dados para este mês</div>';
 }
 function renderConsolidado(ranking, dataConvenio, dataParceria){
@@ -2284,7 +2290,12 @@ function renderConsolidado(ranking, dataConvenio, dataParceria){
   function sumPorVendedora(data){
     const linhas = ((data && data.linhas) || []).filter(l=>!mesAtual || l.mes===mesAtual);
     const byVend = {};
-    linhas.forEach(l=>{ const k=l.vendedora||'Sem carteira'; byVend[k]=(byVend[k]||0)+(l.comissao||0); });
+    linhas.forEach(l=>{
+      const k = l.vendedora||'Sem carteira';
+      const e = byVend[k] || (byVend[k]={comissao:0, valor:0});
+      e.comissao += (l.comissao||0);
+      e.valor    += (l.valor||0);
+    });
     const total = linhas.reduce((s,l)=>s+(l.comissao||0), 0);
     return {total, byVend};
   }
@@ -2297,6 +2308,16 @@ function renderConsolidado(ranking, dataConvenio, dataParceria){
   _consDrillFill('cons-b2b2c-drill', parc.byVend);
 
   document.getElementById('cons-total-val').textContent = Rc(b2cTotal + conv.total + parc.total);
+}
+
+// email(lower) → {comissao, gbv} — usado pra mostrar o valor por trás de cada aceite
+function _buildComissaoMap(rankingData){
+  const rows = Array.isArray(rankingData) ? rankingData : ((rankingData && rankingData.rows) || []);
+  const map = {};
+  rows.forEach(r=>{
+    if(r.vendedor) map[String(r.vendedor).toLowerCase()] = {comissao: r.comissao_final||0, gbv: r.gbv_liquido||0};
+  });
+  return map;
 }
 
 // ── Render ranking ────────────────────────────────────────────────────────────
@@ -2370,22 +2391,28 @@ function renderRanking(data){
 }
 
 // ── Render TL summary ─────────────────────────────────────────────────────────
-function renderTLSummary(tls, signoffData){
+function renderTLSummary(tls, signoffData, comissaoMap){
   const tbody=document.getElementById('tl-summary-body');
   tbody.innerHTML='';
   if(!tls||!tls.length){
     tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma TL encontrada para este mês</td></tr>';
     return;
   }
-  // build signoff map tl_email → {signed, total}
+  const cm = comissaoMap||{};
+  // build signoff map tl_email → {signed, total, raw}
   const soMap={};
   if(signoffData&&signoffData.by_tl){
     signoffData.by_tl.forEach(t=>{
-      soMap[t.tl_email]={signed:t.signed.length, total:t.signed.length+t.unsigned.length};
+      soMap[t.tl_email]={signed:t.signed.length, total:t.signed.length+t.unsigned.length, raw:t};
     });
   }
+  const aceiteChip=(m,ok)=>{
+    const c = cm[String(m.email||'').toLowerCase()];
+    const valTxt = c && c.comissao ? ` · ${Rc(c.comissao)}` : '';
+    return `<span style="display:inline-block;margin:0 5px 5px 0;padding:3px 10px;border-radius:999px;background:${ok?'#dcfce7':'#fee2e2'};color:${ok?'#15803d':'#dc2626'};font-size:.75rem">${ok?'✓':'✗'} ${m.label}${valTxt}</span>`;
+  };
   let totalGbv=0, totalCom=0, totalMeta=0, totalSigned=0, totalMembers=0;
-  tls.forEach(tl=>{
+  tls.forEach((tl,idx)=>{
     const ating = tl.team_meta>0 ? tl.team_gbv/tl.team_meta : 0;
     const barW   = Math.min(ating/1.5,1)*100;
     const barC   = barCol(ating);
@@ -2394,8 +2421,9 @@ function renderTLSummary(tls, signoffData){
     totalMeta += tl.team_meta;
     const so=soMap[tl.tl_email]||null;
     if(so){totalSigned+=so.signed; totalMembers+=so.total;}
+    const drillId=`tl-aceite-drill-${idx}`;
     const aceiteCell = so
-      ? `<td class="num"><span style="font-weight:700;color:${so.signed===so.total?'#16a34a':so.signed>0?'#ca8a04':'#dc2626'}">${so.signed}/${so.total}</span></td>`
+      ? `<td class="num"><button type="button" class="aceite-drill-btn" style="background:none;border:none;cursor:pointer;font:inherit;font-weight:700;font-size:.85rem;color:${so.signed===so.total?'#16a34a':so.signed>0?'#ca8a04':'#dc2626'}" title="Ver quem assinou">${so.signed}/${so.total} ▾</button></td>`
       : `<td class="num" style="color:var(--g400)">—</td>`;
 
     const tr=document.createElement('tr');
@@ -2419,6 +2447,25 @@ function renderTLSummary(tls, signoffData){
       if(sel){sel.value=tl.tl_email;sel.dispatchEvent(new Event('change'));}
     });
     tbody.appendChild(tr);
+
+    if(so){
+      const drillTr=document.createElement('tr');
+      drillTr.id=drillId;
+      drillTr.style.display='none';
+      const chips = so.raw.signed.map(m=>aceiteChip(m,true)).join('')
+                  + so.raw.unsigned.map(m=>aceiteChip(m,false)).join('');
+      drillTr.innerHTML=`<td colspan="7" style="background:var(--g50,#f9fafb);padding:12px 20px 14px">${chips||'<span style="color:var(--g400);font-size:.78rem">Sem liderados</span>'}</td>`;
+      tbody.appendChild(drillTr);
+      const btn=tr.querySelector('.aceite-drill-btn');
+      if(btn){
+        btn.addEventListener('click', e=>{
+          e.stopPropagation();
+          const show = drillTr.style.display==='none';
+          drillTr.style.display = show ? 'table-row' : 'none';
+          btn.textContent = `${so.signed}/${so.total} ${show?'▴':'▾'}`;
+        });
+      }
+    }
   });
   // Total row
   const tr=document.createElement('tr');
@@ -2438,49 +2485,59 @@ function renderTLSummary(tls, signoffData){
   tbody.appendChild(tr);
 }
 
-function renderSignoffStatus(data){
-  // resumo panel: simple summary chip list
+function renderSignoffStatus(data, comissaoMap){
+  // resumo panel: simple summary chip list (com drilldown por TL)
   const el=document.getElementById('aceites-body');
-  if(el) _renderSignoffInto(el, data);
+  if(el) _renderSignoffInto(el, data, comissaoMap);
   // transações panel: full redesign
-  renderAceitesRedesign(data);
+  renderAceitesRedesign(data, comissaoMap);
 }
-function _renderSignoffInto(el, data){
+function _renderSignoffInto(el, data, comissaoMap){
   if(!el||!data) return;
   const byTl=data.by_tl||[];
   if(!byTl.length){
     el.innerHTML='<p style="color:var(--g400);padding:16px 0">Nenhum colaborador encontrado.</p>';
     return;
   }
+  const cm = comissaoMap||{};
+  const valTag = email=>{
+    const c = cm[String(email||'').toLowerCase()];
+    return c && c.comissao ? ` · ${Rc(c.comissao)}` : '';
+  };
   const pctColor=p=>p===1?'#16a34a':p>=0.5?'#ca8a04':'#dc2626';
   let html=`<div style="margin-bottom:14px;font-size:.85rem;color:var(--g600)"><strong>${data.total_signed}</strong> de <strong>${data.total}</strong> colaboradores confirmaram o fechamento deste mês.</div>`;
-  byTl.forEach(tl=>{
+  byTl.forEach((tl,idx)=>{
     const n=tl.signed.length+tl.unsigned.length;
     const pct=n>0?tl.signed.length/n:0;
     const col=pctColor(pct);
+    const drillId=`aceites-drill-${idx}`;
     html+=`<div class="tbl-card" style="margin-bottom:10px;padding:14px 16px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <span style="font-weight:700;font-size:.88rem">${tl.label}</span>
         <span style="font-size:.75rem;color:var(--g400)">${tl.tl_email}</span>
-        <span style="margin-left:auto;font-size:.85rem;font-weight:700;color:${col}">${tl.signed.length}/${n}</span>
+        <span style="font-size:.85rem;font-weight:700;color:${col}">${tl.signed.length}/${n}</span>
+        <button class="fs-toggle" style="margin-left:auto" onclick="fsToggle(this,'${drillId}')" title="Ver quem assinou">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-linecap="round"><polyline points="7 5 12 10 7 15"/></svg>
+        </button>
       </div>
       <div style="height:5px;background:var(--g200);border-radius:3px;margin-bottom:10px">
         <div style="height:5px;background:${col};border-radius:3px;width:${pct*100}%;transition:width .4s"></div>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">`;
+      <div id="${drillId}" style="display:none">`;
     tl.signed.forEach(m=>{
-      html+=`<span style="padding:3px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:.75rem">✓ ${m.label}</span>`;
+      html+=`<span style="display:inline-block;margin:0 5px 5px 0;padding:3px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:.75rem">✓ ${m.label}${valTag(m.email)}</span>`;
     });
     tl.unsigned.forEach(m=>{
-      html+=`<span style="padding:3px 10px;border-radius:999px;background:#fee2e2;color:#dc2626;font-size:.75rem">✗ ${m.label}</span>`;
+      html+=`<span style="display:inline-block;margin:0 5px 5px 0;padding:3px 10px;border-radius:999px;background:#fee2e2;color:#dc2626;font-size:.75rem">✗ ${m.label}${valTag(m.email)}</span>`;
     });
     html+=`</div></div>`;
   });
   el.innerHTML=html;
 }
 
-function renderAceitesRedesign(data){
+function renderAceitesRedesign(data, comissaoMap){
   if(!data) return;
+  const cm = comissaoMap||{};
   const isAdmin = MASTER || ROLE==='gestor';
   const byTl    = data.by_tl || [];
   const lead    = data.leadership || {};
@@ -2557,6 +2614,8 @@ function renderAceitesRedesign(data){
     const teamHint=role==='tl'&&m.team?` · time ${m.team}`:'';
     const signedHint=m.signed&&m.signed_at?` · assinou ${m.signed_at.slice(0,16).replace('T',' ')}`:
                      m.signed?' · confirmou':'';
+    const comissaoInfo = cm[String(m.email||'').toLowerCase()];
+    const comissaoHint = comissaoInfo && comissaoInfo.comissao ? ` · comissão ${Rc(comissaoInfo.comissao)}` : '';
     const isMe = m.email && m.email.toLowerCase() === SESSION_EMAIL.toLowerCase();
     let actionHtml='';
     if(isAdmin){
@@ -2575,7 +2634,7 @@ function renderAceitesRedesign(data){
           <span class="member-name">${m.name||m.label||m.email||'—'}</span>
           <span class="role-tag ${role}">${roleLabel}</span>
         </div>
-        <div class="member-sub">${m.email||''}${teamHint}${signedHint}</div>
+        <div class="member-sub">${m.email||''}${teamHint}${signedHint}${comissaoHint}</div>
       </div>
       <span class="status status-${st.key}">${st.label}</span>
       <div class="member-action">${actionHtml}</div>
@@ -3291,8 +3350,9 @@ function loadData(vendedor){
       fetch('/api/mom-compare').then(r=>r.json()),
       fetch(apiUrl('/api/signoff-status')).then(r=>r.json()),
     ]).then(([tls,ranking,trend,payroll,mom,signoff])=>{
-      renderTLSummary(tls||[], signoff||null);
-      renderSignoffStatus(signoff||null);
+      const cm=_buildComissaoMap(ranking);
+      renderTLSummary(tls||[], signoff||null, cm);
+      renderSignoffStatus(signoff||null, cm);
       renderRanking(ranking||[]);
       renderTrend(trend||{});
       renderPayroll(payroll||{});
@@ -3338,7 +3398,7 @@ function loadData(vendedor){
       renderTrend(trend||{});
       renderPayroll(payroll||{});
       renderMomCompare(mom||{}, true);
-      renderSignoffStatus(signoff||null);
+      renderSignoffStatus(signoff||null, _buildComissaoMap(ranking));
       renderConsolidado(ranking, dc, dp);
     }).catch(e=>console.error(e));
     return;
@@ -3374,7 +3434,7 @@ function loadData(vendedor){
     txAll=transactions||[];apvState=approvals||{};
     renderTx();
     loadSignoff();   // mostra "Faltou alguma venda? (Adicionar HP)" + sign-off SÓ na visão do próprio vendedor
-    if(needsSignoff) renderSignoffStatus(signoff||null);
+    if(needsSignoff) renderSignoffStatus(signoff||null, _buildComissaoMap(ranking));
   }).catch(e=>{document.getElementById('dash-title').textContent='Erro ao carregar';console.error(e);});
 }
 
