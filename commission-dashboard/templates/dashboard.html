@@ -46,11 +46,6 @@ header{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height
 .tab{padding:14px 18px;font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--g600);transition:all .15s;white-space:nowrap;user-select:none}
 .tab:hover{color:var(--g900)}.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
 .tab-panel{display:none}.tab-panel.active{display:block}
-.b2b-subtabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--g200)}
-.b2b-subtab{padding:9px 16px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--g600);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
-.b2b-subtab:hover{color:var(--g900)}
-.b2b-subtab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.b2b-sub-panel{display:none}.b2b-sub-panel.active{display:block}
 
 main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 .section{margin-bottom:40px}
@@ -728,70 +723,80 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     </div>
   </div>
 
-  <!-- ══ B2B — unificado: Parceria (b2b2c) + Convênio/Portal/Pass, isolado da hierarquia B2C ═══ -->
+  <!-- ══ B2B — view única: Parceria (b2b2c 3%) + Convênio/Portal/Pass (6%), isolado da hierarquia B2C ═══ -->
   <div id="panel-b2b" class="tab-panel">
+    <style>
+      .b2b-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 22px}
+      .b2b-filters label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--g400);margin-right:-2px}
+      .b2b-filters select,.b2b-filters input{padding:6px 10px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.8rem;color:var(--g600)}
+      .b2b-filters select:focus,.b2b-filters input:focus{outline:none;border-color:#7B5CF6}
+      .b2b-filters input{min-width:200px}
+    </style>
     <div style="margin-bottom:20px">
       <h1 style="font-size:1.25rem;font-weight:700">B2B</h1>
       <p style="font-size:.85rem;color:var(--g600);margin-top:2px">
-        Dois modelos de comissionamento B2B, cada um com regra, fonte e taxa próprias — <b>não são somados</b>
-        entre si. Use o filtro abaixo pra alternar. <b>Não</b> é a hierarquia vendedor/TL/coordenador B2C.
+        Dois modelos de comissionamento B2B (regra/fonte/taxa próprias) numa view só — filtre por Categoria,
+        Mês, Vendedora ou Empresa. Com "Categoria: Todas" os valores vêm <b>somados</b> (cada linha já carrega
+        sua comissão calculada na taxa certa — 3% ou 6% — então a soma continua correta).
+        <b>Não</b> é a hierarquia vendedor/TL/coordenador B2C.
       </p>
     </div>
 
-    <div class="b2b-subtabs">
-      <button type="button" class="b2b-subtab active" data-b2bsub="parceria">b2b2c · Parceria (3%)</button>
-      <button type="button" class="b2b-subtab" data-b2bsub="convenio">B2B · Convênio/Portal/Pass (6%)</button>
+    <div class="b2b-filters">
+      <label for="b2b-filtro-categoria">Categoria</label>
+      <select id="b2b-filtro-categoria">
+        <option value="todos">Todas (somado)</option>
+        <option value="parceria">b2b2c · Parceria (3%)</option>
+        <option value="convenio">B2B · Convênio/Portal/Pass (6%)</option>
+      </select>
+      <label for="b2b-filtro-mes">Mês</label>
+      <select id="b2b-filtro-mes"><option value="todos">Todos os meses</option></select>
+      <label for="b2b-filtro-vendedora">Vendedora</label>
+      <select id="b2b-filtro-vendedora"><option value="todos">Todas as vendedoras</option></select>
+      <label for="b2b-filtro-empresa">Empresa</label>
+      <input type="text" id="b2b-filtro-empresa" placeholder="Buscar empresa…">
     </div>
 
-    <!-- Sub: Parceria / b2b2c (F.Corporate) -->
-    <div id="b2b-sub-parceria" class="b2b-sub-panel active">
-      <p style="font-size:.8rem;color:var(--g600);margin:-6px 0 18px">
-        Comissão por transação (não GBV). Fonte: <code>fluency-silver.hotmart.transactions</code>
-        (product_name contém "f.corporate") cruzada com a Carteira (aba AUX) via <code>tracking_source</code>.
-      </p>
-      <div class="cards" style="margin-bottom:22px">
-        <div class="card"><div class="label">Transações</div><div class="value" id="b2b-kpi-qtd">—</div></div>
-        <div class="card"><div class="label">Total Purchase Amount</div><div class="value" id="b2b-kpi-total">—</div></div>
-        <div class="card"><div class="label">Comissão (3%)</div><div class="value" id="b2b-kpi-comissao">—</div></div>
-      </div>
-      <div class="section">
-        <div class="section-title">Por vendedora (Carteira)</div>
-        <div class="tbl-card"><table>
-          <thead><tr><th>Vendedora</th><th class="num">Transações</th><th class="num">Total Purchase Amount</th><th class="num">Comissão (3%)</th></tr></thead>
-          <tbody id="b2b-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
-        </table></div>
-        <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="b2b-fonte"></p>
-      </div>
-    </div><!-- /b2b-sub-parceria -->
+    <div class="cards" style="margin-bottom:22px">
+      <div class="card"><div class="label">Transações</div><div class="value" id="b2b-kpi-qtd">—</div></div>
+      <div class="card"><div class="label">Valor Total</div><div class="value" id="b2b-kpi-total">—</div></div>
+      <div class="card"><div class="label">Comissão</div><div class="value" id="b2b-kpi-comissao">—</div></div>
+    </div>
 
-    <!-- Sub: Convênio/Portal Benefícios/F.Pass/Subsídio (Entradas, AC="B2B") -->
-    <div id="b2b-sub-convenio" class="b2b-sub-panel">
-      <p style="font-size:.8rem;color:var(--g600);margin:-6px 0 18px">
-        Comissão de 6% sobre o valor de compra, aba <code>Entradas</code> (planilha Comissionamento B2C), por vendedora (Carteira).
-        Snapshot estático — a planilha é editada ao vivo, os números refletem a última carga.
-      </p>
-      <div class="cards" style="margin-bottom:22px">
-        <div class="card"><div class="label">Transações</div><div class="value" id="b2bx-kpi-qtd">—</div></div>
-        <div class="card"><div class="label">Total (coluna L)</div><div class="value" id="b2bx-kpi-total">—</div></div>
-        <div class="card"><div class="label">Comissão (6%)</div><div class="value" id="b2bx-kpi-comissao">—</div></div>
-      </div>
-      <div id="b2bx-pendente-banner" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:.8rem"></div>
-      <div class="section">
-        <div class="section-title">Por vendedora (Carteira)</div>
-        <div class="tbl-card"><table>
-          <thead><tr><th>Vendedora</th><th class="num">Transações</th><th class="num">Total</th><th class="num">Comissão (6%)</th><th>Contratos</th></tr></thead>
-          <tbody id="b2bx-body"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
-        </table></div>
-      </div>
-      <div class="section">
-        <div class="section-title">Por tipo de Contrato</div>
-        <div class="tbl-card"><table>
-          <thead><tr><th>Contrato</th><th class="num">Total</th></tr></thead>
-          <tbody id="b2bx-contrato-body"></tbody>
-        </table></div>
-        <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="b2bx-fonte"></p>
-      </div>
-    </div><!-- /b2b-sub-convenio -->
+    <div id="b2b-pendente-banner" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:.8rem"></div>
+
+    <div class="section">
+      <div class="section-title">Por categoria</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Categoria</th><th class="num">Transações</th><th class="num">Valor Total</th><th class="num">Comissão</th></tr></thead>
+        <tbody id="b2b-categoria-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Por vendedora (Carteira)</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Vendedora</th><th class="num">Transações</th><th class="num">Valor Total</th><th class="num">Comissão</th></tr></thead>
+        <tbody id="b2b-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Por empresa vendida</div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Empresa</th><th>Vendedora</th><th>Categoria(s)</th><th class="num">Transações</th><th class="num">Valor Total</th><th class="num">Comissão</th></tr></thead>
+        <tbody id="b2b-empresa-body"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Por tipo de Contrato <span style="font-weight:400;color:var(--g400);font-size:.75rem">(só existe no modelo Convênio/Portal/Pass)</span></div>
+      <div class="tbl-card"><table>
+        <thead><tr><th>Contrato</th><th class="num">Valor Total</th></tr></thead>
+        <tbody id="b2bx-contrato-body"></tbody>
+      </table></div>
+      <p style="font-size:.75rem;color:var(--g400);margin-top:8px" id="b2b-fonte"></p>
+    </div>
   </div><!-- /panel-b2b -->
 
   <div id="panel-assistvend" class="tab-panel">
@@ -1251,7 +1256,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
     if(tab.dataset.tab==='assistvend'){ loadAssistVend(); loadFinancialSummary(); }
     if(tab.dataset.tab==='acessos') loadAcessos();
     if(tab.dataset.tab==='aprovacoes') loadAprovacoes();
-    if(tab.dataset.tab==='b2b') loadB2BSub(document.querySelector('.b2b-subtab.active').dataset.b2bsub);
+    if(tab.dataset.tab==='b2b') loadB2BSub();
     if(tab.dataset.tab==='produtividade') loadProdutividade();
   });
 });
@@ -1611,7 +1616,25 @@ function renderProdutividade(){
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{position:'bottom',labels:{font:{size:11},boxWidth:8,padding:12,usePointStyle:true,pointStyle:'circle'}},
+        legend:{
+          position:'bottom',
+          labels:{font:{size:11},boxWidth:8,padding:12,usePointStyle:true,pointStyle:'circle'},
+          // Clique isola a série (some com as demais); clicar numa série já escondida
+          // vai "soltando" ela de volta, uma a uma — inverso do toggle padrão do Chart.js.
+          onClick:(e, legendItem, legend)=>{
+            const chart = legend.chart;
+            const idx = legendItem.datasetIndex;
+            const visibleCount = chart.data.datasets.filter((_,i)=>chart.isDatasetVisible(i)).length;
+            const isVisible = chart.isDatasetVisible(idx);
+            if(isVisible && visibleCount>1){
+              chart.data.datasets.forEach((_,i)=>{ if(i!==idx) chart.setDatasetVisibility(i,false); });
+              chart.setDatasetVisibility(idx,true);
+            } else {
+              chart.setDatasetVisibility(idx, !isVisible);
+            }
+            chart.update();
+          },
+        },
         tooltip:{padding:10,callbacks:{label:c=>' '+c.dataset.label+': '+_prodFmt(c.parsed.y)}},
       },
       scales:{
@@ -1721,86 +1744,138 @@ function loadAcessos(){
   }).catch(e=>console.error(e));
 }
 
-// ── B2B — toggle interno entre os 2 modelos (Parceria/b2b2c 3% × Convênio/B2B 6%) ──
-const _b2bLoaded = {parceria:false, convenio:false};
-document.querySelectorAll('.b2b-subtab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    if(btn.classList.contains('active')) return;
-    document.querySelectorAll('.b2b-subtab').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.b2b-sub-panel').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('b2b-sub-'+btn.dataset.b2bsub).classList.add('active');
-    loadB2BSub(btn.dataset.b2bsub);
-  });
-});
-function loadB2BSub(sub){
-  if(_b2bLoaded[sub]) return;
-  _b2bLoaded[sub] = true;
-  if(sub==='parceria') loadB2BParceria(); else loadB2B();
-}
+// ── B2B — view única, Categoria vira mais um filtro (com opção "Todas/somado") ──
+// Os 2 endpoints já devolvem o grão detalhado (mês × empresa × vendedora [× contrato])
+// com a comissão de cada linha já calculada na taxa certa (3% ou 6%) — por isso somar
+// linhas de categorias diferentes é seguro (não se aplica uma taxa única a um total
+// misto, só se soma comissões já computadas). Tudo client-side, volume pequeno
+// (~750 linhas Parceria + ~1500 linhas Convênio).
+let _b2bTodasLinhas = null; // [{mes, empresa, vendedora, categoria, categoria_label, contrato, qtd_transacoes, valor, comissao}]
+let _b2bLoading = false;
 
-// ── B2B · Parceria (F.Corporate) — por transação, isolado da hierarquia B2C ───
-function loadB2BParceria(){
+function loadB2BSub(){
+  if(_b2bTodasLinhas || _b2bLoading) return;
+  _b2bLoading = true;
   document.getElementById('b2b-body').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
-  fetch(apiUrl('/api/b2b-parceria')).then(r=>r.json()).then(d=>{
-    if(d.error){
-      document.getElementById('b2b-body').innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">${d.error}</td></tr>`;
+  document.getElementById('b2b-empresa-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
+  document.getElementById('b2b-categoria-body').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
+  Promise.all([
+    fetch('/api/b2b-parceria').then(r=>r.json()),
+    fetch('/api/b2b').then(r=>r.json()),
+  ]).then(([dp, dc])=>{
+    _b2bLoading = false;
+    if(dp.error || dc.error){
+      document.getElementById('b2b-body').innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">${dp.error||dc.error}</td></tr>`;
       return;
     }
-    const t=d.totais||{};
-    document.getElementById('b2b-kpi-qtd').textContent = N(t.qtd_transacoes||0);
-    document.getElementById('b2b-kpi-total').textContent = Rc(t.total_purchase_amount||0);
-    document.getElementById('b2b-kpi-comissao').textContent = Rc(t.comissao||0);
-    const vs=(d.vendedores||[]);
-    const dim=n=>(n==='Sem carteira'||n==='Não mapeado');
-    document.getElementById('b2b-body').innerHTML = vs.length ? vs.map(v=>`<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
-      <td>${v.vendedora}</td>
-      <td class="num">${N(v.qtd_transacoes)}</td>
-      <td class="num">${Rc(v.total_purchase_amount)}</td>
-      <td class="num">${Rc(v.comissao)}</td></tr>`).join('')
-      : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações</td></tr>';
-    document.getElementById('b2b-fonte').textContent = d.fonte||'';
-  }).catch(e=>{ console.error('b2b-parceria',e);
+    const parceria = (dp.linhas||[]).map(l=>({
+      mes:l.mes, empresa:l.empresa, vendedora:l.vendedora, categoria:'parceria',
+      categoria_label:'b2b2c · Parceria (3%)', contrato:null,
+      qtd_transacoes:l.qtd_transacoes, valor:l.total_purchase_amount, comissao:l.comissao,
+    }));
+    const convenio = (dc.linhas||[]).map(l=>({
+      mes:l.mes, empresa:l.empresa, vendedora:l.vendedora, categoria:'convenio',
+      categoria_label:'B2B · Convênio/Portal/Pass (6%)', contrato:l.contrato,
+      qtd_transacoes:l.qtd_transacoes, valor:l.total_valor, comissao:l.comissao,
+    }));
+    _b2bTodasLinhas = parceria.concat(convenio);
+    document.getElementById('b2b-fonte').textContent = [dp.fonte, dc.fonte].filter(Boolean).join(' · ');
+    _b2bSyncFiltersAndRender();
+  }).catch(e=>{ _b2bLoading=false; console.error('b2b',e);
     document.getElementById('b2b-body').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Erro ao carregar</td></tr>';
   });
 }
+function _b2bFillSelect(sel, values, allLabel){
+  const cur = sel.value;
+  sel.innerHTML = `<option value="todos">${allLabel}</option>` +
+    values.map(v=>`<option value="${escAttr(v)}">${v}</option>`).join('');
+  sel.value = values.includes(cur) ? cur : 'todos';
+}
+function _b2bSyncFiltersAndRender(){
+  if(!_b2bTodasLinhas) return;
+  const meses = [...new Set(_b2bTodasLinhas.map(l=>l.mes))].filter(Boolean).sort().reverse();
+  const vends = [...new Set(_b2bTodasLinhas.map(l=>l.vendedora))].filter(Boolean).sort();
+  _b2bFillSelect(document.getElementById('b2b-filtro-mes'), meses, 'Todos os meses');
+  _b2bFillSelect(document.getElementById('b2b-filtro-vendedora'), vends, 'Todas as vendedoras');
+  renderB2B();
+}
+function _b2bApplyFilters(linhas){
+  const cat  = document.getElementById('b2b-filtro-categoria').value;
+  const mes  = document.getElementById('b2b-filtro-mes').value;
+  const vend = document.getElementById('b2b-filtro-vendedora').value;
+  const emp  = document.getElementById('b2b-filtro-empresa').value.trim().toLowerCase();
+  return linhas.filter(l =>
+    (cat==='todos'  || l.categoria===cat) &&
+    (mes==='todos'  || l.mes===mes) &&
+    (vend==='todos' || l.vendedora===vend) &&
+    (!emp || (l.empresa||'').toLowerCase().includes(emp))
+  );
+}
+['b2b-filtro-categoria','b2b-filtro-mes','b2b-filtro-vendedora'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', renderB2B);
+});
+document.getElementById('b2b-filtro-empresa').addEventListener('input', renderB2B);
 
-// ── B2B (Entradas, AC="B2B") — Convênio/Portal Benefícios/F.Pass/Subsídio ──────
-function loadB2B(){
-  document.getElementById('b2bx-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr>';
-  fetch(apiUrl('/api/b2b')).then(r=>r.json()).then(d=>{
-    if(d.error){
-      document.getElementById('b2bx-body').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">${d.error}</td></tr>`;
-      return;
-    }
-    const t=d.totais||{};
-    document.getElementById('b2bx-kpi-qtd').textContent = N(t.qtd_transacoes||0);
-    document.getElementById('b2bx-kpi-total').textContent = Rc(t.total_valor||0);
-    document.getElementById('b2bx-kpi-comissao').textContent = Rc(t.comissao||0);
-    const pend=d.pendente_validacao||{};
-    const banner=document.getElementById('b2bx-pendente-banner');
-    if(pend.qtd_transacoes>0){
-      banner.style.display='block';
-      banner.textContent = `⏳ Aguardando validação (#REF! na planilha): ${N(pend.qtd_transacoes)} transações, ${Rc(pend.total_valor)} — FORA do total acima até correção na sheet.`;
-    } else { banner.style.display='none'; }
-    const vs=(d.vendedores||[]);
-    const dim=n=>(n==='Sem carteira');
-    document.getElementById('b2bx-body').innerHTML = vs.length ? vs.map(v=>{
-      const contratos=Object.entries(v.contratos||{}).map(([k,val])=>`${k}: ${Rc(val)}`).join(' · ');
-      return `<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
-      <td>${v.vendedora}</td>
-      <td class="num">${N(v.qtd_transacoes)}</td>
-      <td class="num">${Rc(v.total_valor)}</td>
-      <td class="num">${Rc(v.comissao)}</td>
-      <td style="font-size:.75rem;color:var(--g600)">${contratos}</td></tr>`;
-    }).join('') : '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Sem transações</td></tr>';
-    const pc=d.por_contrato||{};
-    document.getElementById('b2bx-contrato-body').innerHTML = Object.entries(pc).map(([k,v])=>`<tr>
-      <td>${k}</td><td class="num">${Rc(v)}</td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--g400)">—</td></tr>';
-    document.getElementById('b2bx-fonte').textContent = d.fonte||'';
-  }).catch(e=>{ console.error('b2b',e);
-    document.getElementById('b2bx-body').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--g400)">Erro ao carregar</td></tr>';
+function renderB2B(){
+  if(!_b2bTodasLinhas) return;
+  const dim = n=>(n==='Sem carteira'||n==='Não mapeado');
+  const isPendente = l=>l.vendedora==='Aguardando validação';
+  const linhas   = _b2bApplyFilters(_b2bTodasLinhas.filter(l=>!isPendente(l)));
+  const pendente = _b2bApplyFilters(_b2bTodasLinhas.filter(isPendente));
+
+  let totQtd=0, totValor=0, totComissao=0;
+  const byVend={}, byEmp={}, byCat={}, porContrato={};
+  linhas.forEach(l=>{
+    totQtd += l.qtd_transacoes; totValor += l.valor; totComissao += l.comissao;
+    const c = byCat[l.categoria] || (byCat[l.categoria]={categoria_label:l.categoria_label, qtd:0, valor:0, comissao:0});
+    c.qtd += l.qtd_transacoes; c.valor += l.valor; c.comissao += l.comissao;
+    const v = byVend[l.vendedora] || (byVend[l.vendedora]={vendedora:l.vendedora, qtd:0, valor:0, comissao:0});
+    v.qtd += l.qtd_transacoes; v.valor += l.valor; v.comissao += l.comissao;
+    const key = l.empresa+'|||'+l.vendedora;
+    const e = byEmp[key] || (byEmp[key]={empresa:l.empresa, vendedora:l.vendedora, qtd:0, valor:0, comissao:0, categorias:new Set()});
+    e.qtd += l.qtd_transacoes; e.valor += l.valor; e.comissao += l.comissao; e.categorias.add(l.categoria_label);
+    if(l.contrato) porContrato[l.contrato] = (porContrato[l.contrato]||0) + l.valor;
   });
+  const pendTot = pendente.reduce((a,l)=>a+l.valor,0);
+  const pendQtd = pendente.reduce((a,l)=>a+l.qtd_transacoes,0);
+
+  document.getElementById('b2b-kpi-qtd').textContent = N(totQtd);
+  document.getElementById('b2b-kpi-total').textContent = Rc(totValor);
+  document.getElementById('b2b-kpi-comissao').textContent = Rc(totComissao);
+  const banner=document.getElementById('b2b-pendente-banner');
+  if(pendQtd>0){
+    banner.style.display='block';
+    banner.textContent = `⏳ Aguardando validação (#REF! na planilha, modelo Convênio): ${N(pendQtd)} transações, ${Rc(pendTot)} — FORA do total acima até correção na sheet.`;
+  } else { banner.style.display='none'; }
+
+  const cs = Object.values(byCat).sort((a,b)=>b.valor-a.valor);
+  document.getElementById('b2b-categoria-body').innerHTML = cs.length ? cs.map(c=>`<tr>
+    <td>${c.categoria_label}</td>
+    <td class="num">${N(c.qtd)}</td>
+    <td class="num">${Rc(c.valor)}</td>
+    <td class="num">${Rc(c.comissao)}</td></tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações para este filtro</td></tr>';
+
+  const vs = Object.values(byVend).sort((a,b)=>b.valor-a.valor);
+  document.getElementById('b2b-body').innerHTML = vs.length ? vs.map(v=>`<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+    <td>${v.vendedora}</td>
+    <td class="num">${N(v.qtd)}</td>
+    <td class="num">${Rc(v.valor)}</td>
+    <td class="num">${Rc(v.comissao)}</td></tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações para este filtro</td></tr>';
+
+  const es = Object.values(byEmp).sort((a,b)=>b.valor-a.valor);
+  document.getElementById('b2b-empresa-body').innerHTML = es.length ? es.map(e=>`<tr${dim(e.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+    <td>${e.empresa}</td>
+    <td>${e.vendedora}</td>
+    <td style="font-size:.75rem;color:var(--g600)">${[...e.categorias].join(' · ')}</td>
+    <td class="num">${N(e.qtd)}</td>
+    <td class="num">${Rc(e.valor)}</td>
+    <td class="num">${Rc(e.comissao)}</td></tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--g400)">Sem transações para este filtro</td></tr>';
+
+  document.getElementById('b2bx-contrato-body').innerHTML = Object.entries(porContrato).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr>
+    <td>${k}</td><td class="num">${Rc(v)}</td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:16px;color:var(--g400)">—</td></tr>';
 }
 
 // ── Presença (avatares de quem está online) + heartbeat ────────────────────────
@@ -3240,10 +3315,7 @@ async function initMonths(vend){
     _prodLoaded=false;
     const pp=document.getElementById('panel-produtividade');
     if(pp&&pp.classList.contains('active')) loadProdutividade();
-    // B2B (Parceria + Convênio) é month-aware → reseta cache dos 2 sub-modelos e recarrega o ativo
-    _b2bLoaded.parceria=false; _b2bLoaded.convenio=false;
-    const b2bp=document.getElementById('panel-b2b');
-    if(b2bp&&b2bp.classList.contains('active')) loadB2BSub(document.querySelector('.b2b-subtab.active').dataset.b2bsub);
+    // B2B tem filtro de Mês próprio (independente do seletor global) — não recarrega aqui.
   };
 }
 

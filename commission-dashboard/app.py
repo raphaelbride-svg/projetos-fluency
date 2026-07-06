@@ -2561,29 +2561,29 @@ def api_assist_vs_vendedor():
 # própria regra/rota/aba. NÃO misturar. NÃO usar tracking_source_sck pra atribuir
 # vendedora — é o e-mail de quem registrou a venda, não necessariamente a dona da
 # conta. NÃO é GBV, NÃO tem vendedor/TL/coordenador B2C associado. Ver skill
-# comissao-b2b-parceria pro racional completo e pipeline/load_b2b_carteira_map.py
-# (refresh do de-para).
+# comissao-b2b pro racional completo e pipeline/load_b2b_carteira_map.py (refresh
+# do de-para).
+# Retorna o grão detalhado (mês × empresa × vendedora, 2026-07-06) — os filtros de
+# mês/vendedora/empresa do dashboard e as agregações (por vendedora, por empresa)
+# são todos client-side em cima dessa lista, o volume é pequeno (~2.5k transações).
 @app.route("/api/b2b-parceria")
 @login_required
 def api_b2b_parceria():
     if _get_role_data()["role"] != "master":
         return jsonify({"error": "forbidden"}), 403
-    mes_param = request.args.get("mes", "").strip()
-    where_mes, params = "", []
-    if mes_param and mes_param != "todos":
-        where_mes = "AND DATE_TRUNC(DATE(approved_date_brt), MONTH) = DATE(@mes)"
-        params.append(bigquery.ScalarQueryParameter("mes", "DATE", mes_param + "-01"))
-    rows = run_query(f"""
+    rows = run_query("""
         WITH src AS (
           SELECT
+            FORMAT_DATE('%Y-%m', DATE(approved_date_brt)) AS mes,
             LOWER(TRIM(tracking_source)) AS tag_norm,
             purchase_amount
           FROM `fluency-silver.hotmart.transactions`
           WHERE LOWER(product_name) LIKE '%f.corporate%'
             AND purchase_status IN ('COMPLETE', 'APPROVED')
-            {where_mes}
         )
         SELECT
+          src.mes                    AS mes,
+          COALESCE(m.tag_empresa, 'Não mapeado') AS empresa,
           CASE
             WHEN m.carteira IS NULL THEN 'Não mapeado'
             WHEN m.carteira IN ('Avulso', '-') THEN 'Sem carteira'
@@ -2594,16 +2594,16 @@ def api_b2b_parceria():
         FROM src
         LEFT JOIN `fluency-finance.commission.b2b_carteira_map` m
           ON m.tag_empresa_norm = src.tag_norm
-        GROUP BY 1
-        ORDER BY 3 DESC
-    """, params, cache_ttl=90)
-    vendedores, tot_qtd, tot_amount = [], 0, 0.0
+        GROUP BY 1, 2, 3
+        ORDER BY 1 DESC, 5 DESC
+    """, [], cache_ttl=90)
+    linhas = []
     for r in rows:
         amt = float(r["total_purchase_amount"] or 0)
         qtd = int(r["qtd_transacoes"] or 0)
-        tot_qtd += qtd
-        tot_amount += amt
-        vendedores.append({
+        linhas.append({
+            "mes": r["mes"],
+            "empresa": r["empresa"],
             "vendedora": r["vendedora"],
             "qtd_transacoes": qtd,
             "total_purchase_amount": round(amt, 2),
@@ -2611,14 +2611,8 @@ def api_b2b_parceria():
         })
     return jsonify({
         "modelo": "Parceria",
-        "mes": mes_param or "todos",
-        "vendedores": vendedores,
-        "totais": {
-            "qtd_transacoes": tot_qtd,
-            "total_purchase_amount": round(tot_amount, 2),
-            "comissao": round(tot_amount * 0.03, 2),
-        },
-        "fonte": "Modelo B2B · Parceria — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
+        "linhas": linhas,
+        "fonte": "Modelo B2B · Parceria (b2b2c) — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Grão: mês × empresa (tag_empresa) × vendedora (carteira). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
     })
 
 
@@ -2639,63 +2633,27 @@ def api_b2b_parceria():
 def api_b2b():
     if _get_role_data()["role"] != "master":
         return jsonify({"error": "forbidden"}), 403
-    mes_param = request.args.get("mes", "").strip()
-    where_mes, params = "", []
-    if mes_param and mes_param != "todos":
-        where_mes = "AND mes = @mes"
-        params.append(bigquery.ScalarQueryParameter("mes", "STRING", mes_param))
-    rows = run_query(f"""
-        SELECT vendedora, contrato, COUNT(*) AS qtd, SUM(valor) AS total
+    rows = run_query("""
+        SELECT mes, empresa, contrato, vendedora, COUNT(*) AS qtd, SUM(valor) AS total
         FROM `fluency-finance.commission.b2b_entradas_snapshot`
-        WHERE 1=1 {where_mes}
-        GROUP BY 1, 2
-        ORDER BY 4 DESC
-    """, params, cache_ttl=90)
-    by_vendedora = {}
-    por_contrato = {}
-    pendente = {"qtd_transacoes": 0, "total": 0.0}
-    tot_qtd, tot_amount = 0, 0.0
+        GROUP BY 1, 2, 3, 4
+        ORDER BY 1 DESC, 6 DESC
+    """, [], cache_ttl=90)
+    linhas = []
     for r in rows:
-        vend = r["vendedora"]
-        contrato = r["contrato"]
-        qtd = int(r["qtd"] or 0)
-        amt = float(r["total"] or 0)
-        por_contrato[contrato] = por_contrato.get(contrato, 0.0) + amt
-        if vend == "Aguardando validação":
-            pendente["qtd_transacoes"] += qtd
-            pendente["total"] += amt
-            continue
-        tot_qtd += qtd
-        tot_amount += amt
-        v = by_vendedora.setdefault(vend, {"vendedora": vend, "qtd_transacoes": 0, "total_valor": 0.0, "contratos": {}})
-        v["qtd_transacoes"] += qtd
-        v["total_valor"] += amt
-        v["contratos"][contrato] = v["contratos"].get(contrato, 0.0) + amt
-    vendedores = []
-    for v in sorted(by_vendedora.values(), key=lambda x: -x["total_valor"]):
-        vendedores.append({
-            "vendedora": v["vendedora"],
-            "qtd_transacoes": v["qtd_transacoes"],
-            "total_valor": round(v["total_valor"], 2),
-            "comissao": round(v["total_valor"] * 0.06, 2),
-            "contratos": {k: round(val, 2) for k, val in v["contratos"].items()},
+        linhas.append({
+            "mes": r["mes"],
+            "empresa": r["empresa"],
+            "contrato": r["contrato"],
+            "vendedora": r["vendedora"],
+            "qtd_transacoes": int(r["qtd"] or 0),
+            "total_valor": round(float(r["total"] or 0), 2),
+            "comissao": round(float(r["total"] or 0) * 0.06, 2),
         })
     return jsonify({
         "modelo": "B2B",
-        "mes": mes_param or "todos",
-        "vendedores": vendedores,
-        "por_contrato": {k: round(val, 2) for k, val in sorted(por_contrato.items(), key=lambda x: -x[1])},
-        "totais": {
-            "qtd_transacoes": tot_qtd,
-            "total_valor": round(tot_amount, 2),
-            "comissao": round(tot_amount * 0.06, 2),
-        },
-        "pendente_validacao": {
-            "qtd_transacoes": pendente["qtd_transacoes"],
-            "total_valor": round(pendente["total"], 2),
-            "comissao": round(pendente["total"] * 0.06, 2),
-        },
-        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira). Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet) fica FORA do total oficial até correção.",
+        "linhas": linhas,
+        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira). Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: mês × empresa (Comprador) × contrato × vendedora.",
     })
 
 

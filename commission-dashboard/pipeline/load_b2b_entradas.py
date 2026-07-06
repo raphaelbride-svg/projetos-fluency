@@ -1,7 +1,8 @@
 """Carrega as linhas AC="B2B" da aba Entradas (planilha Comissionamento B2C) pra
 `fluency-finance.commission.b2b_entradas_snapshot` — base do modelo de comissão B2B
 (Raphael, 2026-07-06): comissão = SUM(coluna L) × 6%, por vendedora (coluna AI),
-quebrado por Contrato (coluna AD). Mês de corte = coluna F (Confirmação do pagamento).
+quebrado por Contrato (coluna AD) e por empresa (coluna S "Comprador", 2026-07-06).
+Mês de corte = coluna F (Confirmação do pagamento).
 
 ⚠️ Modelo B2B (AC=B2B) é DIFERENTE do modelo b2b2c/Parceria (AC=B2B2C, 3%,
 fluency-silver.hotmart.transactions) — fontes, taxas e filtros distintos. Não confundir.
@@ -91,12 +92,14 @@ def build_rows(values: list[list[str]]) -> list[dict]:
             continue
         f = r[5] if len(r) > 5 else ""
         l = r[11] if len(r) > 11 else ""
+        s = (r[18] if len(r) > 18 else "").strip() or "(sem empresa)"
         ad = (r[29] if len(r) > 29 else "").strip() or "(sem contrato)"
         ai = r[34] if len(r) > 34 else ""
         data_conf, mes = parse_date(f)
         rows.append({
             "data_confirmacao": data_conf,
             "mes": mes,
+            "empresa": s,
             "contrato": ad,
             "vendedora": norm_vendedora(ai),
             "vendedora_raw": ai,
@@ -123,6 +126,7 @@ def main():
         schema=[
             bigquery.SchemaField("data_confirmacao", "DATE"),
             bigquery.SchemaField("mes", "STRING"),
+            bigquery.SchemaField("empresa", "STRING"),
             bigquery.SchemaField("contrato", "STRING"),
             bigquery.SchemaField("vendedora", "STRING"),
             bigquery.SchemaField("vendedora_raw", "STRING"),
