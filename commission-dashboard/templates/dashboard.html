@@ -2287,20 +2287,21 @@ function renderConsolidado(ranking, dataConvenio, dataParceria){
   _consDrillFill('cons-b2c-drill', byTl);
 
   const mesAtual = selectedMes || '';
-  function sumPorVendedora(data){
+  function sumPorVendedora(data, valorField){
     const linhas = ((data && data.linhas) || []).filter(l=>!mesAtual || l.mes===mesAtual);
     const byVend = {};
     linhas.forEach(l=>{
       const k = l.vendedora||'Sem carteira';
       const e = byVend[k] || (byVend[k]={comissao:0, valor:0});
       e.comissao += (l.comissao||0);
-      e.valor    += (l.valor||0);
+      e.valor    += (l[valorField]||0);
     });
     const total = linhas.reduce((s,l)=>s+(l.comissao||0), 0);
     return {total, byVend};
   }
-  const conv = sumPorVendedora(dataConvenio);
-  const parc = sumPorVendedora(dataParceria);
+  // Convênio (Modelo 2) usa total_valor; Parceria/b2b2c (Modelo 1) usa total_purchase_amount
+  const conv = sumPorVendedora(dataConvenio, 'total_valor');
+  const parc = sumPorVendedora(dataParceria, 'total_purchase_amount');
 
   document.getElementById('cons-b2b-val').textContent   = Rc(conv.total);
   document.getElementById('cons-b2b2c-val').textContent = Rc(parc.total);
