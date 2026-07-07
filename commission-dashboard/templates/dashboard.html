@@ -702,6 +702,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         <div class="pills">
           <span class="pill" id="pill-total">—</span>
         </div>
+        <div id="tx-export-slot"></div>
       </div>
       <div class="tbl-card" style="overflow-x:auto">
         <table class="tx-tbl" style="min-width:1180px">
@@ -2245,6 +2246,9 @@ document.querySelectorAll('.filter-btn').forEach(b=>{
     renderTx();
   });
 });
+
+attachExportMenu(document.getElementById('tx-export-slot'), 'transactions',
+  ()=>({mes:selectedMes, vendedor:lastTxTarget}));
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let txAll=[], apvState={}, currentFilter='all';
