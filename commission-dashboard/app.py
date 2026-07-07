@@ -2639,8 +2639,13 @@ def api_b2b():
         GROUP BY 1, 2, 3, 4
         ORDER BY 1 DESC, 6 DESC
     """, [], cache_ttl=90)
+    # Exceção Raphael 2026-07-07: contas "Unico Skill" (qualquer grafia, ex.
+    # "Unico Skill (SKILLHUB)"/"Unico Skill (Skillhub)") comissionam a 3%, não
+    # os 6% padrão do modelo B2B/Convênio.
     linhas = []
     for r in rows:
+        empresa = r["empresa"] or ""
+        taxa = 0.03 if empresa.strip().lower().startswith("unico skill") else 0.06
         linhas.append({
             "mes": r["mes"],
             "empresa": r["empresa"],
@@ -2648,12 +2653,12 @@ def api_b2b():
             "vendedora": r["vendedora"],
             "qtd_transacoes": int(r["qtd"] or 0),
             "total_valor": round(float(r["total"] or 0), 2),
-            "comissao": round(float(r["total"] or 0) * 0.06, 2),
+            "comissao": round(float(r["total"] or 0) * taxa, 2),
         })
     return jsonify({
         "modelo": "B2B",
         "linhas": linhas,
-        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira). Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: mês × empresa (Comprador) × contrato × vendedora.",
+        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira) — EXCEÇÃO: contas \"Unico Skill\" comissionam a 3%. Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: mês × empresa (Comprador) × contrato × vendedora.",
     })
 
 
