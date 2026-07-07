@@ -2569,7 +2569,7 @@ def api_assist_vs_vendedor():
 @app.route("/api/b2b-parceria")
 @login_required
 def api_b2b_parceria():
-    if _get_role_data()["role"] != "master":
+    if _get_role_data()["role"] not in ("master", "gestor"):
         return jsonify({"error": "forbidden"}), 403
     rows = run_query("""
         WITH src AS (
@@ -2631,7 +2631,7 @@ def api_b2b_parceria():
 @app.route("/api/b2b")
 @login_required
 def api_b2b():
-    if _get_role_data()["role"] != "master":
+    if _get_role_data()["role"] not in ("master", "gestor"):
         return jsonify({"error": "forbidden"}), 403
     rows = run_query("""
         SELECT mes, empresa, contrato, vendedora, COUNT(*) AS qtd, SUM(valor) AS total

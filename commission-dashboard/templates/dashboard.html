@@ -1322,7 +1322,7 @@ function updateRoleTabs(){
   set('tab-assistvend', MASTER||ROLE==='aprovador');  // financeiro (rentabilidade + resumo) — master + aprovador
   set('tab-racional',   MASTER||ROLE==='gestor'||ROLE==='aprovador');  // racional de cálculo — master + coord + aprovador
   set('tab-acessos',    MASTER);              // master only (log de acessos)
-  set('tab-b2b',          MASTER);            // master only (B2B unificado: Parceria/b2b2c + Convênio/Portal/F.Pass/Subsídio)
+  set('tab-b2b',          MASTER||ROLE==='gestor');  // master + gestor (Liliane, 2026-07-07) — B2B unificado: Parceria/b2b2c + Convênio/Portal/F.Pass/Subsídio
   set('tab-aprovacoes', MASTER || ROLE==='gestor' || ROLE==='tl');  // aprovações HP: TL + coord + master
   set('tab-produtividade', MASTER||ROLE==='gestor');  // produtividade por horário — master + coord (Fabio)
   // se a aba ativa virou oculta (ex.: master→Ver como TL na aba Acessos), volta p/ Resumo
