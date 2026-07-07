@@ -1848,8 +1848,12 @@ function _b2bSyncFiltersAndRender(){
   if(!_b2bTodasLinhas) return;
   const meses = [...new Set(_b2bTodasLinhas.map(l=>l.mes))].filter(Boolean).sort().reverse();
   const vends = [...new Set(_b2bTodasLinhas.map(l=>l.vendedora))].filter(Boolean).sort();
-  _b2bFillSelect(document.getElementById('b2b-filtro-mes'), meses, 'Todos os meses');
+  const mesSel = document.getElementById('b2b-filtro-mes');
+  _b2bFillSelect(mesSel, meses, 'Todos os meses');
   _b2bFillSelect(document.getElementById('b2b-filtro-vendedora'), vends, 'Todas as vendedoras');
+  // Nasce no mês selecionado globalmente (não em "todos") — evita mostrar soma
+  // histórica desde 2021 como se fosse a comissão do mês (achado 2026-07-06, Daiane).
+  if(mesSel.value==='todos' && selectedMes && meses.includes(selectedMes)) mesSel.value = selectedMes;
   renderB2B();
 }
 function _b2bApplyFilters(linhas){
