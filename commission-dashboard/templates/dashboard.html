@@ -140,6 +140,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 .filter-btn{padding:5px 14px;border-radius:999px;border:1px solid var(--g200);background:#fff;font-size:.78rem;cursor:pointer;transition:all .15s}
 .filter-btn:hover{border-color:var(--blue);color:var(--blue)}
 .filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.export-menu{position:relative;display:inline-block}
+.export-dropdown{position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--g200);border-radius:8px;box-shadow:var(--sh);min-width:150px;z-index:20;overflow:hidden}
+.export-dropdown button{display:block;width:100%;text-align:left;padding:8px 14px;border:none;background:#fff;font-size:.8rem;cursor:pointer}
+.export-dropdown button:hover{background:var(--g50)}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .15s}
 .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#2563eb}
 .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -699,8 +703,8 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <span class="pill" id="pill-total">—</span>
         </div>
       </div>
-      <div class="tbl-card">
-        <table class="tx-tbl">
+      <div class="tbl-card" style="overflow-x:auto">
+        <table class="tx-tbl" style="min-width:1180px">
           <thead>
             <tr>
               <th>Transaction ID</th><th>Data</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
@@ -784,6 +788,14 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
       .b2b-filters select,.b2b-filters input{padding:6px 10px;border-radius:8px;border:1px solid var(--g200);background:#fff;font-size:.8rem;color:var(--g600)}
       .b2b-filters select:focus,.b2b-filters input:focus{outline:none;border-color:#7B5CF6}
       .b2b-filters input{min-width:200px}
+      .b2b-clickable{cursor:pointer}
+      .b2b-clickable:hover td{background:var(--g50,#f9fafb)}
+      .b2b-drill-row td{padding:0 !important}
+      .b2b-drill-wrap{padding:10px 16px;background:var(--g50,#f9fafb);border-top:1px dashed var(--g200)}
+      .b2b-drill-wrap table{width:100%;font-size:.78rem;border-collapse:collapse}
+      .b2b-drill-wrap th{text-align:left;padding:4px 8px;color:var(--g400);font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:.04em}
+      .b2b-drill-wrap td{padding:4px 8px}
+      .b2b-drill-wrap th.num,.b2b-drill-wrap td.num{text-align:right}
     </style>
     <div style="margin-bottom:20px">
       <h1 style="font-size:1.25rem;font-weight:700">B2B</h1>
@@ -1233,6 +1245,8 @@ function fmtMoney(v){
 const R=(v)=>'R$ '+fmtMoney(v);
 // valor cheio com centavos (sem abreviar K/M) — usado na comissão do vendedor
 const Rc=(v)=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+// valor cheio em reais, sem abreviar K/M/BI e sem centavos — usado em tabelas transacionais
+const Rf=(v)=>'R$ '+Math.round(Number(v||0)).toLocaleString('pt-BR',{maximumFractionDigits:0});
 // atingimento com todas as casas decimais relevantes (2 a 4)
 const P=v=>(Number(v)*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})+'%';
 const N=(v,d=0)=>Number(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -1297,6 +1311,47 @@ function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── Export genérico (PDF/XLS/Google Sheets) ────────────────────────────────────
+// containerEl: onde o botão "Exportar" é inserido. datasetKey: chave no EXPORT_REGISTRY
+// (backend). getFilters: função que devolve {mes, vendedor, ...} do estado atual da tela.
+function attachExportMenu(containerEl, datasetKey, getFilters){
+  const wrap=document.createElement('div');
+  wrap.className='export-menu';
+  wrap.innerHTML=`<button type="button" class="filter-btn export-toggle">Exportar ▾</button>
+    <div class="export-dropdown" style="display:none">
+      <button type="button" data-fmt="pdf">PDF</button>
+      <button type="button" data-fmt="xlsx">XLS</button>
+      <button type="button" data-fmt="sheets">Google Sheets</button>
+    </div>`;
+  containerEl.appendChild(wrap);
+  const dropdown=wrap.querySelector('.export-dropdown');
+  wrap.querySelector('.export-toggle').addEventListener('click',(e)=>{
+    e.stopPropagation();
+    dropdown.style.display=(dropdown.style.display==='none')?'block':'none';
+  });
+  document.addEventListener('click',()=>{dropdown.style.display='none';});
+  dropdown.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      dropdown.style.display='none';
+      const fmt=btn.dataset.fmt;
+      const filters=getFilters()||{};
+      const params=new URLSearchParams({dataset:datasetKey});
+      Object.entries(filters).forEach(([k,v])=>{ if(v) params.set(k,v); });
+      if(fmt==='sheets'){
+        toast('Gerando planilha…');
+        fetch('/api/export/sheets?'+params.toString(),{method:'POST'})
+          .then(r=>r.json()).then(d=>{
+            if(d.error){toast('Erro ao exportar: '+d.error);return;}
+            window.open(d.url,'_blank');
+          }).catch(()=>toast('Erro ao gerar planilha'));
+      }else{
+        window.location.href='/api/export/'+fmt+'?'+params.toString();
+      }
+    });
+  });
 }
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
@@ -1822,13 +1877,13 @@ function loadB2BSub(){
       return;
     }
     const parceria = (dp.linhas||[]).map(l=>({
-      mes:l.mes, empresa:l.empresa, vendedora:l.vendedora, categoria:'parceria',
-      categoria_label:'b2b2c · Parceria (3%)', contrato:null,
+      mes:l.mes, data:l.data, empresa:l.empresa, vendedora:l.vendedora, categoria:'parceria',
+      categoria_label:'b2b2c · Parceria (3%)', contrato:null, taxa:l.taxa,
       qtd_transacoes:l.qtd_transacoes, valor:l.total_purchase_amount, comissao:l.comissao,
     }));
     const convenio = (dc.linhas||[]).map(l=>({
-      mes:l.mes, empresa:l.empresa, vendedora:l.vendedora, categoria:'convenio',
-      categoria_label:'B2B · Convênio/Portal/Pass (6%)', contrato:l.contrato,
+      mes:l.mes, data:l.data, empresa:l.empresa, vendedora:l.vendedora, categoria:'convenio',
+      categoria_label:'B2B · Convênio/Portal/Pass (6%)', contrato:l.contrato, taxa:l.taxa,
       qtd_transacoes:l.qtd_transacoes, valor:l.total_valor, comissao:l.comissao,
     }));
     _b2bTodasLinhas = parceria.concat(convenio);
@@ -1873,12 +1928,65 @@ function _b2bApplyFilters(linhas){
 });
 document.getElementById('b2b-filtro-empresa').addEventListener('input', renderB2B);
 
+// ── Drilldown "vendas" — clicar numa linha de "Por vendedora" ou "Por empresa
+// vendida" expande a lista de vendas individuais (data, valor da transação,
+// % aplicado, comissão) que compõem aquele total, usando as linhas já
+// carregadas em memória (_b2bLastLinhas, grão de venda) — sem novo fetch.
+function _b2bVendasHtml(vendas){
+  if(!vendas.length) return '<div class="b2b-drill-wrap" style="color:var(--g400)">Sem vendas para este filtro.</div>';
+  const ordenadas = [...vendas].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  return `<div class="b2b-drill-wrap"><table><thead><tr>
+      <th>Data</th><th>Categoria</th><th class="num">Valor da transação</th><th class="num">%</th><th class="num">Comissão</th>
+    </tr></thead><tbody>` +
+    ordenadas.map(v=>`<tr>
+      <td>${v.data||'—'}</td>
+      <td>${v.categoria_label}</td>
+      <td class="num">${Rc(v.valor)}</td>
+      <td class="num">${v.taxa!=null ? avPct(v.taxa) : '—'}</td>
+      <td class="num">${Rc(v.comissao)}</td>
+    </tr>`).join('') +
+    `</tbody></table></div>`;
+}
+function _b2bToggleDrill(rowEl, matchFn){
+  const tbody = rowEl.parentElement;
+  const open = rowEl.classList.contains('b2b-row-open');
+  tbody.querySelectorAll('.b2b-drill-row').forEach(r=>r.remove());
+  tbody.querySelectorAll('.b2b-row-open').forEach(r=>r.classList.remove('b2b-row-open'));
+  if(open) return; // já estava aberta -> só fecha
+  rowEl.classList.add('b2b-row-open');
+  const vendas = _b2bLastLinhas.filter(matchFn);
+  const tr = document.createElement('tr');
+  tr.className = 'b2b-drill-row';
+  const td = document.createElement('td');
+  td.colSpan = rowEl.children.length;
+  td.innerHTML = _b2bVendasHtml(vendas);
+  tr.appendChild(td);
+  rowEl.after(tr);
+}
+document.getElementById('b2b-body').addEventListener('click', e=>{
+  const tr = e.target.closest('tr[data-vend-key]');
+  if(!tr) return;
+  const vendedora = tr.dataset.vendKey;
+  _b2bToggleDrill(tr, l=>l.vendedora===vendedora);
+});
+document.getElementById('b2b-empresa-body').addEventListener('click', e=>{
+  const tr = e.target.closest('tr[data-emp-key]');
+  if(!tr) return;
+  const [empresa, vendedora] = tr.dataset.empKey.split('|||');
+  _b2bToggleDrill(tr, l=>l.empresa===empresa && l.vendedora===vendedora);
+});
+
+// Linhas (grão de venda) atualmente visíveis, mantidas pro drilldown por
+// vendedora/empresa não precisar refazer fetch nem reaplicar filtro.
+let _b2bLastLinhas = [];
+
 function renderB2B(){
   if(!_b2bTodasLinhas) return;
   const dim = n=>(n==='Sem carteira'||n==='Não mapeado');
   const isPendente = l=>l.vendedora==='Aguardando validação';
   const linhas   = _b2bApplyFilters(_b2bTodasLinhas.filter(l=>!isPendente(l)));
   const pendente = _b2bApplyFilters(_b2bTodasLinhas.filter(isPendente));
+  _b2bLastLinhas = linhas;
 
   let totQtd=0, totValor=0, totComissao=0;
   const byVend={}, byEmp={}, byCat={}, porContrato={};
@@ -1914,7 +2022,7 @@ function renderB2B(){
     : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações para este filtro</td></tr>';
 
   const vs = Object.values(byVend).sort((a,b)=>b.valor-a.valor);
-  document.getElementById('b2b-body').innerHTML = vs.length ? vs.map(v=>`<tr${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+  document.getElementById('b2b-body').innerHTML = vs.length ? vs.map(v=>`<tr class="b2b-clickable" title="Clique para ver as vendas" data-vend-key="${escAttr(v.vendedora)}"${dim(v.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
     <td>${v.vendedora}</td>
     <td class="num">${N(v.qtd)}</td>
     <td class="num">${Rc(v.valor)}</td>
@@ -1922,7 +2030,7 @@ function renderB2B(){
     : '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Sem transações para este filtro</td></tr>';
 
   const es = Object.values(byEmp).sort((a,b)=>b.valor-a.valor);
-  document.getElementById('b2b-empresa-body').innerHTML = es.length ? es.map(e=>`<tr${dim(e.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
+  document.getElementById('b2b-empresa-body').innerHTML = es.length ? es.map(e=>`<tr class="b2b-clickable" title="Clique para ver as vendas" data-emp-key="${escAttr(e.empresa+'|||'+e.vendedora)}"${dim(e.vendedora)?' style="color:var(--g400);font-style:italic"':''}>
     <td>${e.empresa}</td>
     <td>${e.vendedora}</td>
     <td style="font-size:.75rem;color:var(--g600)">${[...e.categorias].join(' · ')}</td>
@@ -2141,7 +2249,7 @@ document.querySelectorAll('.filter-btn').forEach(b=>{
 // ── State ─────────────────────────────────────────────────────────────────────
 let txAll=[], apvState={}, currentFilter='all';
 let chartTipo=null, chartGbv=null, chartTrendGbv=null, chartTrendTL=null, chartAvMes=null, chartAvTb=null;
-let selectedVendor='todos', selectedMes='', viewingSelf=true;
+let selectedVendor='todos', selectedMes='', viewingSelf=true, lastTxTarget=null;
 
 // ── Render individual summary ─────────────────────────────────────────────────
 function renderSummary(d){
@@ -3019,10 +3127,10 @@ function renderTx(){
       <td><span class="tx-id">${tx.transaction_id||'—'}</span></td>
       <td>${tx.data_contrato||'—'}</td>
       <td>${clienteCell}</td>
-      <td>${R(tx.gbv)}</td><td>${R(tx.parcela)}</td>
+      <td>${Rf(tx.gbv)}</td><td>${Rf(tx.parcela)}</td>
       <td>${formaCell}</td>`+`
-      <td>${R(tx.gbv_liquido)}${isChurn?'<span class="churn-flag">churn</span>':''}</td>
-      <td>${tx.comissao!=null?R(tx.comissao):'<span style="color:var(--g400)">—</span>'}</td>
+      <td>${Rf(tx.gbv_liquido)}${isChurn?'<span class="churn-flag">churn</span>':''}</td>
+      <td>${tx.comissao!=null?Rf(tx.comissao):'<span style="color:var(--g400)">—</span>'}</td>
       <td><span class="status-badge ${sc}">${sl}</span></td>
       <td>${origemCell}</td>
       <td>${apCell}</td>
@@ -3422,6 +3530,7 @@ function loadData(vendedor){
   }
 
   const target=(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'||ROLE==='tl')&&selectedVendor!=='todos'?selectedVendor:null;
+  lastTxTarget=target;
 
   // TL e gestor-tl buscam aceites junto com os outros dados
   const needsSignoff = ROLE==='tl' || isGestorTL;

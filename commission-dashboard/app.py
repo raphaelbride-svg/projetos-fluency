@@ -859,6 +859,162 @@ def _build_signoff_xls(nome, email, mes_label, cargo, tl, summary, txs) -> bytes
     wb.save(buf)
     return buf.getvalue()
 
+# ── Export genérico (PDF/XLSX) para qualquer tabela do dashboard ─────────────
+# Generaliza _build_signoff_pdf/_build_signoff_xls (mesmo tema visual) para
+# uma tabela arbitrária (título + cabeçalho + linhas), via EXPORT_REGISTRY.
+
+class Column:
+    def __init__(self, key, header, kind="str"):
+        self.key = key        # nome do campo no dict da linha
+        self.header = header
+        self.kind = kind       # "str" | "currency" | "pct" | "int" | "date"
+
+def _fmt_cell(value, kind):
+    if value is None:
+        return "—"
+    if kind == "currency":
+        return _brl(value)
+    if kind == "pct":
+        return f"{float(value) * 100:.2f}%".replace(".", ",")
+    if kind == "int":
+        return str(int(value))
+    return str(value)
+
+def _rows_to_table(columns, rows):
+    header = [c.header for c in columns]
+    data = [[_fmt_cell(r.get(c.key), c.kind) for c in columns] for r in rows]
+    return header, data
+
+def _build_generic_pdf(title, subtitle, header, data) -> bytes:
+    from io import BytesIO
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib import colors
+    from reportlab.lib.units import mm
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    buf = BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=landscape(A4), leftMargin=12*mm, rightMargin=12*mm,
+                            topMargin=12*mm, bottomMargin=12*mm, title=title)
+    ss = getSampleStyleSheet()
+    h = ParagraphStyle("h", parent=ss["Title"], fontSize=15, spaceAfter=2, textColor=colors.HexColor("#7B5CF6"))
+    sub = ParagraphStyle("sub", parent=ss["Normal"], fontSize=9, textColor=colors.HexColor("#64748b"))
+    cell = ParagraphStyle("cell", parent=ss["Normal"], fontSize=7.2, leading=8.6)
+    PURPLE = colors.HexColor("#7B5CF6")
+    el = [Paragraph(title, h), Paragraph(subtitle, sub), Spacer(1, 10)]
+    usable_mm = 297 - 24  # landscape A4 menos as margens laterais
+    col_w = min(45, max(15, usable_mm / max(len(header), 1)))
+    table_data = [header] + [[Paragraph(str(v), cell) for v in row] for row in data]
+    tbl = Table(table_data, repeatRows=1, colWidths=[col_w*mm] * len(header))
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), PURPLE),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 7.2),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f7f8fb")]),
+        ("LINEBELOW", (0, 0), (-1, -1), 0.25, colors.HexColor("#e2e8f0")),
+        ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    el.append(tbl)
+    doc.build(el)
+    return buf.getvalue()
+
+def _build_generic_xlsx(title, subtitle, header, data) -> bytes:
+    from io import BytesIO
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.utils import get_column_letter
+    PURPLE, LIGHT_GRAY, LABEL_CLR = "7B5CF6", "F7F8FB", "64748B"
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = title[:31] or "Export"
+    ncols = len(header)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=max(ncols, 1))
+    ws.cell(1, 1, title).font = Font(name="Calibri", size=14, bold=True, color=PURPLE)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=max(ncols, 1))
+    ws.cell(2, 1, subtitle).font = Font(name="Calibri", size=9, color=LABEL_CLR)
+    hdr_fill, hdr_font = PatternFill("solid", fgColor=PURPLE), Font(bold=True, color="FFFFFF", size=8)
+    for j, hd in enumerate(header, 1):
+        c = ws.cell(4, j, hd)
+        c.font, c.fill, c.alignment = hdr_font, hdr_fill, Alignment(horizontal="center")
+    for idx, row in enumerate(data, start=5):
+        bg = PatternFill("solid", fgColor=(LIGHT_GRAY if idx % 2 == 0 else "FFFFFF"))
+        for j, val in enumerate(row, 1):
+            c = ws.cell(idx, j, val)
+            c.fill, c.font = bg, Font(size=8)
+    max_len = [len(str(h)) for h in header]
+    for row in data:
+        for j, val in enumerate(row):
+            max_len[j] = max(max_len[j], len(str(val)))
+    for j, ml in enumerate(max_len, 1):
+        ws.column_dimensions[get_column_letter(j)].width = min(40, max(10, ml + 2))
+    buf = BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+EXPORT_REGISTRY = {
+    "transactions": {
+        "title": "Transações",
+        "role_check": None,  # RBAC embutido em resolve_target/effective_email
+        "fetch": lambda: _compute_transactions(resolve_target(effective_email()), resolve_month()),
+        "columns": [
+            Column("transaction_id", "Transaction ID"),
+            Column("data_contrato", "Data"),
+            Column("cliente_email", "Cliente"),
+            Column("gbv", "GBV", "currency"),
+            Column("parcela", "Parcela", "currency"),
+            Column("forma_pagamento", "Forma"),
+            Column("gbv_liquido", "GBV Líq.", "currency"),
+            Column("comissao", "Comissão", "currency"),
+            Column("transaction_status", "Status"),
+            Column("origem", "Origem"),
+        ],
+    },
+}
+
+def _export_subtitle(mes):
+    from datetime import datetime
+    return f"Competência: {mes} · Gerado por {session.get('email', '')} em {datetime.now():%d/%m/%Y %H:%M}"
+
+def _resolve_export_dataset():
+    key = request.args.get("dataset", "")
+    entry = EXPORT_REGISTRY.get(key)
+    if not entry:
+        return None, (jsonify({"error": "dataset desconhecido"}), 404)
+    role_check = entry.get("role_check")
+    if role_check and not role_check():
+        return None, (jsonify({"error": "forbidden"}), 403)
+    return entry, None
+
+@app.route("/api/export/pdf")
+@login_required
+def api_export_pdf():
+    entry, err = _resolve_export_dataset()
+    if err:
+        return err
+    rows = entry["fetch"]()
+    header, data = _rows_to_table(entry["columns"], rows)
+    pdf_bytes = _build_generic_pdf(entry["title"], _export_subtitle(resolve_month()), header, data)
+    from io import BytesIO
+    from flask import send_file
+    return send_file(BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True,
+                      download_name=f"{request.args.get('dataset')}_{resolve_month()}.pdf")
+
+@app.route("/api/export/xlsx")
+@login_required
+def api_export_xlsx():
+    entry, err = _resolve_export_dataset()
+    if err:
+        return err
+    rows = entry["fetch"]()
+    header, data = _rows_to_table(entry["columns"], rows)
+    xlsx_bytes = _build_generic_xlsx(entry["title"], _export_subtitle(resolve_month()), header, data)
+    from io import BytesIO
+    from flask import send_file
+    return send_file(BytesIO(xlsx_bytes),
+                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      as_attachment=True, download_name=f"{request.args.get('dataset')}_{resolve_month()}.xlsx")
+
 def _render_comissao_chart(dados: dict) -> bytes:
     """PNG bytes: barra empilhada GBV líquido+churn + callout comissão. Headless (Agg)."""
     import matplotlib
@@ -2571,11 +2727,16 @@ def api_assist_vs_vendedor():
 def api_b2b_parceria():
     if _get_role_data()["role"] not in ("master", "gestor"):
         return jsonify({"error": "forbidden"}), 403
+    # Grão de VENDA individual (não agregado) — necessário pro drilldown "vendas"
+    # na UI (data, valor da transação, comissão, %); a agregação por categoria/
+    # vendedora/empresa continua toda client-side, só que agora em cima de mais
+    # linhas (uma por transação em vez de uma por mês×empresa×vendedora).
     rows = run_query("""
         WITH src AS (
           SELECT
             FORMAT_DATE('%Y-%m', DATE(approved_date_brt)) AS mes,
-            LOWER(TRIM(tracking_source)) AS tag_norm,
+            DATE(approved_date_brt)                        AS data,
+            LOWER(TRIM(tracking_source))                   AS tag_norm,
             purchase_amount
           FROM `fluency-silver.hotmart.transactions`
           WHERE LOWER(product_name) LIKE '%f.corporate%'
@@ -2583,36 +2744,36 @@ def api_b2b_parceria():
         )
         SELECT
           src.mes                    AS mes,
+          src.data                   AS data,
           COALESCE(m.tag_empresa, 'Não mapeado') AS empresa,
           CASE
             WHEN m.carteira IS NULL THEN 'Não mapeado'
             WHEN m.carteira IN ('Avulso', '-') THEN 'Sem carteira'
             ELSE m.carteira
           END                        AS vendedora,
-          COUNT(*)                   AS qtd_transacoes,
-          SUM(src.purchase_amount)   AS total_purchase_amount
+          src.purchase_amount        AS purchase_amount
         FROM src
         LEFT JOIN `fluency-finance.commission.b2b_carteira_map` m
           ON m.tag_empresa_norm = src.tag_norm
-        GROUP BY 1, 2, 3
-        ORDER BY 1 DESC, 5 DESC
+        ORDER BY src.data DESC
     """, [], cache_ttl=90)
     linhas = []
     for r in rows:
-        amt = float(r["total_purchase_amount"] or 0)
-        qtd = int(r["qtd_transacoes"] or 0)
+        amt = float(r["purchase_amount"] or 0)
         linhas.append({
             "mes": r["mes"],
+            "data": str(r["data"]) if r["data"] else None,
             "empresa": r["empresa"],
             "vendedora": r["vendedora"],
-            "qtd_transacoes": qtd,
+            "qtd_transacoes": 1,
             "total_purchase_amount": round(amt, 2),
+            "taxa": 0.03,
             "comissao": round(amt * 0.03, 2),
         })
     return jsonify({
         "modelo": "Parceria",
         "linhas": linhas,
-        "fonte": "Modelo B2B · Parceria (b2b2c) — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Grão: mês × empresa (tag_empresa) × vendedora (carteira). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
+        "fonte": "Modelo B2B · Parceria (b2b2c) — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Grão: 1 linha por venda (transação). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
     })
 
 
@@ -2633,11 +2794,15 @@ def api_b2b_parceria():
 def api_b2b():
     if _get_role_data()["role"] not in ("master", "gestor"):
         return jsonify({"error": "forbidden"}), 403
+    # Grão de VENDA individual (não agregado) — necessário pro drilldown "vendas"
+    # na UI (data, valor da transação, comissão, %); a agregação por categoria/
+    # vendedora/empresa continua toda client-side, só que agora em cima de mais
+    # linhas (uma por lançamento da aba Entradas em vez de uma por mês×empresa×
+    # contrato×vendedora).
     rows = run_query("""
-        SELECT mes, empresa, contrato, vendedora, COUNT(*) AS qtd, SUM(valor) AS total
+        SELECT mes, empresa, contrato, vendedora, data_confirmacao, valor
         FROM `fluency-finance.commission.b2b_entradas_snapshot`
-        GROUP BY 1, 2, 3, 4
-        ORDER BY 1 DESC, 6 DESC
+        ORDER BY data_confirmacao DESC
     """, [], cache_ttl=90)
     # Exceção Raphael 2026-07-07: contas "Unico Skill" (qualquer grafia, ex.
     # "Unico Skill (SKILLHUB)"/"Unico Skill (Skillhub)") comissionam a 3%, não
@@ -2645,20 +2810,23 @@ def api_b2b():
     linhas = []
     for r in rows:
         empresa = r["empresa"] or ""
+        valor = float(r["valor"] or 0)
         taxa = 0.03 if empresa.strip().lower().startswith("unico skill") else 0.06
         linhas.append({
             "mes": r["mes"],
+            "data": str(r["data_confirmacao"]) if r["data_confirmacao"] else None,
             "empresa": r["empresa"],
             "contrato": r["contrato"],
             "vendedora": r["vendedora"],
-            "qtd_transacoes": int(r["qtd"] or 0),
-            "total_valor": round(float(r["total"] or 0), 2),
-            "comissao": round(float(r["total"] or 0) * taxa, 2),
+            "qtd_transacoes": 1,
+            "total_valor": round(valor, 2),
+            "taxa": taxa,
+            "comissao": round(valor * taxa, 2),
         })
     return jsonify({
         "modelo": "B2B",
         "linhas": linhas,
-        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira) — EXCEÇÃO: contas \"Unico Skill\" comissionam a 3%. Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: mês × empresa (Comprador) × contrato × vendedora.",
+        "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira) — EXCEÇÃO: contas \"Unico Skill\" comissionam a 3%. Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: 1 linha por venda (lançamento).",
     })
 
 
