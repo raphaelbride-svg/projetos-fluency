@@ -970,6 +970,20 @@ EXPORT_REGISTRY = {
             Column("origem", "Origem"),
         ],
     },
+    "ranking": {
+        "title": "Ranking",
+        "role_check": None,  # RBAC embutido em _compute_ranking (vendedor/gestor-todos veem lista vazia)
+        "fetch": lambda: _compute_ranking().get("rows", []),
+        "columns": [
+            Column("posicao", "#", "int"),
+            Column("label", "Vendedor"),
+            Column("gbv_liquido", "GBV Líquido", "currency"),
+            Column("atingimento", "Atingimento", "pct"),
+            Column("comissao_final", "Comissão Final", "currency"),
+            Column("valor_meta", "Meta", "currency"),
+            Column("gestor_label", "TL"),
+        ],
+    },
 }
 
 def _export_subtitle(mes):
@@ -1695,6 +1709,9 @@ def api_financial_summary():
 @app.route("/api/ranking")
 @login_required
 def api_ranking():
+    return jsonify(_compute_ranking())
+
+def _compute_ranking():
     email     = effective_email()
     mes       = resolve_month()
     role_data = _get_role_data()
@@ -1702,7 +1719,7 @@ def api_ranking():
 
     # Vendedores nunca veem ranking
     if role == "vendedor":
-        return jsonify({"rows": [], "team": None, "visible": False})
+        return {"rows": [], "team": None, "visible": False}
 
     if role == "tl":
         rows_bq = run_query(_RANKING_SQL_TEAM, [
@@ -1716,7 +1733,7 @@ def api_ranking():
         selected = request.args.get("vendedor", "").strip().lower()
         if not selected or selected == "todos":
             # Gestor overview uses /api/tl-summary; ranking hidden
-            return jsonify({"rows": [], "team": _build_team_totals(mes), "visible": False})
+            return {"rows": [], "team": _build_team_totals(mes), "visible": False}
         # Drill into a specific TL
         rows_bq   = run_query(_RANKING_SQL_TEAM, [
             bigquery.ScalarQueryParameter("mes",      "DATE",   mes),
@@ -1781,23 +1798,29 @@ def api_ranking():
             "atingimento":    atingimento,
             "multiplicador":  multiplicador,
             "comissao_final": comissao_final,
-            "valor_meta":     valor_meta if role in READ_ALL_ROLES else 0,
+            "valor_meta":     valor_meta,
             "gestor_label":   _name_from_email(gestor_raw) if (role in READ_ALL_ROLES and gestor_raw and not gestor_raw.startswith("#")) else None,
             "nota_fim_mes":   _is_newcomer_assist(vend_email, mes),
         })
 
     team = _build_team_totals(mes, tl_filter)
-    return jsonify({"rows": result, "team": team, "visible": True})
+    return {"rows": result, "team": team, "visible": True}
 
 
 # ── API: TL summary (gestor view) ─────────────────────────────────────────────
 
+_EXPORT_ROLE_CHECKS = {
+    "tl_summary": lambda: _get_role_data()["role"] in ("gestor", "master", "people_ops"),
+}
+
 @app.route("/api/tl-summary")
 @login_required
 def api_tl_summary():
-    role_data = _get_role_data()
-    if role_data["role"] not in ("gestor", "master", "people_ops"):
+    if not _EXPORT_ROLE_CHECKS["tl_summary"]():
         return jsonify({"error": "forbidden"}), 403
+    return jsonify(_compute_tl_summary())
+
+def _compute_tl_summary():
     mes = resolve_month()
     sql = """
         WITH tl_teams AS (
@@ -1878,7 +1901,22 @@ def api_tl_summary():
             "tl_own_mult":     float(r["tl_own_mult"])     if r["tl_own_mult"]     is not None else 0.0,
             "tl_own_comissao": float(r["tl_own_comissao"]) if r["tl_own_comissao"] is not None else 0.0,
         })
-    return jsonify(result)
+    return result
+
+EXPORT_REGISTRY["tl_summary"] = {
+    "title": "Resumo por Time",
+    "role_check": _EXPORT_ROLE_CHECKS["tl_summary"],
+    "fetch": _compute_tl_summary,
+    "columns": [
+        Column("label", "Time Leader"),
+        Column("team_gbv", "GBV do Time", "currency"),
+        Column("team_meta", "Meta do Time", "currency"),
+        Column("team_comissao", "Comissão do Time", "currency"),
+        Column("member_count", "Nº Membros", "int"),
+        Column("tl_own_gbv", "GBV Próprio", "currency"),
+        Column("tl_own_comissao", "Comissão Própria", "currency"),
+    ],
+}
 
 
 # ── API: Produtividade por horário (master + gestor) ──────────────────────────
@@ -2430,6 +2468,9 @@ def api_presence():
 def api_access_log():
     if not is_master():
         return jsonify({"error": "forbidden"}), 403
+    return jsonify(_compute_access_log())
+
+def _compute_access_log():
     by_user = run_query("""
         SELECT
           email,
@@ -2454,14 +2495,43 @@ def api_access_log():
         ORDER BY accessed_at DESC
         LIMIT 100
     """)
-    return jsonify({"by_user": _serialize_access(by_user), "recent": _serialize_access(recent)})
+    return {"by_user": _serialize_access(by_user), "recent": _serialize_access(recent)}
+
+_EXPORT_ROLE_CHECKS["access_log"] = is_master
+_ACCESS_LOG_COLUMNS = [
+    Column("email", "E-mail"),
+    Column("role", "Papel"),
+    Column("acessos", "Acessos", "int"),
+    Column("ultimo_acesso", "Último Acesso"),
+]
+EXPORT_REGISTRY["access_log_by_user"] = {
+    "title": "Acessos por Colaborador",
+    "role_check": _EXPORT_ROLE_CHECKS["access_log"],
+    "fetch": lambda: _compute_access_log()["by_user"],
+    "columns": _ACCESS_LOG_COLUMNS,
+}
+EXPORT_REGISTRY["access_log_recent"] = {
+    "title": "Acessos Recentes",
+    "role_check": _EXPORT_ROLE_CHECKS["access_log"],
+    "fetch": lambda: _compute_access_log()["recent"],
+    "columns": [
+        Column("email", "E-mail"),
+        Column("role", "Papel"),
+        Column("accessed_at", "Acessado em"),
+        Column("ip", "IP"),
+    ],
+}
+
+_EXPORT_ROLE_CHECKS["payroll_impact"] = lambda: _get_role_data()["role"] == "master"
 
 @app.route("/api/payroll-impact")
 @login_required
 def api_payroll_impact():
-    if _get_role_data()["role"] != "master":
+    if not _EXPORT_ROLE_CHECKS["payroll_impact"]():
         return jsonify({"error": "forbidden"}), 403
+    return jsonify(_compute_payroll_impact())
 
+def _compute_payroll_impact():
     mes = resolve_month()   # competence month
     pay_year, pay_month = _payment_month(mes)
 
@@ -2543,7 +2613,7 @@ def api_payroll_impact():
         tot_reflexo += reflexo
 
     mes_d = date.fromisoformat(mes)
-    return jsonify({
+    return {
         "mes_competencia_label": _MESES_PT[mes_d.month - 1] + " " + str(mes_d.year),
         "mes_pagamento_label":   _MESES_PT[pay_month - 1]   + " " + str(pay_year),
         "dsr_factor":            dsr_fact,
@@ -2557,7 +2627,28 @@ def api_payroll_impact():
             "reflexo":  tot_reflexo,
             "total":    tot_com + tot_dsr + tot_reflexo,
         },
-    })
+    }
+
+def _payroll_impact_rows():
+    data = _compute_payroll_impact()
+    rows = list(data["vendedores"])
+    t = data["totais"]
+    rows.append({"label": "TOTAL", "comissao": t["comissao"], "dsr": t["dsr"],
+                 "reflexo": t["reflexo"], "total": t["total"]})
+    return rows
+
+EXPORT_REGISTRY["payroll_impact"] = {
+    "title": "Impacto em Folha",
+    "role_check": _EXPORT_ROLE_CHECKS["payroll_impact"],
+    "fetch": _payroll_impact_rows,
+    "columns": [
+        Column("label", "Vendedor"),
+        Column("comissao", "Comissão", "currency"),
+        Column("dsr", "DSR", "currency"),
+        Column("reflexo", "Reflexo/Encargos", "currency"),
+        Column("total", "Total Folha", "currency"),
+    ],
+}
 
 
 # ── API: Assistente × Vendedor (rentabilidade — master only) ───────────────────
@@ -2722,11 +2813,16 @@ def api_assist_vs_vendedor():
 # Retorna o grão detalhado (mês × empresa × vendedora, 2026-07-06) — os filtros de
 # mês/vendedora/empresa do dashboard e as agregações (por vendedora, por empresa)
 # são todos client-side em cima dessa lista, o volume é pequeno (~2.5k transações).
+_EXPORT_ROLE_CHECKS["b2b_parceria"] = lambda: _get_role_data()["role"] in ("master", "gestor")
+
 @app.route("/api/b2b-parceria")
 @login_required
 def api_b2b_parceria():
-    if _get_role_data()["role"] not in ("master", "gestor"):
+    if not _EXPORT_ROLE_CHECKS["b2b_parceria"]():
         return jsonify({"error": "forbidden"}), 403
+    return jsonify(_compute_b2b_parceria())
+
+def _compute_b2b_parceria():
     # Grão de VENDA individual (não agregado) — necessário pro drilldown "vendas"
     # na UI (data, valor da transação, comissão, %); a agregação por categoria/
     # vendedora/empresa continua toda client-side, só que agora em cima de mais
@@ -2770,11 +2866,25 @@ def api_b2b_parceria():
             "taxa": 0.03,
             "comissao": round(amt * 0.03, 2),
         })
-    return jsonify({
+    return {
         "modelo": "Parceria",
         "linhas": linhas,
         "fonte": "Modelo B2B · Parceria (b2b2c) — fluency-silver.hotmart.transactions (product_name LIKE '%f.corporate%', status COMPLETE/APPROVED) × commission.b2b_carteira_map (de-para AUX) por tracking_source. Comissão = purchase_amount × 3%. \"Sem carteira\" = tag existe na AUX mas sem dono definido (Avulso/-). \"Não mapeado\" = tag sem correspondência na AUX (ou transação sem tracking_source). Grão: 1 linha por venda (transação). Outros modelos B2B (Convênio, Subsídio Parcial) têm regra e endpoint próprios.",
-    })
+    }
+
+EXPORT_REGISTRY["b2b_parceria"] = {
+    "title": "B2B · Parceria",
+    "role_check": _EXPORT_ROLE_CHECKS["b2b_parceria"],
+    "fetch": lambda: _compute_b2b_parceria()["linhas"],
+    "columns": [
+        Column("mes", "Mês"),
+        Column("data", "Data"),
+        Column("empresa", "Empresa"),
+        Column("vendedora", "Vendedora"),
+        Column("total_purchase_amount", "Valor", "currency"),
+        Column("comissao", "Comissão", "currency"),
+    ],
+}
 
 
 # ── API: B2B (Entradas, AC="B2B") — Convênio + Portal de Benefícios + Fluency
@@ -2789,11 +2899,16 @@ def api_b2b_parceria():
 # com #REF! na coluna AI (fórmula quebrada na sheet) — EXCLUÍDO dos totais
 # oficiais até o Raphael corrigir e o snapshot ser refeito (decisão 2026-07-06).
 # "Sem carteira" = coluna AI vazia ou "-" — ENTRA no total (decisão 2026-07-06).
+_EXPORT_ROLE_CHECKS["b2b"] = lambda: _get_role_data()["role"] in ("master", "gestor")
+
 @app.route("/api/b2b")
 @login_required
 def api_b2b():
-    if _get_role_data()["role"] not in ("master", "gestor"):
+    if not _EXPORT_ROLE_CHECKS["b2b"]():
         return jsonify({"error": "forbidden"}), 403
+    return jsonify(_compute_b2b())
+
+def _compute_b2b():
     # Grão de VENDA individual (não agregado) — necessário pro drilldown "vendas"
     # na UI (data, valor da transação, comissão, %); a agregação por categoria/
     # vendedora/empresa continua toda client-side, só que agora em cima de mais
@@ -2823,11 +2938,26 @@ def api_b2b():
             "taxa": taxa,
             "comissao": round(valor * taxa, 2),
         })
-    return jsonify({
+    return {
         "modelo": "B2B",
         "linhas": linhas,
         "fonte": "Modelo B2B — aba Entradas (planilha Comissionamento B2C), AC=\"B2B\" (Convênio + Portal de Benefícios + Fluency Pass + Subsídio Parcial). Comissão = coluna L (Valor de compra com impostos) × 6%, por vendedora (Carteira) — EXCEÇÃO: contas \"Unico Skill\" comissionam a 3%. Snapshot estático (pipeline/load_b2b_entradas.py) — a sheet é editada ao vivo. \"Sem carteira\" entra no total; \"Aguardando validação\" (#REF! na sheet, vendedora='Aguardando validação') fica FORA do total oficial até correção. Grão: 1 linha por venda (lançamento).",
-    })
+    }
+
+EXPORT_REGISTRY["b2b"] = {
+    "title": "B2B · Convênio",
+    "role_check": _EXPORT_ROLE_CHECKS["b2b"],
+    "fetch": lambda: _compute_b2b()["linhas"],
+    "columns": [
+        Column("mes", "Mês"),
+        Column("data", "Data"),
+        Column("empresa", "Empresa"),
+        Column("contrato", "Contrato"),
+        Column("vendedora", "Vendedora"),
+        Column("total_valor", "Valor", "currency"),
+        Column("comissao", "Comissão", "currency"),
+    ],
+}
 
 
 # ── API: transactions ─────────────────────────────────────────────────────────
@@ -3764,6 +3894,9 @@ def api_extras_decision(eid):
 @app.route("/api/receivables")
 @login_required
 def api_receivables():
+    return jsonify(_compute_receivables())
+
+def _compute_receivables():
     target = resolve_target(effective_email())
     mes    = resolve_month()
     sql = """
@@ -3793,7 +3926,19 @@ def api_receivables():
             "parcelas":      int(r["parcelas"]),
             "valor":         float(r["valor"]),
         })
-    return jsonify(result)
+    return result
+
+EXPORT_REGISTRY["receivables"] = {
+    "title": "Recebíveis",
+    "role_check": None,  # RBAC embutido em resolve_target/effective_email
+    "fetch": _compute_receivables,
+    "columns": [
+        Column("mes_pagamento", "Mês de Pagamento"),
+        Column("status", "Status"),
+        Column("parcelas", "Parcelas", "int"),
+        Column("valor", "Valor", "currency"),
+    ],
+}
 
 # ── Drive / Sheets helpers ────────────────────────────────────────────────────
 

@@ -456,7 +456,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 
     <!-- ── Seção: Team Leaders (gestor overview) ── -->
     <div class="section" id="section-tl-summary" style="display:none">
-      <div class="section-title">Team Leaders — clique para detalhar</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span>Team Leaders — clique para detalhar</span>
+        <div id="tl-summary-export-slot"></div>
+      </div>
       <div class="tbl-card">
         <table>
           <thead>
@@ -485,7 +488,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 
     <!-- ── Seção: Impacto em Folha (gestor/master overview) ── -->
     <div class="section" id="section-payroll" style="display:none">
-      <div class="section-title">Impacto em Folha</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span>Impacto em Folha</span>
+        <div id="payroll-export-slot"></div>
+      </div>
       <div class="info-bar" id="payroll-info-bar">
         <span>Calculando…</span>
       </div>
@@ -604,7 +610,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
 
     <!-- ── Ranking ── -->
     <div class="section" id="section-ranking">
-      <div class="section-title" id="ranking-title">Ranking do time</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span id="ranking-title">Ranking do time</span>
+        <div id="ranking-export-slot"></div>
+      </div>
       <div class="tbl-card">
         <table>
           <thead id="ranking-thead"><tr><th>#</th><th>Vendedor</th><th class="num">GBV Líquido</th><th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th></tr></thead>
@@ -744,7 +753,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         </div>
       </div>
       <div class="section">
-        <div class="section-title">Detalhe por mês</div>
+        <div class="section-title" style="justify-content:space-between">
+          <span>Detalhe por mês</span>
+          <div id="receivables-export-slot"></div>
+        </div>
         <div class="tbl-card">
           <table class="tx-tbl">
             <thead>
@@ -766,14 +778,20 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
       <p style="font-size:.85rem;color:var(--g600);margin-top:2px">Quem abriu o painel, quando e com qual papel.</p>
     </div>
     <div class="section">
-      <div class="section-title">Por colaborador</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span>Por colaborador</span>
+        <div id="acessos-user-export-slot"></div>
+      </div>
       <div class="tbl-card"><table>
         <thead><tr><th>Colaborador</th><th>Papel</th><th class="num">Acessos</th><th>Último acesso</th></tr></thead>
         <tbody id="acessos-user-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
       </table></div>
     </div>
     <div class="section">
-      <div class="section-title">Acessos recentes (últimos 100)</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span>Acessos recentes (últimos 100)</span>
+        <div id="acessos-recent-export-slot"></div>
+      </div>
       <div class="tbl-card"><table>
         <thead><tr><th>Quando</th><th>Colaborador</th><th>Papel</th><th>IP</th></tr></thead>
         <tbody id="acessos-recent-body"></tbody>
@@ -832,7 +850,10 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     <div id="b2b-pendente-banner" style="display:none;margin-bottom:16px;padding:10px 14px;border-radius:10px;background:#fef3c7;color:#92400e;font-size:.8rem"></div>
 
     <div class="section">
-      <div class="section-title">Por categoria</div>
+      <div class="section-title" style="justify-content:space-between">
+        <span>Por categoria</span>
+        <div id="b2b-export-slot"></div>
+      </div>
       <div class="tbl-card"><table>
         <thead><tr><th>Categoria</th><th class="num">Transações</th><th class="num">Valor Total</th><th class="num">Comissão</th></tr></thead>
         <tbody id="b2b-categoria-body"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--g400)">Carregando…</td></tr></tbody>
@@ -1316,7 +1337,9 @@ function toast(msg){
 
 // ── Export genérico (PDF/XLS/Google Sheets) ────────────────────────────────────
 // containerEl: onde o botão "Exportar" é inserido. datasetKey: chave no EXPORT_REGISTRY
-// (backend). getFilters: função que devolve {mes, vendedor, ...} do estado atual da tela.
+// (backend) OU uma função que devolve a chave dinamicamente (ex.: B2B alterna modelo
+// via filtro de Categoria). getFilters: função que devolve {mes, vendedor, ...} do
+// estado atual da tela.
 function attachExportMenu(containerEl, datasetKey, getFilters){
   const wrap=document.createElement('div');
   wrap.className='export-menu';
@@ -1339,7 +1362,8 @@ function attachExportMenu(containerEl, datasetKey, getFilters){
       dropdown.style.display='none';
       const fmt=btn.dataset.fmt;
       const filters=getFilters()||{};
-      const params=new URLSearchParams({dataset:datasetKey});
+      const dataset=(typeof datasetKey==='function')?datasetKey():datasetKey;
+      const params=new URLSearchParams({dataset});
       Object.entries(filters).forEach(([k,v])=>{ if(v) params.set(k,v); });
       if(fmt==='sheets'){
         toast('Gerando planilha…');
@@ -2249,6 +2273,22 @@ document.querySelectorAll('.filter-btn').forEach(b=>{
 
 attachExportMenu(document.getElementById('tx-export-slot'), 'transactions',
   ()=>({mes:selectedMes, vendedor:lastTxTarget}));
+attachExportMenu(document.getElementById('ranking-export-slot'), 'ranking',
+  ()=>({mes:selectedMes, vendedor:lastTxTarget}));
+attachExportMenu(document.getElementById('receivables-export-slot'), 'receivables',
+  ()=>({mes:selectedMes, vendedor:lastTxTarget}));
+attachExportMenu(document.getElementById('tl-summary-export-slot'), 'tl_summary',
+  ()=>({mes:selectedMes}));
+attachExportMenu(document.getElementById('payroll-export-slot'), 'payroll_impact',
+  ()=>({mes:selectedMes}));
+attachExportMenu(document.getElementById('acessos-user-export-slot'), 'access_log_by_user', ()=>({}));
+attachExportMenu(document.getElementById('acessos-recent-export-slot'), 'access_log_recent', ()=>({}));
+attachExportMenu(document.getElementById('b2b-export-slot'),
+  ()=>document.getElementById('b2b-filtro-categoria').value==='parceria' ? 'b2b_parceria' : 'b2b',
+  ()=>{
+    const mes=document.getElementById('b2b-filtro-mes').value;
+    return {mes: mes==='todos' ? undefined : mes};
+  });
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let txAll=[], apvState={}, currentFilter='all';
@@ -2453,7 +2493,7 @@ function renderRanking(data){
     </tr>`;
   } else {
     thead.innerHTML=`<tr>
-      <th>#</th><th>Vendedor</th><th class="num">GBV Líquido</th>
+      <th>#</th><th>Vendedor</th><th class="num">Meta</th><th class="num">GBV Líquido</th>
       <th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>
     </tr>`;
   }
@@ -2461,7 +2501,7 @@ function renderRanking(data){
   const tbody=document.getElementById('ranking-body');
   tbody.innerHTML='';
   if(!rows.length){
-    const cols=isMasterTodos?8:6;
+    const cols=isMasterTodos?8:7;
     tbody.innerHTML=`<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--g400)">Nenhum dado disponível</td></tr>`;
     return;
   }
@@ -2498,6 +2538,7 @@ function renderRanking(data){
       tr.innerHTML=`
         <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
         <td>${r.label}${newcomerTag}</td>
+        <td class="num">${r.valor_meta>0?R(r.valor_meta):'—'}</td>
         <td class="num">${R(r.gbv_liquido)}</td>
         <td class="num">${r.atingimento>0?P(r.atingimento):'—'}</td>
         <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
