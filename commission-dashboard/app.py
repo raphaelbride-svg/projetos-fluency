@@ -117,12 +117,12 @@ _OTE_BY_MODELO: dict[str, float] = {"assistente": 4000.0, "tl_novo": 7000.0}
 def _mult_for_modelo(modelo: str, at: float) -> float | None:
     """Multiplicador pela tabela do modelo. None = modelo sem escada definida (coord)."""
     if modelo == "analista":
-        if at < 0.75: return 0.3
-        if at < 0.98: return 0.5
+        # PDF "3 - Comissionamento Analistas Comerciais": 5 faixas, teto 1,3x em >=130%.
+        if at < 0.80: return 0.3
+        if at < 0.95: return 0.5
         if at < 1.20: return 1.0
         if at < 1.30: return 1.2
-        if at < 1.50: return 1.3
-        return 1.5
+        return 1.3
     if modelo == "deluchi":   # Recuperação: tabela própria (máx 1,3×, limiares distintos)
         if at < 0.80: return 0.5
         if at < 0.95: return 0.8
@@ -1338,12 +1338,20 @@ def api_summary():
         if new_mult is not None:
             row["multiplicador"] = new_mult
             if modelo in _RATES_BY_MODELO:
-                # Comissão transacional: soma a contribuição dos extras por modalidade
+                # Comissão transacional: soma a contribuição dos extras por modalidade —
+                # também nos 3 campos por modalidade (comissao_a_vista/parcelado/inteligente),
+                # não só no total, porque o donut "Por tipo de cobrança" (renderSummary) lê
+                # esses 3 campos direto — sem isso, HP aprovada engorda a comissão final mas
+                # nunca aparece na fatia do gráfico.
                 rates = _RATES_BY_MODELO[modelo]
-                extras_com = sum(
-                    float(e.get("gbv") or 0) * rates.get(e.get("modality_payment") or "", 0)
-                    for e in extras
-                )
+                extras_by_mod: dict[str, float] = {}
+                for e in extras:
+                    mod = e.get("modality_payment") or ""
+                    extras_by_mod[mod] = extras_by_mod.get(mod, 0.0) + float(e.get("gbv") or 0) * rates.get(mod, 0)
+                extras_com = sum(extras_by_mod.values())
+                row["comissao_a_vista"]     = float(row.get("comissao_a_vista") or 0) + extras_by_mod.get("a vista", 0.0)
+                row["comissao_parcelado"]   = float(row.get("comissao_parcelado") or 0) + extras_by_mod.get("parcelado", 0.0)
+                row["comissao_inteligente"] = float(row.get("comissao_inteligente") or 0) + extras_by_mod.get("inteligente", 0.0)
                 new_total = float(row.get("total_comissao") or 0) + extras_com
                 row["total_comissao"]      = new_total
                 row["vlr_final_comissao"]  = new_total * new_mult
