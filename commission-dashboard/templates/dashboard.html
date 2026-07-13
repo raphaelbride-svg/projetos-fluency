@@ -3615,8 +3615,13 @@ async function initMonths(vend){
   selectedMes=sel.value;
   sel.onchange=async ()=>{
     selectedMes=sel.value;
-    // Mês → Colaborador: reconstrói os colaboradores ativos do mês e volta p/ visão geral
-    if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'||ROLE==='tl'){
+    // Mês → Colaborador: reconstrói os colaboradores ativos do mês e volta p/ visão geral.
+    // Simulação "Ver como" (viewAs='tl'/'vendedor') usa o seletor de pessoa (initPersonPicker),
+    // NÃO o initVendorSelect (esse é só p/ papel real) — senão o troca-de-mês colapsa o picker
+    // "TL: <lista de TLs>" de volta pro genérico "Vendedor: Minha equipe".
+    if(viewAs==='tl' || viewAs==='vendedor'){
+      await initPersonPicker(viewAs);
+    } else if(MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador'||ROLE==='tl'){
       await initVendorSelect();
       loadData('todos');
     } else {
