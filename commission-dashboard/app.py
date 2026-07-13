@@ -3091,18 +3091,31 @@ def _compute_transactions(target, mes):
         is_churn = int(e["is_churn"]) if e.get("is_churn") is not None else 0
         st_tl, st_coord = e.get("status_tl") or "pendente", e.get("status_coord") or "pendente"
         efetivo = (st_tl == "aprovado" and st_coord == "aprovado")
+        liq_e = 0.0 if is_churn else gbv
+        modality_e = (e.get("modality_payment") or "").strip().lower()
+        # HP efetivamente aprovada (TL+coord) já soma no GBV/comissão final (_approved_extras) —
+        # a coluna Comissão da linha tem que refletir isso, não ficar em branco.
+        if efetivo:
+            if rates and modality_e in rates:
+                comissao_e = round(liq_e * rates[modality_e] * mult, 2)
+            elif ote_rate is not None:
+                comissao_e = round(liq_e * ote_rate, 2)
+            else:
+                comissao_e = None
+        else:
+            comissao_e = None
         rows.append({
             "transaction_id":     e.get("transaction_id"),
             "transaction_status": "aprovado" if efetivo else "pendente",
             "data_contrato":      str(e["created_at"])[:10] if e.get("created_at") else None,
             "gbv":                gbv,
             "parcela":            gbv,
-            "gbv_liquido":        0.0 if is_churn else gbv,
+            "gbv_liquido":        liq_e,
             "is_churn":           is_churn,
-            "comissao":           None,
+            "comissao":           comissao_e,
             "recebivel":          "a_receber",
             "origem":             "extra",
-            "forma_pagamento":    (e.get("modality_payment") or "").strip().lower() or None,
+            "forma_pagamento":    modality_e or None,
             "cliente_email":      e.get("cliente_email"),
             "aprovacao_hp":       {"id": e.get("id"), "status_tl": st_tl, "status_coord": st_coord},
         })
