@@ -319,6 +319,16 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
     </select>
     <div class="filter-sep"></div>
   </div>
+  <div id="tl-periodo-wrap" style="display:none;align-items:center;gap:8px">
+    <div class="prod-metric-toggle" id="periodo-toggle" style="margin:0">
+      <button type="button" class="prod-metric-btn active" data-periodo="mes">Mês inteiro</button>
+      <button type="button" class="prod-metric-btn" data-periodo="hoje">Hoje</button>
+      <button type="button" class="prod-metric-btn" data-periodo="semana">Semana atual</button>
+      <button type="button" class="prod-metric-btn" data-periodo="data">Data específica</button>
+    </div>
+    <input type="date" id="periodo-data-input" class="f-select" style="display:none">
+    <div class="filter-sep"></div>
+  </div>
   <div id="gestor-vendor-wrap" style="display:none;align-items:center;gap:10px">
     <label for="gestor-vendor-select">Vendedor:</label>
     <select class="f-select vendor-select" id="gestor-vendor-select">
@@ -717,6 +727,7 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
         <table class="tx-tbl" style="min-width:1180px">
           <thead>
             <tr>
+              <th id="tx-th-vendedor" style="display:none">Vendedor</th>
               <th>Transaction ID</th><th>Data</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
               <th>GBV Líquido</th><th>Comissão</th><th>Status Hotmart</th><th>Origem</th><th>Aprovação</th><th>Status Pedido HP</th>
             </tr>
@@ -2295,6 +2306,11 @@ let txAll=[], apvState={}, currentFilter='all';
 let chartTipo=null, chartGbv=null, chartTrendGbv=null, chartTrendTL=null, chartAvMes=null, chartAvTb=null;
 let selectedVendor='todos', selectedMes='', viewingSelf=true, lastTxTarget=null;
 
+// ── Filtro de período (Hoje/Semana atual/Data específica) — visão do TL ────────
+// Complementa o filtro de Mês (que continua sendo a única fonte de Atingimento/
+// Comissão — esses nunca são recalculados aqui, só GBV/qtd e a lista de transações).
+let tlPeriodo='mes', tlPeriodoData='', periodoCache=null, _lastRankingData=null;
+
 // ── Render individual summary ─────────────────────────────────────────────────
 function renderSummary(d){
   const comp=d.competencia ? monthLong(d.competencia) : '';
@@ -2479,29 +2495,37 @@ function _buildComissaoMap(rankingData){
 
 // ── Render ranking ────────────────────────────────────────────────────────────
 function renderRanking(data){
+  _lastRankingData=data;   // guarda p/ re-render quando só o filtro de período muda (sem novo /api/ranking)
   const rows = Array.isArray(data) ? data : (data.rows||[]);
   const team = Array.isArray(data) ? null  : (data.team||null);
   renderTeam(team);
 
   const isMasterTodos = (MASTER||ROLE==='people_ops'||ROLE==='aprovador') && selectedVendor==='todos';
+  // Colunas extra de GBV/qtd do período (Hoje/Semana atual/Data específica) — só quando
+  // ativas; Atingimento/Comissão/Multiplicador acima continuam sempre do mês inteiro.
+  const periodoOn  = !!periodoCache;
+  const periodoMap = periodoOn ? Object.fromEntries(periodoCache.por_vendedor.map(p=>[p.label,p])) : null;
+  const periodoLbl = ({hoje:'Hoje', semana:'Semana atual', data:tlPeriodoData||'Data'})[tlPeriodo] || 'Período';
+  const periodoTh  = periodoOn ? `<th class="num">GBV (${periodoLbl})</th><th class="num">Qtd (${periodoLbl})</th>` : '';
+
   const thead = document.getElementById('ranking-thead');
   if(isMasterTodos){
     thead.innerHTML=`<tr>
       <th>#</th><th>Colaborador</th><th>Time</th>
       <th class="num">Meta</th><th class="num">GBV Líquido</th>
-      <th style="min-width:160px">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>
+      <th style="min-width:160px">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>${periodoTh}
     </tr>`;
   } else {
     thead.innerHTML=`<tr>
       <th>#</th><th>Vendedor</th><th class="num">Meta</th><th class="num">GBV Líquido</th>
-      <th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>
+      <th class="num">Atingimento</th><th>Tier</th><th class="num">Comissão Final</th>${periodoTh}
     </tr>`;
   }
 
   const tbody=document.getElementById('ranking-body');
   tbody.innerHTML='';
   if(!rows.length){
-    const cols=isMasterTodos?8:7;
+    const cols=(isMasterTodos?8:7)+(periodoOn?2:0);
     tbody.innerHTML=`<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--g400)">Nenhum dado disponível</td></tr>`;
     return;
   }
@@ -2518,6 +2542,9 @@ function renderRanking(data){
     const pc=r.posicao===1?'rk1':r.posicao===2?'rk2':r.posicao===3?'rk3':'rkn';
     const tiC=tierColor(r.multiplicador);
     const newcomerTag=r.nota_fim_mes?` <span class="newcomer-pill" style="font-size:.62rem">🕐 fim do mês</span>`:'';
+    // match por label (o e-mail vem null pro papel 'tl' — READ_ALL_ROLES não inclui 'tl')
+    const pv = periodoMap ? periodoMap[r.label] : null;
+    const periodoTd = periodoOn ? `<td class="num">${pv?R(pv.gbv):'—'}</td><td class="num">${pv?pv.qtd:'—'}</td>` : '';
 
     if(isMasterTodos){
       const ating=r.atingimento||0;
@@ -2533,7 +2560,7 @@ function renderRanking(data){
           <div class="pct-bar-wrap"><div class="pct-bar-fill" style="width:${barW}%;background:${barC}"></div></div>
         </td>
         <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
-        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>`;
+        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>${periodoTd}`;
     } else {
       tr.innerHTML=`
         <td><span class="rank-pos ${pc}">${r.posicao}</span></td>
@@ -2542,7 +2569,7 @@ function renderRanking(data){
         <td class="num">${R(r.gbv_liquido)}</td>
         <td class="num">${r.atingimento>0?P(r.atingimento):'—'}</td>
         <td><span class="badge ${tiC}" style="font-size:.65rem">${r.multiplicador>0?r.multiplicador.toFixed(1)+'×':'—'}</span></td>
-        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>`;
+        <td class="num">${r.comissao_final>0?R(r.comissao_final):'—'}</td>${periodoTd}`;
     }
     tbody.appendChild(tr);
   });
@@ -3110,16 +3137,23 @@ function renderMomCompare(data, breakdown){
 
 // ── Render transactions ───────────────────────────────────────────────────────
 function renderTx(){
-  let list=txAll;
-  if(currentFilter==='paid')           list=txAll.filter(t=>t.transaction_status==='paid');
-  else if(currentFilter==='refunded')  list=txAll.filter(t=>t.transaction_status==='refunded');
-  else if(currentFilter==='chargeback')list=txAll.filter(t=>t.transaction_status==='chargeback');
+  // Filtro de período ativo (Hoje/Semana atual/Data específica) → lista do TIME inteiro
+  // no intervalo real de datas, em vez da lista de 1 pessoa/mês (txAll).
+  const periodoOn = tlPeriodo!=='mes' && !!periodoCache;
+  let list = periodoOn ? (periodoCache.transacoes||[]) : txAll;
+  if(currentFilter==='paid')           list=list.filter(t=>t.transaction_status==='paid');
+  else if(currentFilter==='refunded')  list=list.filter(t=>t.transaction_status==='refunded');
+  else if(currentFilter==='chargeback')list=list.filter(t=>t.transaction_status==='chargeback');
+
+  const thVend=document.getElementById('tx-th-vendedor');
+  if(thVend) thVend.style.display = periodoOn ? '' : 'none';
+  const colspan = periodoOn ? 13 : 12;
 
   const tbody=document.getElementById('tx-body');
   tbody.innerHTML='';
   if(!list.length){
-    tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma transação encontrada</td></tr>';
-    updatePills();return;
+    tbody.innerHTML=`<tr><td colspan="${colspan}" style="text-align:center;padding:32px;color:var(--g400)">Nenhuma transação encontrada</td></tr>`;
+    updatePills(list.length);return;
   }
   list.forEach(tx=>{
     const isChurn=tx.is_churn>0;
@@ -3132,9 +3166,13 @@ function renderTx(){
       ?`<span class="churn-flag" style="background:#16a34a">HP add</span>`
       :`<span style="font-size:.75rem;color:var(--g400)">Sistema</span>`;
     // Aprovação do vendedor: TODOS veem; só o PRÓPRIO vendedor/assistente (viewingSelf, sem simulação) edita.
+    // Na visão de período (time inteiro), apvState só reflete o alvo carregado no mês —
+    // não dá pra confiar nele pros outros membros, então mostra neutro em vez de "Pendente" errado.
     const apOk=(apvState[tx.transaction_id]||{}).status==='aprovado';
     const canApprove=viewingSelf && ROLE==='vendedor' && !viewAs && !isExtra;
-    const apCell=canApprove
+    const apCell=periodoOn
+      ?'<span style="color:var(--g400)">—</span>'
+      :canApprove
       ?`<button class="apv-btn ${apOk?'approve':''}" style="cursor:pointer;font-size:.7rem;font-weight:600;padding:3px 10px;border-radius:10px;border:1px solid ${apOk?'#16a34a':'#cbd5e1'};background:${apOk?'#16a34a1a':'#fff'};color:${apOk?'#16a34a':'#475569'}" onclick="approveTx('${tx.transaction_id}',${apOk?'false':'true'})">${apOk?'✓ Aprovado':'Aprovar'}</button>`
       :(apOk?'<span style="font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:10px;background:#16a34a1a;color:#16a34a">✓ Aprovado</span>'
             :'<span style="font-size:.7rem;color:var(--g400)">Pendente</span>');
@@ -3151,7 +3189,9 @@ function renderTx(){
       else if(waitCoord) badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#fef3c7;color:#92400e">⏳ Ag. coord</span>';
       else               badge='<span style="display:inline-block;font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:#fef3c7;color:#92400e">⏳ Ag. TL</span>';
       hpCell = badge;
-      const canDecide=(ROLE==='tl'||ROLE==='gestor')&&!viewAs;
+      // Na visão de período (time inteiro), a decisão fica só de leitura aqui — o botão
+      // otimista atualiza `txAll` (lista de 1 pessoa/mês), que não existe nesse modo.
+      const canDecide=(ROLE==='tl'||ROLE==='gestor')&&!viewAs&&!periodoOn;
       if(!bothOk && !anyRej){
         hpCell+=`<div style="font-size:.65rem;line-height:1.5;white-space:nowrap;margin-top:2px;color:var(--g500)">TL: ${badgeExtra(h.status_tl)} · Coord: ${badgeExtra(h.status_coord)}</div>`;
         if(canDecide) hpCell+=`<div class="apv-actions" style="margin-top:3px">`
@@ -3168,7 +3208,11 @@ function renderTx(){
     const clienteCell=tx.cliente_email
       ?`<span style="font-size:.78rem;color:var(--g600)">${tx.cliente_email}</span>`
       :'<span style="color:var(--g400)">—</span>';
+    const vendedorCell = periodoOn
+      ? `<td style="font-size:.78rem;color:var(--g600)">${tx.vendedor_label||'—'}</td>`
+      : '';
     tr.innerHTML=`
+      ${vendedorCell}
       <td><span class="tx-id">${tx.transaction_id||'—'}</span></td>
       <td>${tx.data_contrato||'—'}</td>
       <td>${clienteCell}</td>
@@ -3182,11 +3226,11 @@ function renderTx(){
       <td>${hpCell}</td>`;
     tbody.appendChild(tr);
   });
-  updatePills();
+  updatePills(list.length);
 }
 
-function updatePills(){
-  document.getElementById('pill-total').textContent=`${txAll.length} transações`;
+function updatePills(count){
+  document.getElementById('pill-total').textContent=`${count} transações`;
 }
 
 // Aprovação por transação (só o próprio vendedor/assistente; backend valida e-mail+papel)
@@ -3709,8 +3753,67 @@ async function initVendorSelect(){
   }
 }
 
+// ── Filtro de período (Hoje/Semana atual/Data específica) — só na visão do TL ──
+function _tlPeriodoActive(){ return ROLE==='tl' || viewAs==='tl'; }
+
+function _resetPeriodoState(){
+  tlPeriodo='mes'; tlPeriodoData=''; periodoCache=null;
+  document.querySelectorAll('#periodo-toggle .prod-metric-btn').forEach(b=>b.classList.toggle('active', b.dataset.periodo==='mes'));
+  const di=document.getElementById('periodo-data-input');
+  if(di){ di.style.display='none'; di.value=''; }
+}
+
+function initPeriodoControl(){
+  const wrap=document.getElementById('tl-periodo-wrap');
+  const active=_tlPeriodoActive();
+  wrap.style.display = active ? 'flex' : 'none';
+  _resetPeriodoState();   // troca de pessoa/papel não deve arrastar cache de período de outro TL
+  if(!active) return;
+  document.querySelectorAll('#periodo-toggle .prod-metric-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll('#periodo-toggle .prod-metric-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      tlPeriodo=btn.dataset.periodo;
+      const dateInput=document.getElementById('periodo-data-input');
+      if(tlPeriodo==='data'){
+        dateInput.style.display='';
+        if(!dateInput.value){ periodoCache=null; renderRanking(_lastRankingData||[]); renderTx(); return; }
+        tlPeriodoData=dateInput.value;
+      } else {
+        dateInput.style.display='none';
+      }
+      _reloadPeriodo();
+    };
+  });
+  document.getElementById('periodo-data-input').onchange=(e)=>{
+    tlPeriodoData=e.target.value;
+    if(tlPeriodo==='data' && tlPeriodoData) _reloadPeriodo();
+  };
+}
+
+function _reloadPeriodo(){
+  if(tlPeriodo==='mes'){
+    periodoCache=null;
+    renderRanking(_lastRankingData||[]);
+    renderTx();
+    return;
+  }
+  let q='periodo='+encodeURIComponent(tlPeriodo);
+  if(tlPeriodo==='data'){
+    if(!tlPeriodoData) return;
+    q+='&data='+encodeURIComponent(tlPeriodoData);
+  }
+  fetch('/api/team-periodo?'+q).then(r=>r.json()).then(d=>{
+    if(d.error){toast('Erro: '+d.error);return;}
+    periodoCache=d;
+    renderRanking(_lastRankingData||[]);
+    renderTx();
+  }).catch(e=>console.error(e));
+}
+
 // ── Carga conforme papel EFETIVO ──────────────────────────────────────────────
 async function loadForRole(){
+  initPeriodoControl();
   // o filtro extra de Vendedor só vale na visão Gestor "geral" (initVendorSelect o reativa)
   document.getElementById('gestor-vendor-wrap').style.display='none';
   // Simulação por pessoa (master/gestor vendo como TL ou Vendedor)
@@ -3770,6 +3873,7 @@ async function initPersonPicker(kind){
       const team=await fetch('/api/vendors'+(mq?'?'+mq:'')).then(r=>r.json()).catch(()=>[]);
       (Array.isArray(team)?team:[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=vendorName(v);gv.appendChild(o);});
       gvWrap.style.display='flex';
+      _resetPeriodoState();   // troca de TL simulado — não arrasta período do TL anterior
       loadData(tlEmail);   // visão do time do TL
     }
     sel.onchange=()=>carregaTime(sel.value);

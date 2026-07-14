@@ -1871,6 +1871,115 @@ def _compute_ranking():
     return {"rows": result, "team": team, "visible": True}
 
 
+# ── API: período (Hoje/Semana atual/Data específica) — visão do TL ────────────
+# GBV/qtd e transações recortadas por data real, ao lado do filtro de mês (que
+# continua sendo a única fonte de Atingimento/Comissão/Multiplicador — esses são
+# cálculos inerentemente mensais e NÃO são refeitos aqui).
+
+def _resolve_periodo_range(periodo: str, data_str: str | None) -> tuple[date, date]:
+    """(data_inicio, data_fim) para periodo=hoje|semana|data, sempre BRT e sempre a
+    data real do calendário — independe do mês selecionado no filtro principal."""
+    hoje_brt = (datetime.now(timezone.utc) - timedelta(hours=3)).date()
+    if periodo == "hoje":
+        return hoje_brt, hoje_brt
+    if periodo == "semana":
+        inicio = hoje_brt - timedelta(days=hoje_brt.weekday())  # segunda
+        return inicio, inicio + timedelta(days=6)               # domingo
+    if periodo == "data":
+        d = date.fromisoformat((data_str or "").strip())
+        return d, d
+    raise ValueError("periodo inválido")
+
+
+@app.route("/api/team-periodo")
+@login_required
+def api_team_periodo():
+    role_data = _get_role_data()
+    role      = role_data["role"]
+
+    periodo  = request.args.get("periodo", "").strip().lower()
+    data_str = request.args.get("data", "").strip()
+    try:
+        data_inicio, data_fim = _resolve_periodo_range(periodo, data_str)
+    except Exception:
+        return jsonify({"error": "periodo inválido"}), 400
+
+    if role == "tl":
+        tl_email = effective_email().lower()
+    elif role in ("gestor", "master", "people_ops", "aprovador"):
+        tl_email = request.args.get("tl", "").strip().lower()
+        if not tl_email:
+            return jsonify({"error": "tl obrigatório"}), 400
+    else:
+        return jsonify({"error": "forbidden"}), 403
+
+    # Time do TL = mesmo critério usado em _overview_role_data/_load_vmap (gestor direto,
+    # exclui o próprio TL) — não depende de role_data["reports"], que para 'master' vem vazio.
+    vmap = _load_vmap()
+    team = sorted(e for e, info in vmap.items()
+                  if info.get("gestor") == tl_email and "team leader" not in info.get("cargo", ""))
+    mes_ref = data_inicio.strftime("%Y-%m-01")
+    inactive = _inactive_emails_for_month(mes_ref) or set()
+    team = [e for e in team if e not in inactive]
+
+    # Meses cobertos pelo período (normalmente 1; até 2 se "semana atual" atravessar
+    # virada de mês) — reaproveita _compute_transactions por vendedor/mês (já acerta
+    # taxa/mult/rateio OTE), depois filtra pelas datas reais do período.
+    # GBV/qtd por vendedor é derivado DESSE MESMO conjunto de linhas (não de uma query
+    # separada contra obt_conversions) — testado e confirmado que essa tabela usa uma
+    # data de conversão que pode divergir por dias da data de cobrança em
+    # dm_contracts_orders_transaction (mesma usada aqui); duas fontes de data diferentes
+    # faziam a coluna "GBV do período" do Ranking discordar da lista de Transações.
+    meses_periodo = sorted({data_inicio.replace(day=1).isoformat(),
+                            data_fim.replace(day=1).isoformat()})
+    transacoes = []
+    gbv_by_vendor = {}
+    for e in team:
+        label = _name_from_email(e)
+        for mes_ref_tx in meses_periodo:
+            try:
+                rows_tx = _compute_transactions(e, mes_ref_tx)
+            except Exception:
+                continue
+            for r in rows_tx:
+                dc = r.get("data_contrato")
+                if not dc:
+                    continue
+                try:
+                    d = date.fromisoformat(dc)
+                except Exception:
+                    continue
+                if data_inicio <= d <= data_fim:
+                    r2 = dict(r)
+                    r2["vendedor"]       = e
+                    r2["vendedor_label"] = label
+                    transacoes.append(r2)
+                    acc = gbv_by_vendor.setdefault(e, {"gbv": 0.0, "qtd": 0})
+                    acc["gbv"] += float(r2.get("gbv_liquido") or 0)
+                    acc["qtd"] += 1
+    transacoes.sort(key=lambda r: r.get("data_contrato") or "", reverse=True)
+
+    por_vendedor = []
+    for e in team:
+        acc = gbv_by_vendor.get(e)
+        por_vendedor.append({
+            "vendedor": e,
+            "label":    _name_from_email(e),
+            "gbv":      acc["gbv"] if acc else 0.0,
+            "qtd":      acc["qtd"] if acc else 0,
+        })
+    por_vendedor.sort(key=lambda x: x["gbv"], reverse=True)
+
+    return jsonify({
+        "periodo":      periodo,
+        "data_inicio":  data_inicio.isoformat(),
+        "data_fim":     data_fim.isoformat(),
+        "tl_email":     tl_email,
+        "por_vendedor": por_vendedor,
+        "transacoes":   transacoes,
+    })
+
+
 # ── API: TL summary (gestor view) ─────────────────────────────────────────────
 
 _EXPORT_ROLE_CHECKS = {
