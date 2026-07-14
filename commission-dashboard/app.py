@@ -2000,11 +2000,18 @@ _PRODUTIVIDADE_HORA_SQL = """
     hier AS (
       -- Squad = o próprio TL quando a pessoa é TL (venda própria conta no squad dela);
       -- senão, squad = o gestor (TL) dela. Sem mapa fixo de nome de squad — o roster manda.
+      -- Exceção Jun/2026: Yan Santos começou o mês como vendedor da Tacyana e virou TL
+      -- (time Sharks) no meio do mês — a venda própria dele nesse mês conta pro squad
+      -- da Tacyana, não pro squad dele mesmo (só afeta as vendas com vendedor=yan.santos,
+      -- não o time Sharks, que já aponta pro squad dele via o próprio gestor de cada um).
       SELECT
         LOWER(email_vendedor) AS email_vendedor,
-        CASE WHEN LOWER(COALESCE(cargo,'')) LIKE '%team leader%'
-             THEN LOWER(email_vendedor)
-             ELSE LOWER(COALESCE(gestor,'')) END AS squad_lead
+        CASE
+          WHEN mes_venda = DATE '2026-06-01' AND LOWER(email_vendedor) = 'yan.santos@fluencyacademy.io'
+            THEN 'tacyana.bueno@fluencyacademy.io'
+          WHEN LOWER(COALESCE(cargo,'')) LIKE '%team leader%'
+            THEN LOWER(email_vendedor)
+          ELSE LOWER(COALESCE(gestor,'')) END AS squad_lead
       FROM `fluency-finance.commission.hierarquia_comercial`
       WHERE mes_venda = DATE(@mes)
     )
