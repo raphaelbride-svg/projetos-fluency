@@ -2009,6 +2009,14 @@ def _compute_ranking():
             "nota_fim_mes":   _is_newcomer_assist(vend_email, mes),
         })
 
+    # Ordena por Comissão Final (não por GBV Líquido) — a SQL só ordena por GBV pra
+    # paginar o ROW_NUMBER de origem; o valor exibido na coluna "Comissão Final" já
+    # reflete OTE/extras/valor fixo recalculados aqui em Python, então o rank (#)
+    # tem que ser recalculado sobre esse valor final, não sobre o de origem.
+    result.sort(key=lambda r: r["comissao_final"], reverse=True)
+    for i, r in enumerate(result, start=1):
+        r["posicao"] = i
+
     team = _build_team_totals(mes, tl_filter)
     return {"rows": result, "team": team, "visible": True}
 
@@ -2953,6 +2961,11 @@ def _compute_payroll_impact():
         tot_com     += com
         tot_dsr     += dsr
         tot_reflexo += reflexo
+
+    # A SQL de origem ordena por comissao_final (frozen, pré-extras/newcomer) só pra
+    # ter uma ordem estável de leitura — o valor de "com" já foi recalculado acima com
+    # extras/valor fixo, então reordena aqui pela Comissão Final de fato exibida.
+    vendedores.sort(key=lambda v: v["comissao"], reverse=True)
 
     mes_d = date.fromisoformat(mes)
     return {
