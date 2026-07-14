@@ -1648,6 +1648,114 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
     return team
 
 
+# ── API: comissão do Coordenador por canal (Esteiras/Renovação/Nina) ──────────
+# Fabio.dias@... não tem tabela própria com o split por canal — a pipeline
+# (compute_projecao.py:358-366) calcula os 3 canais em memória e só persiste o
+# TOTAL (vlr_final_comissao / team["coord_comissao"]). Pra não divergir desse
+# número já mostrado no card "Comissão do Coordenador", este endpoint recalcula
+# ao vivo com a MESMA fonte/fórmula da pipeline (obt_conversions + roster do
+# mês, SEM os ajustes manuais de _build_team_totals — extras aprovados e GBV
+# emprestado nunca entraram na conta real do Fabio, então não entram aqui).
+
+_OTE_FABIO = 21600.0
+_META_ESTEIRAS_FULL = 7960000.0   # hardcoded na pipeline (ver skill: pode não bater com a soma das metas)
+_META_RENOV_FULL    = 1600000.0
+_DIAS_BASE_FABIO    = 30.0
+_VANESSA_EMAIL      = "vanessa.lopes@fluencyacademy.io"
+
+def _mult_coord(at: float) -> float:
+    """Mesma escada de pipeline/compute_projecao.py:mult_coord — 5 faixas, teto 1,3x."""
+    if at < 0.80: return 0.5
+    if at < 0.95: return 0.8
+    if at < 1.20: return 1.0
+    if at < 1.30: return 1.2
+    return 1.3
+
+_COORD_CANAIS_GBV_SQL = """
+    WITH roster AS (
+      SELECT LOWER(email_vendedor) AS email, LOWER(COALESCE(gestor,'')) AS gestor
+      FROM `fluency-finance.commission.hierarquia_comercial`
+      WHERE mes_venda = DATE(@mes) AND LOWER(COALESCE(cargo,'')) IN ('vendedor','assistente')
+    ),
+    obt AS (
+      SELECT LOWER(vendedor) AS v, LOWER(tracking_source_sck) AS tsck,
+             IF(is_churn, 0, CAST(gbv AS NUMERIC)) AS gbv_pc
+      FROM `fluency-gold.conversion.obt_conversions`
+      WHERE DATE_TRUNC(contract_created_at_brt_date, MONTH) = DATE(@mes)
+        AND modality_payment IN ('a vista','parcelado','inteligente')
+    )
+    SELECT
+      IF(r.gestor = @vanessa, 'renovacao', 'esteiras') AS canal,
+      CAST(COALESCE(SUM(o.gbv_pc), 0) AS NUMERIC) AS gbv
+    FROM roster r
+    JOIN obt o
+      ON ((o.v IS NOT NULL AND o.v = r.email) OR (o.v IS NULL AND o.tsck LIKE CONCAT('%', r.email, '%')))
+    GROUP BY 1
+"""
+
+
+def _compute_coord_canais(mes: str) -> dict:
+    # fator de proporção do mês (dias corridos/30) — lido da própria linha do Fabio em
+    # comissao_projecao (dias_decorridos/dias_base NÃO passam por vw_comissao, a view não
+    # expõe essas 2 colunas) pra bater exatamente com o que a pipeline usou naquele dia.
+    # Mês fechado: a pipeline apaga a linha da projeção (--close) e nunca grava essas colunas
+    # em comissao_historica -> nenhuma linha encontrada -> COALESCE 30/30 = fator 1.0 (correto).
+    fr = run_query("""
+        SELECT CAST(COALESCE(dias_decorridos, 30) AS FLOAT64) AS dd,
+               CAST(COALESCE(dias_base, 30)       AS FLOAT64) AS db
+        FROM `fluency-finance.commission.comissao_projecao`
+        WHERE LOWER(vendedor) = LOWER(@coord)
+          AND DATE_TRUNC(DATE(contract_created_at_brt_timestamp), MONTH) = DATE(@mes)
+        LIMIT 1
+    """, [bigquery.ScalarQueryParameter("coord", "STRING", COORDENADOR_EMAIL),
+          bigquery.ScalarQueryParameter("mes",   "DATE",   mes)], cache_ttl=120)
+    fator = (fr[0]["dd"] / fr[0]["db"]) if (fr and fr[0]["db"]) else 1.0
+
+    gbv_rows = run_query(_COORD_CANAIS_GBV_SQL, [
+        bigquery.ScalarQueryParameter("mes",     "DATE",   mes),
+        bigquery.ScalarQueryParameter("vanessa", "STRING", _VANESSA_EMAIL),
+    ], cache_ttl=120)
+    gbv_by_canal = {r["canal"]: float(r["gbv"]) for r in gbv_rows}
+
+    nina_row = run_query("""
+        SELECT CAST(COALESCE(SUM(IF(is_churn, 0, gbv)), 0) AS NUMERIC) AS g
+        FROM `fluency-gold.conversion.obt_conversions`
+        WHERE DATE_TRUNC(contract_created_at_brt_date, MONTH) = DATE(@mes)
+          AND LOWER(tracking_source_sck) LIKE '%.bot%'
+    """, [bigquery.ScalarQueryParameter("mes", "DATE", mes)], cache_ttl=120)
+    nina_gbv = float(nina_row[0]["g"]) if nina_row else 0.0
+
+    canais_def = [
+        ("esteiras",  "Esteiras",  0.70, _META_ESTEIRAS_FULL * fator, gbv_by_canal.get("esteiras", 0.0)),
+        ("renovacao", "Renovação", 0.20, _META_RENOV_FULL    * fator, gbv_by_canal.get("renovacao", 0.0)),
+        ("nina",      "Nina",      0.10, nina_gbv,                    nina_gbv),
+    ]
+    canais = []
+    total_comissao = 0.0
+    for key, label, peso, meta, gbv in canais_def:
+        ating = (gbv / meta) if meta > 0 else 0.0
+        mult  = _mult_coord(ating)
+        ote   = _OTE_FABIO * peso
+        comissao = ote * mult
+        total_comissao += comissao
+        canais.append({
+            "canal": key, "label": label, "peso": peso,
+            "gbv": gbv, "meta": meta, "atingimento": ating,
+            "multiplicador": mult, "ote": ote, "comissao": comissao,
+        })
+    return {"mes": mes, "fator": fator, "canais": canais, "total_comissao": total_comissao}
+
+
+@app.route("/api/coord-canais")
+@login_required
+def api_coord_canais():
+    role = _get_role_data()["role"]
+    if role not in ("gestor", "master", "people_ops", "aprovador"):
+        return jsonify({"error": "forbidden"}), 403
+    mes = resolve_month()
+    return jsonify(_compute_coord_canais(mes))
+
+
 @app.route("/api/financial-summary")
 @login_required
 def api_financial_summary():

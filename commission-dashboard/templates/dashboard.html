@@ -409,6 +409,19 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <div class="sub" style="color:var(--g400)">Sua comissão — incluída no total acima</div>
         </div>
       </div>
+      <div class="chart-card" id="card-coord-canais" style="display:none;margin-top:14px">
+        <div class="chart-title">Comissão do Coordenador por canal</div>
+        <div class="chart-sub">Esteiras (70%) · Renovação (20%) · Nina (10%) — cada canal com meta e multiplicador próprios</div>
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-top:8px">
+          <div class="chart-wrap" style="height:220px;width:220px;flex:none"><canvas id="chart-coord-canais"></canvas></div>
+          <div class="tbl-card" style="flex:1;min-width:280px;overflow-x:auto">
+            <table>
+              <thead><tr><th>Canal</th><th class="num">GBV</th><th class="num">Meta</th><th class="num">Atingimento</th><th>Mult.</th><th class="num">Comissão</th></tr></thead>
+              <tbody id="coord-canais-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ── Seção: Visão Consolidada B2C + B2B (master only) ── -->
@@ -2303,7 +2316,7 @@ attachExportMenu(document.getElementById('b2b-export-slot'),
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let txAll=[], apvState={}, currentFilter='all';
-let chartTipo=null, chartGbv=null, chartTrendGbv=null, chartTrendTL=null, chartAvMes=null, chartAvTb=null;
+let chartTipo=null, chartGbv=null, chartTrendGbv=null, chartTrendTL=null, chartAvMes=null, chartAvTb=null, chartCoordCanais=null;
 let selectedVendor='todos', selectedMes='', viewingSelf=true, lastTxTarget=null;
 
 // ── Filtro de período (Hoje/Semana atual/Data específica) — visão do TL ────────
@@ -2418,14 +2431,64 @@ function renderTeam(team){
   document.getElementById('team-com').textContent  = R(team.comissao_total||0);
   // Comissão própria do coordenador (Fabio) — card separado, deixa claro o que é dele × do time
   const cc=document.getElementById('card-coord-com'), ccv=document.getElementById('team-coord-com');
+  const temCoord = team.coord_comissao!=null && team.coord_comissao>0;
   if(cc&&ccv){
-    if(team.coord_comissao!=null&&team.coord_comissao>0){ ccv.textContent=Rc(team.coord_comissao); cc.style.display=''; }
+    if(temCoord){ ccv.textContent=Rc(team.coord_comissao); cc.style.display=''; }
     else cc.style.display='none';
+  }
+  const cardCanais=document.getElementById('card-coord-canais');
+  if(cardCanais){
+    if(temCoord){ cardCanais.style.display=''; loadCoordCanais(); }
+    else cardCanais.style.display='none';
   }
   // Atingimento = gbv / meta se tiver meta
   const ating = (team.meta_total&&team.meta_total>0) ? team.gbv_total/team.meta_total : null;
   const el=document.getElementById('team-ating');
   if(el) el.textContent = ating!=null ? P(ating) : '—';
+}
+
+// ── Comissão do Coordenador por canal (Esteiras/Renovação/Nina) ────────────────
+let _coordCanaisMes=null;
+function loadCoordCanais(){
+  if(_coordCanaisMes===selectedMes) return;   // já carregado pra esse mês
+  _coordCanaisMes=selectedMes;
+  fetch(apiUrl('/api/coord-canais')).then(r=>r.json()).then(d=>{
+    if(d.error) return;
+    renderCoordCanais(d);
+  }).catch(e=>console.error(e));
+}
+
+function renderCoordCanais(d){
+  const canais=d.canais||[];
+  if(chartCoordCanais){chartCoordCanais.destroy();chartCoordCanais=null;}
+  const CANAL_COLORS={esteiras:'#7B5CF6',renovacao:'#22c55e',nina:'#f59e0b'};
+  chartCoordCanais=new Chart(document.getElementById('chart-coord-canais'),{
+    type:'doughnut',
+    data:{labels:canais.map(c=>c.label),
+          datasets:[{data:canais.map(c=>c.comissao),
+                     backgroundColor:canais.map(c=>CANAL_COLORS[c.canal]||'#94a3b8'),
+                     borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:12,font:{size:11}}},
+               tooltip:{padding:10,boxPadding:4,callbacks:{label:c=>{
+                 const tot=c.dataset.data.reduce((a,b)=>a+(+b||0),0),v=+c.parsed||0;
+                 return ` ${R(v)} · ${tot?((v/tot)*100).toFixed(1):0}%`;}}}}}});
+
+  const tbody=document.getElementById('coord-canais-body');
+  if(tbody){
+    tbody.innerHTML=canais.map(c=>`
+      <tr>
+        <td>${c.label} <span style="color:var(--g400);font-size:.75rem">(${(c.peso*100).toFixed(0)}%)</span></td>
+        <td class="num">${R(c.gbv)}</td>
+        <td class="num">${c.meta>0?R(c.meta):'—'}</td>
+        <td class="num">${P(c.atingimento)}</td>
+        <td>${c.multiplicador.toFixed(1)}×</td>
+        <td class="num">${R(c.comissao)}</td>
+      </tr>`).join('')
+      + `<tr style="font-weight:700;border-top:2px solid var(--g200)">
+           <td colspan="5">Total</td><td class="num">${R(d.total_comissao)}</td>
+         </tr>`;
+  }
 }
 
 // ── Render consolidado B2C + B2B (master, visão "todos") ───────────────────────
