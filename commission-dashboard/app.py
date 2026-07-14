@@ -1497,6 +1497,15 @@ _RANKING_SQL_ALL = """
 """
 
 
+# Exceção pontual (Jun/2026): Yan Santos começou o mês como vendedor do time da
+# Tacyana e virou TL do próprio time (Sharks) no meio do mês — a venda própria
+# dele (vendedor=yan.santos@, SCK 1estyan.santos@) conta pro GBV/comissão do
+# time DELA, não do dele (comissão da Tacyana já corrigida em comissao_historica;
+# isso aqui só cobre o GBV ao vivo mostrado no Ranking/Financeiro).
+_TEAM_GBV_EXTRA_VENDEDOR: dict[str, dict[str, list[str]]] = {
+    "2026-06-01": {"tacyana.bueno@fluencyacademy.io": ["yan.santos@fluencyacademy.io"]},
+}
+
 def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
     team = {"meta_total": None, "gbv_total": 0.0, "comissao_total": 0.0,
             "gbv_bruto": 0.0, "churn": 0.0,
@@ -1601,6 +1610,27 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
                 extras_team = float(er[0]["extras_gbv"] or 0)
                 team["gbv_total"] += extras_team
                 team["gbv_bruto"] += extras_team
+        except Exception:
+            pass
+        # Soma o GBV de vendedores "emprestados" pra este TL num mês específico
+        # (ver _TEAM_GBV_EXTRA_VENDEDOR — caso do Yan Santos/Tacyana em Jun/2026).
+        try:
+            extra_vendors = _TEAM_GBV_EXTRA_VENDEDOR.get(mes, {}).get((tl_email or "").lower())
+            if extra_vendors:
+                ev = run_query("""
+                    SELECT
+                      CAST(COALESCE(SUM(IF(is_churn,0,gbv)),0) AS NUMERIC) AS gbv_liq,
+                      CAST(COALESCE(SUM(gbv),0)                AS NUMERIC) AS gbv_bruto,
+                      CAST(COALESCE(SUM(IF(is_churn,gbv,0)),0) AS NUMERIC) AS churn
+                    FROM `fluency-gold.conversion.obt_conversions`
+                    WHERE DATE_TRUNC(DATE(contract_created_at_brt_date), MONTH) = DATE(@mes)
+                      AND LOWER(vendedor) IN UNNEST(@vendors)
+                """, [bigquery.ScalarQueryParameter("mes", "DATE", mes),
+                      bigquery.ArrayQueryParameter("vendors", "STRING", extra_vendors)], cache_ttl=90)
+                if ev:
+                    team["gbv_total"] += float(ev[0]["gbv_liq"])
+                    team["gbv_bruto"] += float(ev[0]["gbv_bruto"])
+                    team["churn"]     += float(ev[0]["churn"])
         except Exception:
             pass
         # comissão própria do coordenador (Fabio) — separada do total do time, p/ ele acompanhar
