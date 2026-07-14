@@ -2187,8 +2187,12 @@ def api_signoff_status():
         tl = str(r["tl_email"])
         if tl not in by_tl:
             by_tl[tl] = {"tl_email": tl, "label": _name_from_email(tl), "signed": [], "unsigned": []}
-        member = {"email": str(r["member_email"]), "label": _name_from_email(str(r["member_email"]))}
-        if r.get("signed_at") and not _is_newcomer_assist(str(r["member_email"]), mes):
+        member = {
+            "email": str(r["member_email"]),
+            "label": _name_from_email(str(r["member_email"])),
+            "nota_fim_mes": _is_newcomer_assist(str(r["member_email"]), mes),
+        }
+        if r.get("signed_at"):
             member["signed_at"] = str(r["signed_at"])
             by_tl[tl]["signed"].append(member)
         else:
@@ -3397,8 +3401,6 @@ def api_signoff_get():
         bigquery.ScalarQueryParameter("v",   "STRING", target),
         bigquery.ScalarQueryParameter("mes", "DATE",   mes),
     ])
-    if _is_newcomer_assist(target, mes):
-        return jsonify({"signed": False, "at": None})
     at = str(rows[0]["signed_at"]) if rows and rows[0].get("signed_at") else None
     return jsonify({"signed": bool(rows), "at": at})
 
