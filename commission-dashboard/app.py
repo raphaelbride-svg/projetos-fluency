@@ -95,13 +95,46 @@ _TL_NAME_TO_EMAIL: dict[str, str] = {
 
 # Assistentes que entraram no fim do mês: atingimento tratado como 100% (mult=1.0, vlr=OTE).
 # Badge "nota_fim_mes" é injetado em todas as respostas de API onde esses colaboradores aparecem.
-_NEWCOMER_ASSISTS: dict[str, set[str]] = {}
+_NEWCOMER_ASSISTS: dict[str, set[str]] = {
+    "2026-06-01": {
+        "elisangela.malta@fluencyacademy.io",
+        "guilherme.santos@fluencyacademy.io",
+        "roberta@fluencyacademy.io",
+    },
+}
 
 def _is_newcomer_assist(email: str, mes: str) -> bool:
     """True se o atingimento desta assistente foi ajustado a 100% por entrada no fim do mês."""
     key = mes[:7] + "-01" if len(mes) >= 7 else mes
     s = _NEWCOMER_ASSISTS.get(key)
     return bool(s and email.lower() in s)
+
+# Valor de comissão FIXADO manualmente (decisão Raphael) pra quem entrou no fim do mês —
+# vence qualquer fórmula (OTE×ating×mult, taxa transacional, etc) em TODO endpoint que
+# calcula/exibe comissão. Manter em sincronia com _NEWCOMER_ASSISTS (mesmas pessoas/mês).
+_NEWCOMER_FIXED_VLR: dict[str, dict[str, float]] = {
+    "2026-06-01": {email: 1200.0 for email in _NEWCOMER_ASSISTS["2026-06-01"]},
+}
+
+def _newcomer_fixed_vlr(email: str, mes: str) -> float | None:
+    """Valor fixo (não a fórmula) pra quem entrou no fim do mês, se aplicável a este email/mês."""
+    key = mes[:7] + "-01" if len(mes) >= 7 else mes
+    return _NEWCOMER_FIXED_VLR.get(key, {}).get(email.lower())
+
+def _newcomer_case_sql(mes: str, column_ref: str) -> str:
+    """Trecho SQL 'CASE WHEN LOWER(col) IN (...) THEN <valor> END' gerado a partir de
+    _NEWCOMER_FIXED_VLR — usado nas agregações (SUM) do BQ que não conseguem interceptar
+    por linha em Python. Fonte única: se os valores divergirem entre pessoas no futuro,
+    isso precisa virar um CASE por e-mail em vez de um valor só."""
+    key = mes[:7] + "-01" if len(mes) >= 7 else mes
+    overrides = _NEWCOMER_FIXED_VLR.get(key, {})
+    if not overrides:
+        return "NULL"
+    values = set(overrides.values())
+    if len(values) != 1:
+        raise ValueError("_newcomer_case_sql: valores divergentes ainda não suportados nesse helper")
+    emails_sql = ", ".join(f"'{e}'" for e in overrides)
+    return f"(CASE WHEN LOWER({column_ref}) IN ({emails_sql}) THEN {values.pop()} END)"
 
 # ── Regras de comissão (espelho de pipeline/calc_comissao.py) ─────────────────
 # Taxas por modalidade de pagamento (pré-multiplicador), por modelo de cargo.
@@ -1382,6 +1415,11 @@ def api_summary():
     # modelo de comissão (define a escada de multiplicadores correta no front)
     row["modelo"]       = _modelo_comissao(target, cargo_t)
     row["nota_fim_mes"] = _is_newcomer_assist(target, mes)
+    # Valor fixo vence qualquer fórmula (ver _newcomer_fixed_vlr).
+    _ov = _newcomer_fixed_vlr(target, mes)
+    if _ov is not None:
+        row["vlr_final_comissao"] = _ov
+        row["total_comissao"]     = _ov
     return jsonify(row)
 
 def _corrige_vlr_ote(vlr: float, modelo: str, atingimento: float, mult: float, ote_fator: float = 1.0) -> float:
@@ -1422,6 +1460,7 @@ _RANKING_SQL_TEAM = """
       CAST(COALESCE(h.vlr_final_comissao, 0) AS NUMERIC)              AS vlr_final_comissao,
       CAST(COALESCE(h.total_comissao, 0) AS NUMERIC)                  AS total_comissao,
       CAST(COALESCE(mv.valor_meta, 0) AS NUMERIC)                     AS valor_meta,
+      CAST(COALESCE(mv.ote_fator, 1.0) AS FLOAT64)                    AS ote_fator,
       LOWER(COALESCE(mv.cargo, ''))                                   AS cargo
     FROM `fluency-finance.commission.vw_comissao` h
     JOIN `fluency-finance.commission.hierarquia_comercial` mv
@@ -1444,6 +1483,7 @@ _RANKING_SQL_ALL = """
       CAST(COALESCE(h.vlr_final_comissao, 0) AS NUMERIC)              AS vlr_final_comissao,
       CAST(COALESCE(h.total_comissao, 0) AS NUMERIC)                  AS total_comissao,
       CAST(COALESCE(mv.valor_meta, 0) AS NUMERIC)                     AS valor_meta,
+      CAST(COALESCE(mv.ote_fator, 1.0) AS FLOAT64)                    AS ote_fator,
       LOWER(COALESCE(mv.gestor, ''))                                  AS gestor_email,
       LOWER(COALESCE(mv.cargo, ''))                                   AS cargo
     FROM `fluency-finance.commission.vw_comissao` h
@@ -1460,20 +1500,24 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
     team = {"meta_total": None, "gbv_total": 0.0, "comissao_total": 0.0,
             "gbv_bruto": 0.0, "churn": 0.0,
             "coord_comissao": 0.0, "coord_email": COORDENADOR_EMAIL}
+    # Fonte única (_NEWCOMER_FIXED_VLR) virada em CASE literal — a soma é feita no BQ,
+    # não dá pra interceptar por linha em Python como nos outros endpoints.
+    _nc_case = _newcomer_case_sql(mes, "h.vendedor")
     try:
         if tl_email:
-            tr = run_query("""
+            tr = run_query(f"""
                 SELECT
                   CAST(COALESCE(SUM(h.gbv_churn_descontado_transaction),0) AS NUMERIC) AS gbv_total,
                   CAST(COALESCE(SUM(h.gbv),0)                            AS NUMERIC) AS gbv_bruto,
                   CAST(COALESCE(SUM(h.gbv_apenas_churn_transaction),0)   AS NUMERIC) AS churn_total,
                   CAST(COALESCE(SUM(
                     CASE
+                      WHEN {_nc_case} IS NOT NULL THEN {_nc_case}
                       WHEN LOWER(COALESCE(mv.cargo,'')) = 'assistente'
-                        THEN COALESCE(h.atingimento_meta,0) * 4000.0 * COALESCE(h.multiplicador,0)
+                        THEN COALESCE(h.atingimento_meta,0) * 4000.0 * COALESCE(mv.ote_fator,1.0) * COALESCE(h.multiplicador,0)
                       WHEN LOWER(COALESCE(mv.cargo,'')) = 'team leader'
                        AND LOWER(h.vendedor) NOT IN ('vanessa.lopes@fluencyacademy.io','tacyana.bueno@fluencyacademy.io')
-                        THEN COALESCE(h.atingimento_meta,0) * 7000.0 * COALESCE(h.multiplicador,0)
+                        THEN COALESCE(h.atingimento_meta,0) * 7000.0 * COALESCE(mv.ote_fator,1.0) * COALESCE(h.multiplicador,0)
                       ELSE h.vlr_final_comissao
                     END
                   ),0) AS NUMERIC) AS comissao_total
@@ -1492,18 +1536,19 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
             """, [bigquery.ScalarQueryParameter("mes", "DATE", mes),
                   bigquery.ScalarQueryParameter("tl",  "STRING", tl_email)], cache_ttl=90)
         else:
-            tr = run_query("""
+            tr = run_query(f"""
                 SELECT
                   CAST(COALESCE(SUM(h.gbv_churn_descontado_transaction),0) AS NUMERIC) AS gbv_total,
                   CAST(COALESCE(SUM(h.gbv),0)                            AS NUMERIC) AS gbv_bruto,
                   CAST(COALESCE(SUM(h.gbv_apenas_churn_transaction),0)   AS NUMERIC) AS churn_total,
                   CAST(COALESCE(SUM(
                     CASE
+                      WHEN {_nc_case} IS NOT NULL THEN {_nc_case}
                       WHEN LOWER(COALESCE(mv.cargo,'')) = 'assistente'
-                        THEN COALESCE(h.atingimento_meta,0) * 4000.0 * COALESCE(h.multiplicador,0)
+                        THEN COALESCE(h.atingimento_meta,0) * 4000.0 * COALESCE(mv.ote_fator,1.0) * COALESCE(h.multiplicador,0)
                       WHEN LOWER(COALESCE(mv.cargo,'')) = 'team leader'
                        AND LOWER(h.vendedor) NOT IN ('vanessa.lopes@fluencyacademy.io','tacyana.bueno@fluencyacademy.io')
-                        THEN COALESCE(h.atingimento_meta,0) * 7000.0 * COALESCE(h.multiplicador,0)
+                        THEN COALESCE(h.atingimento_meta,0) * 7000.0 * COALESCE(mv.ote_fator,1.0) * COALESCE(h.multiplicador,0)
                       ELSE h.vlr_final_comissao
                     END
                   ),0) AS NUMERIC) AS comissao_total
@@ -1589,6 +1634,7 @@ def api_financial_summary():
           LOWER(COALESCE(h.cargo,''))                                      AS cargo,
           LOWER(COALESCE(h.gestor,''))                                     AS gestor,
           CAST(COALESCE(h.valor_meta,0)                        AS FLOAT64) AS meta,
+          CAST(COALESCE(h.ote_fator,1.0)                       AS FLOAT64) AS ote_fator,
           CAST(COALESCE(v.gbv_churn_descontado_transaction,0)  AS FLOAT64) AS gbv_liq,
           CAST(COALESCE(v.gbv,0)                               AS FLOAT64) AS gbv_bruto,
           CAST(COALESCE(v.gbv_apenas_churn_transaction,0)      AS FLOAT64) AS churn,
@@ -1619,7 +1665,11 @@ def api_financial_summary():
         modelo = _modelo_comissao(email, cargo)
         ating  = float(r["atingimento"] or 0)
         mult   = float(r["mult"] or 0)
-        vlr    = _corrige_vlr_ote(float(r["vlr_final"] or 0), modelo, ating, mult)
+        ote_fator_r = float(r.get("ote_fator") or 1.0)
+        vlr    = _corrige_vlr_ote(float(r["vlr_final"] or 0), modelo, ating, mult, ote_fator_r)
+        _ov = _newcomer_fixed_vlr(email, mes)
+        if _ov is not None:
+            vlr = _ov
         newcomer = _is_newcomer_assist(email, mes)
         gbv_liq  = float(r["gbv_liq"] or 0)
         custo_gbv = (vlr / gbv_liq) if gbv_liq > 0 else 0.0
@@ -1774,9 +1824,10 @@ def _compute_ranking():
         atingimento    = float(r["atingimento_meta"])
         multiplicador  = float(r["multiplicador"])
         cargo_r        = str(r.get("cargo") or "")
+        ote_fator_r    = float(r.get("ote_fator") or 1.0)
         comissao_final = _corrige_vlr_ote(
             float(r["vlr_final_comissao"]), _modelo_comissao(vend_email, cargo_r),
-            atingimento, multiplicador)
+            atingimento, multiplicador, ote_fator_r)
         valor_meta     = float(r.get("valor_meta") or 0)
 
         # Aplica extras aprovados: recalcula GBV, atingimento, mult e comissão.
@@ -1795,7 +1846,12 @@ def _compute_ranking():
                     extra_com = sum(e["gbv"] * rates.get(e["modality_payment"], 0) for e in vextras)
                     comissao_final = (float(r.get("total_comissao") or 0) + extra_com) * new_mult
                 elif modelo in _OTE_BY_MODELO:
-                    comissao_final = atingimento * _OTE_BY_MODELO[modelo] * new_mult
+                    comissao_final = atingimento * _OTE_BY_MODELO[modelo] * ote_fator_r * new_mult
+
+        # Valor fixo (entrada no fim do mês) vence qualquer fórmula.
+        _ov = _newcomer_fixed_vlr(vend_email, mes)
+        if _ov is not None:
+            comissao_final = _ov
 
         result.append({
             "posicao":        int(r["posicao"]),
@@ -2570,6 +2626,7 @@ def _compute_payroll_impact():
           CAST(COALESCE(h.total_comissao,      0) AS NUMERIC) AS total_comissao,
           CAST(COALESCE(h.atingimento_meta,    0) AS FLOAT64) AS atingimento_meta,
           CAST(COALESCE(mv.valor_meta,         0) AS FLOAT64) AS valor_meta,
+          CAST(COALESCE(mv.ote_fator,        1.0) AS FLOAT64) AS ote_fator,
           LOWER(COALESCE(mv.cargo,            '')) AS cargo
         FROM `fluency-finance.commission.vw_comissao` h
         LEFT JOIN `fluency-finance.commission.hierarquia_comercial` mv
@@ -2588,6 +2645,7 @@ def _compute_payroll_impact():
     tot_com = tot_dsr = tot_reflexo = 0.0
     for r in rows:
         com = float(r["comissao_final"])
+        ote_fator_r = float(r.get("ote_fator") or 1.0)
 
         vextras = [e for e in extras_bulk.get(str(r["vendedor"]).lower(), []) if not e["is_churn"]]
         if vextras:
@@ -2603,7 +2661,12 @@ def _compute_payroll_impact():
                     extra_com = sum(e["gbv"] * rates.get(e["modality_payment"], 0) for e in vextras)
                     com       = (float(r["total_comissao"]) + extra_com) * new_mult
                 elif modelo in _OTE_BY_MODELO:
-                    com = new_ating * _OTE_BY_MODELO[modelo] * new_mult
+                    com = new_ating * _OTE_BY_MODELO[modelo] * ote_fator_r * new_mult
+
+        # Valor fixo (entrada no fim do mês) vence qualquer fórmula/frozen.
+        _ov = _newcomer_fixed_vlr(str(r["vendedor"]), mes)
+        if _ov is not None:
+            com = _ov
 
         if com <= 0:
             continue
@@ -3055,9 +3118,19 @@ def _compute_transactions(target, mes):
           bigquery.ScalarQueryParameter("mes",   "DATE",   mes)], cache_ttl=120)
     mult      = float(snap[0]["mult"])      if snap else 1.0
     _snap_ating = float(snap[0].get("ating", 0) or 0) if snap else 0.0
+    _ote_r = run_query("""
+        SELECT CAST(COALESCE(ote_fator, 1.0) AS FLOAT64) AS ote_fator
+        FROM `fluency-finance.commission.hierarquia_comercial`
+        WHERE LOWER(email_vendedor)=LOWER(@email) AND mes_venda=DATE(@mes) LIMIT 1
+    """, [bigquery.ScalarQueryParameter("email", "STRING", target),
+          bigquery.ScalarQueryParameter("mes",   "DATE",   mes)], cache_ttl=300)
+    _ote_fator_t = float(_ote_r[0]["ote_fator"]) if _ote_r else 1.0
     vlr_final = _corrige_vlr_ote(
         float(snap[0]["vlr_final"]) if snap else 0.0,
-        _modelo_comissao(target, cargo_t), _snap_ating, mult)
+        _modelo_comissao(target, cargo_t), _snap_ating, mult, _ote_fator_t)
+    _ov = _newcomer_fixed_vlr(target, mes)
+    if _ov is not None:
+        vlr_final = _ov
     # base da alocação OTE = Σ GBV líquido (pós-churn) das transações de sistema
     total_liq = sum((0.0 if bool(r.get("is_churn_tx"))
                      else (float(r["gbv"]) if r.get("gbv") is not None else 0.0)) for r in rows)
@@ -3553,6 +3626,9 @@ def api_signoff_post():
     summary["vlr_final"] = _corrige_vlr_ote(
         float(summary.get("vlr_final") or 0), _modelo_comissao(vend, _cargo_sf),
         float(summary.get("ating") or 0), float(summary.get("mult") or 0), _ote_fator_sf)
+    _ov = _newcomer_fixed_vlr(vend, mes)
+    if _ov is not None:
+        summary["vlr_final"] = _ov
     txs = _compute_transactions(vend, mes)
     summary["n"] = len(txs)
     summary["signed_at"] = now_brt
