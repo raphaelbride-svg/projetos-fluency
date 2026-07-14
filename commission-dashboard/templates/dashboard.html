@@ -3140,6 +3140,18 @@ function renderTx(){
   // Filtro de período ativo (Hoje/Semana atual/Data específica) → lista do TIME inteiro
   // no intervalo real de datas, em vez da lista de 1 pessoa/mês (txAll).
   const periodoOn = tlPeriodo!=='mes' && !!periodoCache;
+  // TL na visão "Minha equipe" (mode='tl-todos') esconde a tabela de Transações por
+  // padrão (mostra só a tela de aceites, ver setSections) — mas é exatamente essa
+  // visão que o filtro de período precisa pra aparecer. Só mexe nesse caso específico;
+  // os outros modos (individual, gestor, master) já decidem a visibilidade em setSections.
+  if(ROLE==='tl' && selectedVendor==='todos'){
+    const em=document.getElementById('tx-empty-master');
+    const tc=document.getElementById('tx-content');
+    if(em && tc){
+      em.style.display = periodoOn ? 'none'  : '';
+      tc.style.display = periodoOn ? 'block' : 'none';
+    }
+  }
   let list = periodoOn ? (periodoCache.transacoes||[]) : txAll;
   if(currentFilter==='paid')           list=list.filter(t=>t.transaction_status==='paid');
   else if(currentFilter==='refunded')  list=list.filter(t=>t.transaction_status==='refunded');

@@ -1,4 +1,5 @@
 import calendar
+import concurrent.futures
 import hashlib
 import json
 import os
@@ -1932,31 +1933,40 @@ def api_team_periodo():
     # faziam a coluna "GBV do período" do Ranking discordar da lista de Transações.
     meses_periodo = sorted({data_inicio.replace(day=1).isoformat(),
                             data_fim.replace(day=1).isoformat()})
+
+    def _fetch_member(e, mes_ref_tx):
+        try:
+            return e, mes_ref_tx, _compute_transactions(e, mes_ref_tx)
+        except Exception:
+            return e, mes_ref_tx, []
+
+    # Cada chamada faz ~4 idas ao BQ (tx + snap + ote_fator + extras) — em série pro
+    # time inteiro (até 2 meses × N membros) passa de 30s. Paralelo (I/O-bound, o
+    # client do BQ libera o GIL durante a rede): fica limitado à cadeia mais lenta
+    # de UM membro, não à soma de todos.
+    jobs = [(e, m) for e in team for m in meses_periodo]
     transacoes = []
     gbv_by_vendor = {}
-    for e in team:
-        label = _name_from_email(e)
-        for mes_ref_tx in meses_periodo:
-            try:
-                rows_tx = _compute_transactions(e, mes_ref_tx)
-            except Exception:
-                continue
-            for r in rows_tx:
-                dc = r.get("data_contrato")
-                if not dc:
-                    continue
-                try:
-                    d = date.fromisoformat(dc)
-                except Exception:
-                    continue
-                if data_inicio <= d <= data_fim:
-                    r2 = dict(r)
-                    r2["vendedor"]       = e
-                    r2["vendedor_label"] = label
-                    transacoes.append(r2)
-                    acc = gbv_by_vendor.setdefault(e, {"gbv": 0.0, "qtd": 0})
-                    acc["gbv"] += float(r2.get("gbv_liquido") or 0)
-                    acc["qtd"] += 1
+    if jobs:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(16, len(jobs))) as ex:
+            for e, mes_ref_tx, rows_tx in ex.map(lambda j: _fetch_member(*j), jobs):
+                label = _name_from_email(e)
+                for r in rows_tx:
+                    dc = r.get("data_contrato")
+                    if not dc:
+                        continue
+                    try:
+                        d = date.fromisoformat(dc)
+                    except Exception:
+                        continue
+                    if data_inicio <= d <= data_fim:
+                        r2 = dict(r)
+                        r2["vendedor"]       = e
+                        r2["vendedor_label"] = label
+                        transacoes.append(r2)
+                        acc = gbv_by_vendor.setdefault(e, {"gbv": 0.0, "qtd": 0})
+                        acc["gbv"] += float(r2.get("gbv_liquido") or 0)
+                        acc["qtd"] += 1
     transacoes.sort(key=lambda r: r.get("data_contrato") or "", reverse=True)
 
     por_vendedor = []
