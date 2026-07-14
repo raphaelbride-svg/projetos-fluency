@@ -1390,8 +1390,8 @@ def api_summary():
                 row["total_comissao"]      = new_total
                 row["vlr_final_comissao"]  = new_total * new_mult
             elif modelo in _OTE_BY_MODELO:
-                # OTE-based: atingimento × OTE × mult
-                row["vlr_final_comissao"] = new_ating * _OTE_BY_MODELO[modelo] * new_mult
+                # OTE-based: atingimento × OTE × ote_fator × mult
+                row["vlr_final_comissao"] = new_ating * _OTE_BY_MODELO[modelo] * float(row.get("ote_fator") or 1.0) * new_mult
 
     # Previous month for comparison
     from datetime import date
