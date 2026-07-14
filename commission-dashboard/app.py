@@ -3895,6 +3895,35 @@ def api_signoff_post():
     summary["vlr_final"] = _corrige_vlr_ote(
         float(summary.get("vlr_final") or 0), _modelo_comissao(vend, _cargo_sf),
         float(summary.get("ating") or 0), float(summary.get("mult") or 0), _ote_fator_sf)
+
+    # Soma HP aprovada (mesma lógica de api_summary) — sem isso, o e-mail/PDF de fechamento
+    # mostra a comissão sem a HP sempre que ela ainda não foi somada direto na tabela congelada.
+    if "team leader" not in _cargo_sf.lower():
+        extras_sf = _approved_extras(vend, mes)
+        extras_gbv_sf = sum(float(e["gbv"]) for e in extras_sf
+                            if e.get("gbv") is not None and not int(e.get("is_churn") or 0))
+        if extras_gbv_sf:
+            summary["gbv_bruto"] += extras_gbv_sf
+            summary["gbv_liq"]   += extras_gbv_sf
+            vm_sf = summary.get("valor_meta") or 0
+            if vm_sf:
+                summary["ating"] = summary["gbv_liq"] / vm_sf
+                modelo_sf = _modelo_comissao(vend, _cargo_sf)
+                new_mult_sf = _mult_for_modelo(modelo_sf, summary["ating"])
+                if new_mult_sf is not None:
+                    summary["mult"] = new_mult_sf
+                    if modelo_sf in _RATES_BY_MODELO:
+                        rates_sf = _RATES_BY_MODELO[modelo_sf]
+                        extra_com_sf = sum(
+                            float(e.get("gbv") or 0) * rates_sf.get(e.get("modality_payment") or "", 0)
+                            for e in extras_sf if not int(e.get("is_churn") or 0))
+                        summary["total_comissao"] += extra_com_sf
+                        summary["vlr_final"] = summary["total_comissao"] * new_mult_sf
+                    elif modelo_sf in _OTE_BY_MODELO:
+                        summary["vlr_final"] = (summary["ating"] * _OTE_BY_MODELO[modelo_sf]
+                                                 * _ote_fator_sf * new_mult_sf)
+                        summary["total_comissao"] = summary["vlr_final"]
+
     _ov = _newcomer_fixed_vlr(vend, mes)
     if _ov is not None:
         summary["vlr_final"] = _ov
