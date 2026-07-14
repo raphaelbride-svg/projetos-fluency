@@ -2436,9 +2436,13 @@ function renderTeam(team){
     if(temCoord){ ccv.textContent=Rc(team.coord_comissao); cc.style.display=''; }
     else cc.style.display='none';
   }
+  // /api/coord-canais é master/gestor/people_ops/aprovador-only — team.coord_comissao vem
+  // preenchido até pra role='tl' (_build_team_totals soma ele incondicionalmente), então só
+  // checar temCoord chamaria o endpoint sem necessidade (403) em toda carga de página do TL.
   const cardCanais=document.getElementById('card-coord-canais');
+  const podeVerCanais = MASTER||ROLE==='gestor'||ROLE==='people_ops'||ROLE==='aprovador';
   if(cardCanais){
-    if(temCoord){ cardCanais.style.display=''; loadCoordCanais(); }
+    if(temCoord&&podeVerCanais){ cardCanais.style.display=''; loadCoordCanais(); }
     else cardCanais.style.display='none';
   }
   // Atingimento = gbv / meta se tiver meta
