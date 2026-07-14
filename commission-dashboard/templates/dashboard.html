@@ -2810,7 +2810,7 @@ function renderAceitesRedesign(data, comissaoMap){
         actionHtml=`<span class="role-hint">aguardando ${firstName(m.name||m.label||m.email)}</span>
                     <button class="btn btn-sm btn-ghost btn-danger" data-action="revoke-one" data-email="${m.email}" title="Revogar">↺</button>`;
     } else if(isMe && !m.signed && ROLE==='tl'){
-      actionHtml=`<button class="btn btn-sm btn-primary" onclick="doSignoffFromAceites()">✓ Assinar</button>`;
+      actionHtml=`<button class="btn btn-sm btn-primary" onclick="doSignoffFromAceites(this)">✓ Assinar</button>`;
     }
     return `<div class="member ${st.key}" data-email="${m.email||''}">
       <div class="member-avatar">${initials(m.name||m.label||m.email||'?')}</div>
@@ -3335,16 +3335,17 @@ function doSignoff(){
     toast('✓ Fechamento confirmado — e-mail enviado'); loadSignoff();
   }).catch(e=>{toast('Erro: '+e.message);btn.disabled=false;});
 }
-function doSignoffFromAceites(){
+function doSignoffFromAceites(btn){
+  if(btn){ if(btn.disabled) return; btn.disabled=true; }
   fetch('/api/signoff',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({mes:selectedMes||undefined})
   }).then(r=>r.json()).then(d=>{
-    if(d.error){_signoffError(d,null);return;}
+    if(d.error){_signoffError(d,btn);return;}
     toast('✓ Fechamento confirmado — e-mail enviado');
     // Recarrega o painel de aceites para refletir assinatura
     fetch(apiUrl('/api/signoff-status')).then(r=>r.json()).then(renderSignoffStatus).catch(()=>{});
     loadSignoff();
-  }).catch(e=>toast('Erro: '+e.message));
+  }).catch(e=>{toast('Erro: '+e.message); if(btn)btn.disabled=false;});
 }
 
 // ── Adicionar HP que faltou (visão do próprio vendedor) ─────────────────────────
