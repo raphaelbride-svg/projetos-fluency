@@ -1135,13 +1135,18 @@ def _commission_chain(vendedor_email: str, mes: str) -> dict:
     return {"vendedor": vend, "tl": tl, "coord": COORDENADOR_EMAIL, "master": FPA_EMAIL.lower()}
 
 def _approved_extras(vendedor_email: str, mes: str) -> list[dict]:
-    """Extras EFETIVOS (TL e coord aprovaram) de um vendedor no mês — para agregar no dash."""
+    """Extras EFETIVOS (TL e coord aprovaram, e não revogados) de um vendedor no mês —
+    para agregar no dash. revogado_em IS NULL: um extra revogado (ex: HP transferida pra
+    outro vendedor) mantém status_tl/status_coord='aprovado' — só a revogação zera o
+    efeito, então tem que ser filtrada explicitamente ou conta em dobro (ver caso
+    eduardo/patricia.ferreira, HP3880584282, Jun/2026)."""
     return run_query("""
         SELECT id, transaction_id, vendedor, gbv, modality_payment, is_churn, nota, created_at
         FROM `fluency-finance.commission.extras_vendedores`
         WHERE LOWER(vendedor) = LOWER(@v)
           AND competencia = DATE(@mes)
           AND status_tl = 'aprovado' AND status_coord = 'aprovado'
+          AND revogado_em IS NULL
         ORDER BY created_at
     """, [
         bigquery.ScalarQueryParameter("v",   "STRING", vendedor_email),
@@ -1149,13 +1154,14 @@ def _approved_extras(vendedor_email: str, mes: str) -> list[dict]:
     ])
 
 def _approved_extras_bulk(mes: str) -> dict[str, list[dict]]:
-    """Todos os extras aprovados (TL+coord) do mês, agrupados por email do vendedor.
-    Retorna {email_lower: [{gbv, modality_payment, is_churn}, …]}."""
+    """Todos os extras aprovados (TL+coord) e não revogados do mês, agrupados por email
+    do vendedor. Retorna {email_lower: [{gbv, modality_payment, is_churn}, …]}."""
     rows = run_query("""
         SELECT LOWER(vendedor) AS vendedor, gbv, modality_payment, is_churn
         FROM `fluency-finance.commission.extras_vendedores`
         WHERE competencia = DATE(@mes)
           AND status_tl = 'aprovado' AND status_coord = 'aprovado'
+          AND revogado_em IS NULL
     """, [bigquery.ScalarQueryParameter("mes", "DATE", mes)], cache_ttl=90)
     out: dict[str, list] = {}
     for r in rows:
@@ -1620,6 +1626,7 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
                       AND (LOWER(mv.gestor) = LOWER(@tl) OR LOWER(mv.email_vendedor) = LOWER(@tl))
                     WHERE ev.competencia = DATE(@mes)
                       AND ev.status_tl = 'aprovado' AND ev.status_coord = 'aprovado'
+                      AND ev.revogado_em IS NULL
                 """, [bigquery.ScalarQueryParameter("mes", "DATE", mes),
                       bigquery.ScalarQueryParameter("tl",  "STRING", tl_email)], cache_ttl=90)
             else:
@@ -1629,6 +1636,7 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
                     FROM `fluency-finance.commission.extras_vendedores`
                     WHERE competencia = DATE(@mes)
                       AND status_tl = 'aprovado' AND status_coord = 'aprovado'
+                      AND revogado_em IS NULL
                 """, [bigquery.ScalarQueryParameter("mes", "DATE", mes)], cache_ttl=90)
             if er:
                 extras_team = float(er[0]["extras_gbv"] or 0)
