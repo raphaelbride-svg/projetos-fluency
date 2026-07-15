@@ -122,20 +122,40 @@ def _newcomer_fixed_vlr(email: str, mes: str) -> float | None:
     key = mes[:7] + "-01" if len(mes) >= 7 else mes
     return _NEWCOMER_FIXED_VLR.get(key, {}).get(email.lower())
 
-def _newcomer_case_sql(mes: str, column_ref: str) -> str:
-    """Trecho SQL 'CASE WHEN LOWER(col) IN (...) THEN <valor> END' gerado a partir de
-    _NEWCOMER_FIXED_VLR — usado nas agregações (SUM) do BQ que não conseguem interceptar
-    por linha em Python. Fonte única: se os valores divergirem entre pessoas no futuro,
-    isso precisa virar um CASE por e-mail em vez de um valor só."""
+# Valor de comissão FIXADO manualmente por transição de cargo no meio do mês (decisão
+# Raphael) — mesma semântica do _NEWCOMER_FIXED_VLR (vence qualquer fórmula), mas motivo
+# de negócio diferente (promoção vendedor→TL), então fica num dict à parte.
+# Yan Santos: começou Jun/2026 como vendedor do time da Tacyana, virou TL do próprio
+# time (Sharks) no meio do mês — sem fórmula de TL aplicável ao mês de transição.
+_TL_FIXED_VLR: dict[str, dict[str, float]] = {
+    "2026-06-01": {"yan.santos@fluencyacademy.io": 11708.16},
+}
+
+def _tl_fixed_vlr(email: str, mes: str) -> float | None:
+    """Valor fixo (não a fórmula) pra transição de cargo pontual, se aplicável a este email/mês."""
     key = mes[:7] + "-01" if len(mes) >= 7 else mes
-    overrides = _NEWCOMER_FIXED_VLR.get(key, {})
+    return _TL_FIXED_VLR.get(key, {}).get(email.lower())
+
+def _fixed_vlr_override(email: str, mes: str) -> float | None:
+    """Valor fixo que vence qualquer fórmula — combina newcomers (entrada fim do mês) e
+    transições pontuais de cargo (ex: Yan Santos TL, Jun/2026). Conjuntos de e-mails
+    disjuntos entre os dois dicts, então a ordem de checagem não importa."""
+    ov = _newcomer_fixed_vlr(email, mes)
+    if ov is not None:
+        return ov
+    return _tl_fixed_vlr(email, mes)
+
+def _newcomer_case_sql(mes: str, column_ref: str) -> str:
+    """Trecho SQL 'CASE WHEN LOWER(col)=... THEN <valor> ... END' com os valores fixos
+    (newcomers + transições pontuais) pro mês, usado nas agregações (SUM) do BQ que não
+    conseguem interceptar por linha em Python (ver _build_team_totals)."""
+    key = mes[:7] + "-01" if len(mes) >= 7 else mes
+    overrides = {**_NEWCOMER_FIXED_VLR.get(key, {}), **_TL_FIXED_VLR.get(key, {})}
     if not overrides:
         return "NULL"
-    values = set(overrides.values())
-    if len(values) != 1:
-        raise ValueError("_newcomer_case_sql: valores divergentes ainda não suportados nesse helper")
-    emails_sql = ", ".join(f"'{e}'" for e in overrides)
-    return f"(CASE WHEN LOWER({column_ref}) IN ({emails_sql}) THEN {values.pop()} END)"
+    whens = " ".join(f"WHEN LOWER({column_ref}) = '{email}' THEN {value}"
+                      for email, value in overrides.items())
+    return f"(CASE {whens} END)"
 
 # ── Regras de comissão (espelho de pipeline/calc_comissao.py) ─────────────────
 # Taxas por modalidade de pagamento (pré-multiplicador), por modelo de cargo.
@@ -1172,7 +1192,7 @@ def api_months():
     # mês fechado mais recente, não no mês corrente ainda vazio.
     # Vínculo Colaborador → Mês: se um colaborador estiver selecionado, retorna só os meses
     # em que ELE tem dados (resolve_target valida o escopo/hierarquia).
-    if role in ("master", "gestor", "tl", "people_ops") and (not vend or vend == "todos"):
+    if role in ("master", "gestor", "tl", "people_ops", "aprovador") and (not vend or vend == "todos"):
         sql = """
             SELECT DATE_TRUNC(DATE(contract_created_at_brt_timestamp), MONTH) AS mes,
                    SUM(COALESCE(vlr_final_comissao, 0)) AS comissao
@@ -1420,7 +1440,7 @@ def api_summary():
     row["modelo"]       = _modelo_comissao(target, cargo_t)
     row["nota_fim_mes"] = _is_newcomer_assist(target, mes)
     # Valor fixo vence qualquer fórmula (ver _newcomer_fixed_vlr).
-    _ov = _newcomer_fixed_vlr(target, mes)
+    _ov = _fixed_vlr_override(target, mes)
     if _ov is not None:
         row["vlr_final_comissao"] = _ov
         row["total_comissao"]     = _ov
@@ -1513,8 +1533,9 @@ def _build_team_totals(mes: str, tl_email: str | None = None) -> dict:
     team = {"meta_total": None, "gbv_total": 0.0, "comissao_total": 0.0,
             "gbv_bruto": 0.0, "churn": 0.0,
             "coord_comissao": 0.0, "coord_email": COORDENADOR_EMAIL}
-    # Fonte única (_NEWCOMER_FIXED_VLR) virada em CASE literal — a soma é feita no BQ,
-    # não dá pra interceptar por linha em Python como nos outros endpoints.
+    # Overrides fixos (_NEWCOMER_FIXED_VLR + _TL_FIXED_VLR) virados em CASE literal — a
+    # soma é feita no BQ, não dá pra interceptar por linha em Python como nos outros
+    # endpoints. Prioridade sobre a fórmula OTE de TL Novo I abaixo (ver Yan Santos, Jun/2026).
     _nc_case = _newcomer_case_sql(mes, "h.vendedor")
     try:
         if tl_email:
@@ -1809,7 +1830,7 @@ def api_financial_summary():
         mult   = float(r["mult"] or 0)
         ote_fator_r = float(r.get("ote_fator") or 1.0)
         vlr    = _corrige_vlr_ote(float(r["vlr_final"] or 0), modelo, ating, mult, ote_fator_r)
-        _ov = _newcomer_fixed_vlr(email, mes)
+        _ov = _fixed_vlr_override(email, mes)
         if _ov is not None:
             vlr = _ov
         newcomer = _is_newcomer_assist(email, mes)
@@ -1991,7 +2012,7 @@ def _compute_ranking():
                     comissao_final = atingimento * _OTE_BY_MODELO[modelo] * ote_fator_r * new_mult
 
         # Valor fixo (entrada no fim do mês) vence qualquer fórmula.
-        _ov = _newcomer_fixed_vlr(vend_email, mes)
+        _ov = _fixed_vlr_override(vend_email, mes)
         if _ov is not None:
             comissao_final = _ov
 
@@ -2943,7 +2964,7 @@ def _compute_payroll_impact():
                     com = new_ating * _OTE_BY_MODELO[modelo] * ote_fator_r * new_mult
 
         # Valor fixo (entrada no fim do mês) vence qualquer fórmula/frozen.
-        _ov = _newcomer_fixed_vlr(str(r["vendedor"]), mes)
+        _ov = _fixed_vlr_override(str(r["vendedor"]), mes)
         if _ov is not None:
             com = _ov
 
@@ -3412,7 +3433,7 @@ def _compute_transactions(target, mes):
     vlr_final = _corrige_vlr_ote(
         float(snap[0]["vlr_final"]) if snap else 0.0,
         _modelo_comissao(target, cargo_t), _snap_ating, mult, _ote_fator_t)
-    _ov = _newcomer_fixed_vlr(target, mes)
+    _ov = _fixed_vlr_override(target, mes)
     if _ov is not None:
         vlr_final = _ov
     # base da alocação OTE = Σ GBV líquido (pós-churn) das transações de sistema
@@ -3937,7 +3958,7 @@ def api_signoff_post():
                                                  * _ote_fator_sf * new_mult_sf)
                         summary["total_comissao"] = summary["vlr_final"]
 
-    _ov = _newcomer_fixed_vlr(vend, mes)
+    _ov = _fixed_vlr_override(vend, mes)
     if _ov is not None:
         summary["vlr_final"] = _ov
     txs = _compute_transactions(vend, mes)
