@@ -2670,7 +2670,7 @@ def tl_preview():
 @app.route("/api/trend")
 @login_required
 def api_trend():
-    if _get_role_data()["role"] not in ("master", "gestor", "people_ops"):
+    if _get_role_data()["role"] not in ("master", "gestor", "people_ops", "aprovador"):
         return jsonify({"error": "forbidden"}), 403
 
     team_rows = run_query("""
@@ -2749,7 +2749,7 @@ def api_trend():
 @app.route("/api/mom-compare")
 @login_required
 def api_mom_compare():
-    if _get_role_data()["role"] not in ("master", "gestor", "people_ops"):
+    if _get_role_data()["role"] not in ("master", "gestor", "people_ops", "aprovador"):
         return jsonify({"error": "forbidden"}), 403
 
     team_rows = run_query("""
