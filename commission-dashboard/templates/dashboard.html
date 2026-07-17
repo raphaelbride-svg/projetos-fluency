@@ -741,12 +741,12 @@ main{max-width:1520px;margin:0 auto;padding:28px 40px 60px}
           <thead>
             <tr>
               <th id="tx-th-vendedor" style="display:none">Vendedor</th>
-              <th>Transaction ID</th><th>Data</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
+              <th>Transaction ID</th><th>Data</th><th>Data churn</th><th>Cliente (e-mail)</th><th>GBV</th><th>Parcela</th><th>Forma pagto</th>
               <th>GBV Líquido</th><th>Comissão</th><th>Status Hotmart</th><th>Origem</th><th>Aprovação</th><th>Status Pedido HP</th>
             </tr>
           </thead>
           <tbody id="tx-body">
-            <tr class="loading-row"><td colspan="12"><div class="spinner"></div>Carregando…</td></tr>
+            <tr class="loading-row"><td colspan="13"><div class="spinner"></div>Carregando…</td></tr>
           </tbody>
         </table>
       </div>
@@ -3226,7 +3226,7 @@ function renderTx(){
 
   const thVend=document.getElementById('tx-th-vendedor');
   if(thVend) thVend.style.display = periodoOn ? '' : 'none';
-  const colspan = periodoOn ? 13 : 12;
+  const colspan = periodoOn ? 14 : 13;
 
   const tbody=document.getElementById('tx-body');
   tbody.innerHTML='';
@@ -3294,6 +3294,7 @@ function renderTx(){
       ${vendedorCell}
       <td><span class="tx-id">${tx.transaction_id||'—'}</span></td>
       <td>${tx.data_contrato||'—'}</td>
+      <td>${(isChurn && tx.data_churn)?tx.data_churn:'<span style="color:var(--g400)">—</span>'}</td>
       <td>${clienteCell}</td>
       <td>${Rf(tx.gbv)}</td><td>${Rf(tx.parcela)}</td>
       <td>${formaCell}</td>`+`

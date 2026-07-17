@@ -353,6 +353,12 @@ def is_master() -> bool:
 READ_ALL_ROLES = ("master", "people_ops", "aprovador")
 # Papéis read-only (sem poder de edição/aprovação).
 READONLY_ROLES = ("people_ops",)
+# Trava temporária de visualização histórica (Raphael, 2026-07-16):
+# TLs e vendedores só podem ver o mês listado abaixo.
+# Master, gestor (coord), People Ops e aprovador continuam vendo todos os meses.
+# Para desligar: setar MONTH_LOCK_ALLOWED = None (ou lista vazia).
+MONTH_LOCKED_ROLES = ("tl", "vendedor")
+MONTH_LOCK_ALLOWED = ("2026-06-01",)   # YYYY-MM-01, sempre com dia = 01
 # "Ver como" — quais papéis cada papel REAL pode assumir (sempre de MENOR privilégio):
 #   master → People Ops / Gestor / TL / Vendedor (qualquer pessoa)
 #   gestor → TL / Vendedor, mas só dentro da própria hierarquia (validado por escopo)
@@ -537,11 +543,16 @@ def require_refresh_secret(f):
     return decorated
 
 def resolve_month() -> str:
-    """Returns YYYY-MM-01 for the selected month, defaulting to current month."""
+    """Returns YYYY-MM-01 for the selected month, defaulting to current month.
+    Papéis em MONTH_LOCKED_ROLES ficam presos aos meses de MONTH_LOCK_ALLOWED
+    (usa o EFETIVO — master 'vendo como TL' também é travado, pra simulação ser fiel)."""
     m = request.args.get("mes", "").strip()
-    if m and len(m) == 7:   # expects YYYY-MM
-        return m + "-01"
-    return current_month_brt()
+    picked = (m + "-01") if (m and len(m) == 7) else current_month_brt()
+    if MONTH_LOCK_ALLOWED:
+        role = _get_role_data()["role"]
+        if role in MONTH_LOCKED_ROLES and picked not in MONTH_LOCK_ALLOWED:
+            return MONTH_LOCK_ALLOWED[0]
+    return picked
 
 # ── Pages ─────────────────────────────────────────────────────────────────────
 
@@ -1014,6 +1025,7 @@ EXPORT_REGISTRY = {
         "columns": [
             Column("transaction_id", "Transaction ID"),
             Column("data_contrato", "Data"),
+            Column("data_churn", "Data churn"),
             Column("cliente_email", "Cliente"),
             Column("gbv", "GBV", "currency"),
             Column("parcela", "Parcela", "currency"),
@@ -1220,6 +1232,11 @@ def api_months():
         rows = run_query(sql, [bigquery.ScalarQueryParameter("email", "STRING", target)])
     months = [str(r["mes"]) for r in rows]
     com_meses = [str(r["mes"]) for r in rows if float(r["comissao"] or 0) > 0]
+    # Trava temporária: TLs/vendedores/assistentes só veem os meses de MONTH_LOCK_ALLOWED.
+    if MONTH_LOCK_ALLOWED and role in MONTH_LOCKED_ROLES:
+        allowed = set(MONTH_LOCK_ALLOWED)
+        months    = [m for m in months    if m in allowed]
+        com_meses = [m for m in com_meses if m in allowed]
     default = com_meses[0] if com_meses else (months[0] if months else None)
     return jsonify({"months": months, "default": default})
 
@@ -3397,6 +3414,15 @@ def _compute_transactions(target, mes):
              AND DATE_DIFF(DATE(t.contract_created_at_brt_timestamp),
                            DATE(t.transaction_confirmation_purchase_at_brt_timestamp), DAY) < 8,
              TRUE, FALSE)                                          AS is_churn_tx,
+          -- Data do churn: contract_canceled quando existe (assinatura cancelada);
+          -- fallback pra transaction_updated (chargeback/dispute que não fecharam o contrato).
+          -- Só populado pra linhas de churn — nulo pra paid.
+          IF(t.transaction_status IS DISTINCT FROM 'paid'
+             AND DATE_DIFF(DATE(t.contract_created_at_brt_timestamp),
+                           DATE(t.transaction_confirmation_purchase_at_brt_timestamp), DAY) < 8,
+             COALESCE(DATE(t.contract_canceled_at_brt_timestamp),
+                      DATE(t.transaction_updated_at_brt_timestamp)),
+             NULL)                                                 AS data_churn,
           CASE WHEN t.transaction_status = 'paid'                          THEN 'recebido'
                WHEN t.transaction_status IN ('refunded','chargeback','dispute') THEN 'cancelado'
                ELSE 'a_receber' END                               AS recebivel
@@ -3454,6 +3480,7 @@ def _compute_transactions(target, mes):
         liq   = 0.0 if churn else gbv
         modality = (r.get("modality_payment") or "").strip().lower()
         r["data_contrato"] = str(r["data_contrato"]) if r["data_contrato"] else None
+        r["data_churn"]    = str(r["data_churn"])    if r.get("data_churn") else None
         r["gbv"]           = gbv
         r["parcela"]       = float(r["parcela"]) if r.get("parcela") is not None else 0.0
         r["gbv_liquido"]   = liq
@@ -3494,6 +3521,7 @@ def _compute_transactions(target, mes):
             "transaction_id":     e.get("transaction_id"),
             "transaction_status": "aprovado" if efetivo else "pendente",
             "data_contrato":      str(e["created_at"])[:10] if e.get("created_at") else None,
+            "data_churn":         None,   # HP add não carrega histórico de refund
             "gbv":                gbv,
             "parcela":            gbv,
             "gbv_liquido":        liq_e,
@@ -3703,6 +3731,8 @@ def api_signoff_get():
         bigquery.ScalarQueryParameter("v",   "STRING", target),
         bigquery.ScalarQueryParameter("mes", "DATE",   mes),
     ])
+    if _is_newcomer_assist(target, mes):
+        return jsonify({"signed": False, "at": None})
     at = str(rows[0]["signed_at"]) if rows and rows[0].get("signed_at") else None
     return jsonify({"signed": bool(rows), "at": at})
 
